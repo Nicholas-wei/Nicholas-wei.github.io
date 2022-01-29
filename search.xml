@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>largebin-attack</title>
+      <link href="/2022/01/29/largebin-attack/"/>
+      <url>/2022/01/29/largebin-attack/</url>
+      
+        <content type="html"><![CDATA[<p>对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。</p><span id="more"></span>]]></content>
+      
+      
+      <categories>
+          
+          <category> -learning </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> heap </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>hws2022冬令营入营赛pwn</title>
       <link href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/"/>
       <url>/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/</url>

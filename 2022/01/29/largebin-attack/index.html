@@ -14,16 +14,18 @@
 <meta name="author" content="nich0las" />
 
 
-    
-    
 
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="welc0me">
-<meta property="og:url" content="https://nicholas-wei.github.io/index.html">
+<meta name="description" content="对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="largebin-attack">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/index.html">
 <meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。">
 <meta property="og:locale">
+<meta property="article:published_time" content="2022-01-29T05:19:27.000Z">
+<meta property="article:modified_time" content="2022-01-29T05:20:54.041Z">
 <meta property="article:author" content="nich0las">
+<meta property="article:tag" content="heap">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -54,13 +56,11 @@
 
 
 
-    <style> .article { opacity: 0;} </style>
-
 
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>welc0me</title>
+<title>largebin-attack | welc0me</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -69,8 +69,8 @@
     var yiliaConfig = {
         fancybox: true,
         animate: true,
-        isHome: true,
-        isPost: false,
+        isHome: false,
+        isPost: true,
         isArchive: false,
         isTag: false,
         isCategory: false,
@@ -267,9 +267,7 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap">
-  
-    <article id="post-largebin-attack" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-largebin-attack" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/2022/01/29/largebin-attack/" class="article-date">
@@ -287,461 +285,118 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/29/largebin-attack/">largebin-attack</a>
+    <h1 class="article-title" itemprop="name">
+      largebin-attack
     </h1>
   
 
       </header>
       
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
+      <div class="article-info article-info-post">
+        
     <div class="article-category tagcloud">
     <a class="article-category-link" href="/categories/learning/">-learning</a>
     </div>
 
 
-      
+        
     <div class="article-tag tagcloud">
         <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2022/01/29/largebin-attack/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-hws2022冬令营ctf" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/" class="article-date">
-      <time datetime="2022-01-28T03:11:43.000Z" itemprop="datePublished">2022-01-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a>
-    </h1>
-  
-
-      </header>
+        <div class="clearfix"></div>
+      </div>
       
     
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>2022年hws硬件安全冬令营入营赛赛题复现。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/pwn/">-pwn</a>
-    </div>
+        <p>对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。</p>
+<span id="more"></span>
 
 
       
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
     </div>
     
   </div>
   
-</article>
-
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-RWctf-2022-svme" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/27/RWctf-2022-svme/" class="article-date">
-      <time datetime="2022-01-27T01:29:34.000Z" itemprop="datePublished">2022-01-27</time>
-</a>
-
-
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/01/29/largebin-attack/">largebin-attack</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-01-29, 13:19:27</p>
+        <p><span>最后更新:</span>2022-01-29, 13:20:54</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/01/29/largebin-attack/" title="largebin-attack">https://nicholas-wei.github.io/2022/01/29/largebin-attack/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/01/29/largebin-attack/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
     </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+
+
+
+    <nav id="article-nav">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>第一次做VM相关题目，之前也有看到过，但是逆向虚拟机实在太复杂，而且别人的wp根本不会去讲怎么逆向的。这次2022RWctf一上来就是vm题，但是给了源码，而且是比较简短的虚拟机，正好可以借此学习一下逆向vm与一般vm的写法和漏洞点。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/pwn/">pwn</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VM/" rel="tag">VM</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/27/RWctf-2022-svme/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-kernel-2-stkof" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/24/kernel-2-stkof/" class="article-date">
-      <time datetime="2022-01-24T08:21:35.000Z" itemprop="datePublished">2022-01-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h1 id="kernel-2-stkof"><a href="#kernel-2-stkof" class="headerlink" title="kernel-2-stkof"></a>kernel-2-stkof</h1><p>这次主要基于内核栈溢出作为主题学习。相关练习是2018强网杯core</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/basic/">basic</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/24/kernel-2-stkof/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-kernel-1-basic_knowledge" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/23/kernel-1-basic_knowledge/" class="article-date">
-      <time datetime="2022-01-23T13:11:24.000Z" itemprop="datePublished">2022-01-23</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">
+                    hws2022冬令营入营赛pwn
+                </a>
+            </div>
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a>
-    </h1>
-  
+    </nav>
 
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>kernel基础环境+驱动编译+基础提权、沙箱绕过</p>
-<p>参考链接<a target="_blank" rel="noopener" href="https://pwn.college/modules/kernel">https://pwn.college/modules/kernel</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/basic/">basic</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/23/kernel-1-basic_knowledge/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
   
 </article>
 
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-Drangonctf2021-noflippidy" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/22/Drangonctf2021-noflippidy/" class="article-date">
-      <time datetime="2022-01-22T03:36:23.000Z" itemprop="datePublished">2022-01-22</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>来自Drangonctf2021的noflippidy，patch了之前的flippidy中的flip函数，但还是可以攻击</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/pwn/">pwn</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/22/Drangonctf2021-noflippidy/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-dicectf2021-flippidy" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2022/01/21/dicectf2021-flippidy/" class="article-date">
-      <time datetime="2022-01-21T02:51:49.000Z" itemprop="datePublished">2022-01-21</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+            
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a>
-    </h1>
-  
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
 
-      </header>
-      
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
     
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>一道简单的double free</p>
-          
-      
-    </div>
+<div class="share">
     
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/pwn/">pwn</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2022/01/21/dicectf2021-flippidy/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"largebin-attack　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
     
-  </div>
-  
-</article>
+
+    
+</div>
 
 
 
@@ -749,11 +404,34 @@
 
 
 
+    
 
 
 
-  
-  
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/" title="下一篇: hws2022冬令营入营赛pwn">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">
