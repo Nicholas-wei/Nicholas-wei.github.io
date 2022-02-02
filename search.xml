@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>house_of_pig</title>
+      <link href="/2022/02/01/house-of-pig/"/>
+      <url>/2022/02/01/house-of-pig/</url>
+      
+        <content type="html"><![CDATA[<span id="more"></span>]]></content>
+      
+      
+      <categories>
+          
+          <category> basic </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> heap </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>pwnable-realloc</title>
       <link href="/2022/02/01/pwnable-realloc/"/>
       <url>/2022/02/01/pwnable-realloc/</url>
