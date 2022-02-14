@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://nicholas-wei.github.io/2022/02/14/pwnable-babystack/image-20220214192747990.png">
 <meta property="og:image" content="https://nicholas-wei.github.io/2022/02/14/pwnable-babystack/image-20220214194526112.png">
 <meta property="article:published_time" content="2022-02-14T10:59:02.000Z">
-<meta property="article:modified_time" content="2022-02-14T11:49:30.330Z">
+<meta property="article:modified_time" content="2022-02-14T14:37:18.381Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="stack">
 <meta property="article:tag" content="pwnable.tw">
@@ -314,7 +314,7 @@
 
 <h1 id="逆向分析"><a href="#逆向分析" class="headerlink" title="逆向分析"></a>逆向分析</h1><h2 id="保护"><a href="#保护" class="headerlink" title="保护"></a>保护</h2><p><img src="/2022/02/14/pwnable-babystack/image-20220214190509919.png" alt="image-20220214190509919"></p>
 <p>可以看到保护全开。由于看名字是栈，这里有canary可能是需要爆破之类的。PIE开启，说明也不能用ROP，考虑用one_gadget解决。那么需要泄露libc，但是也不是堆…(<strong>开始胡言乱语</strong>)</p>
-<p>言归正传，不如看一下IDA。男人会欺骗你，但IDA不会(doge)。</p>
+<p>言归正传，不如看一下IDA。<strong>小然会欺骗你，但IDA不会(doge</strong>)。</p>
 <h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>程序主要实现三个功能：登录，copy数据和退出程序。</p>
 <p>copy数据时需要登陆。登录的规则是将输入和一串random输入的数据比较。这里很容易看出strncmp有\x00字符绕过。因此绕过登录十分简单。</p>
 <p>copy时会将用户输入copy到调用者栈上的一个局部变量中。使用的是危险函数strcpy，但是输入大小小于缓冲区大小。似乎我们可以利用strcmp输入到0才结束的条件多复制一些数据。但似乎也无法溢出到返回地址。</p>
@@ -364,7 +364,7 @@
         <p><span>本文标题:</span><a href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
         <p><span>发布时间:</span>2022-02-14, 18:59:02</p>
-        <p><span>最后更新:</span>2022-02-14, 19:49:30</p>
+        <p><span>最后更新:</span>2022-02-14, 22:37:18</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2022/02/14/pwnable-babystack/" title="pwnable-babystack">https://nicholas-wei.github.io/2022/02/14/pwnable-babystack/</a>
             <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/02/14/pwnable-babystack/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
