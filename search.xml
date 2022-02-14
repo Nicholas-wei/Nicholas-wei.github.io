@@ -97,32 +97,7 @@
       
         <tags>
             
-            <tag> IO-FILE </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>house_of_pig</title>
-      <link href="/2022/02/01/house-of-pig/"/>
-      <url>/2022/02/01/house-of-pig/</url>
-      
-        <content type="html"><![CDATA[<span id="more"></span>]]></content>
-      
-      
-      <categories>
-          
-          <category> basic </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> heap </tag>
+            <tag> IO_FILE </tag>
             
         </tags>
       
@@ -142,14 +117,14 @@
           
           <category> pwn </category>
           
-          <category> pwnable.tw </category>
-          
       </categories>
       
       
         <tags>
             
             <tag> heap </tag>
+            
+            <tag> pwnable.tw </tag>
             
         </tags>
       
