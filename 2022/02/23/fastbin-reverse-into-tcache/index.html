@@ -37,7 +37,7 @@
 <meta property="og:image" content="https://nicholas-wei.github.io/2022/02/23/fastbin-reverse-into-tcache/image-20220223164627102.png">
 <meta property="og:image" content="https://nicholas-wei.github.io/2022/02/23/fastbin-reverse-into-tcache/image-20220223164743741.png">
 <meta property="article:published_time" content="2022-02-23T00:50:37.000Z">
-<meta property="article:modified_time" content="2022-02-23T08:48:03.246Z">
+<meta property="article:modified_time" content="2022-02-24T07:59:24.039Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="heap">
 <meta name="twitter:card" content="summary">
@@ -346,7 +346,7 @@
 <li>（检查此时：tcache为空，fastbin有7个正常堆块，最后一个为目标堆块）</li>
 <li>malloc一个fastbin的，此时tcache将被填满，第一个堆块是目标堆块</li>
 </ol>
-<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>这里例子就采用tqlctf2022的一道unbelievable_write来练习。</p>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>这里例子就采用tqlctf2022的一道unbelievable_write来练习。<a target="_blank" rel="noopener" href="https://github.com/Nicholas-wei/pwn/tree/main/tqlctf/ub_write">下载以及exp</a></p>
 <p>这个题目的libc2.31的，因为dockerfile里面写的是20.04.</p>
 <p>查看保护发现没有开启PIE，并且要求我们往target写入任意一个数值改掉原来的就算成功</p>
 <p><img src="/2022/02/23/fastbin-reverse-into-tcache/image-20220223102610057.png" alt="image-20220223102610057"></p>
@@ -368,8 +368,8 @@
 <p><img src="/2022/02/23/fastbin-reverse-into-tcache/image-20220223161511495.png" alt="image-20220223161511495"></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fake_t = p16(<span class="number">0</span>)*<span class="number">8</span>*<span class="number">4</span>+p16(<span class="number">0</span>)*<span class="number">8</span>*<span class="number">4</span>+p64(<span class="number">0</span>)*<span class="number">40</span> <span class="comment"># reset tcache to null</span></span><br></pre></td></tr></table></figure>
 
-<p>这里顺便记录一下tcache管理块的结构。下图和pwndbg中看到的结构一样。顺序看起来很奇怪是因为地址的原因。不熟悉的话可以自己调试一下。(保存在tcache结构.xlsx中)</p>
-<p><img src="/2022/02/23/fastbin-reverse-into-tcache/image-20220223163420527.png" alt="tcache细节2.31"></p>
+<p>这里顺便记录一下tcache结构。下图和pwndbg中看到的结构一样。顺序看起来很奇怪是因为地址的原因。不熟悉的话可以自己调试一下。(保存在tcache结构.xlsx中)</p>
+<p><img src="/2022/02/23/fastbin-reverse-into-tcache/image-20220223163420527.png" alt="tcache结构2.31"></p>
 <p>还有一点需要注意：为了修改victim的bk，我们需要一个越界写，这个可以通过将第一个free的chunk的size改大而不是0x21就可以做到。如下，低字节释放0x401对应的chunk，就可以再拿回来写后面chunk的bk位置。 </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pay_large = p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x401</span>)+(p64(<span class="number">0</span>)+p64(<span class="number">0x21</span>))*<span class="number">0x7</span></span><br></pre></td></tr></table></figure>
 
@@ -394,7 +394,7 @@
         <p><span>本文标题:</span><a href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
         <p><span>发布时间:</span>2022-02-23, 08:50:37</p>
-        <p><span>最后更新:</span>2022-02-23, 16:48:03</p>
+        <p><span>最后更新:</span>2022-02-24, 15:59:24</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2022/02/23/fastbin-reverse-into-tcache/" title="fastbin-reverse-into-tcache">https://nicholas-wei.github.io/2022/02/23/fastbin-reverse-into-tcache/</a>
             <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/02/23/fastbin-reverse-into-tcache/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
