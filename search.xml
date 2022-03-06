@@ -29,33 +29,6 @@
     
     
     <entry>
-      <title>pwnable-wannaheap</title>
-      <link href="/2022/03/05/pwnable-wannaheap/"/>
-      <url>/2022/03/05/pwnable-wannaheap/</url>
-      
-        <content type="html"><![CDATA[<p>pwnable.tw的wannaheap，一道高分题目。</p><span id="more"></span><h1 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h1><h1 id><a href="#" class="headerlink" title></a></h1>]]></content>
-      
-      
-      <categories>
-          
-          <category> pwn </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> IO_FILE </tag>
-            
-            <tag> pwnable </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>pwnable-re-alloc_revenge</title>
       <link href="/2022/03/02/pwnable-re-alloc-revenge/"/>
       <url>/2022/03/02/pwnable-re-alloc-revenge/</url>
