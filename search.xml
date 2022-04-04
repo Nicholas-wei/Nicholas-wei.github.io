@@ -20,7 +20,11 @@
       
         <tags>
             
-            <tag> VM </tag>
+            <tag> heap </tag>
+            
+            <tag> stack </tag>
+            
+            <tag> wp </tag>
             
         </tags>
       
