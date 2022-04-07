@@ -15,23 +15,32 @@
 
 
 
-<meta name="description" content="本次测试对象是LibXML2，目的是发现CVE-2017-9048漏洞。此外，还有fuzzingbook中关于mutation相关知识的学习。">
+<meta name="description" content="学校数字水印课笔记——matlab使用小记(二)图像类型转换和颜色模型转换">
 <meta property="og:type" content="article">
-<meta property="og:title" content="fuzzing-5-parallelize">
-<meta property="og:url" content="https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/index.html">
+<meta property="og:title" content="matlab-2">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/index.html">
 <meta property="og:site_name" content="welc0me">
-<meta property="og:description" content="本次测试对象是LibXML2，目的是发现CVE-2017-9048漏洞。此外，还有fuzzingbook中关于mutation相关知识的学习。">
+<meta property="og:description" content="学校数字水印课笔记——matlab使用小记(二)图像类型转换和颜色模型转换">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/image-20220317201033577.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/image-20220316220903643.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/image-20220317201351435.png">
-<meta property="article:published_time" content="2022-03-16T13:22:06.000Z">
-<meta property="article:modified_time" content="2022-03-17T12:21:32.708Z">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085028888.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085137810.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085311966.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085607394.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085815283.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407105621922.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407105814908.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407111023832.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407111326390.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407112731389.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407112759580.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407113242114.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407113802106.png">
+<meta property="article:published_time" content="2022-04-07T00:47:28.000Z">
+<meta property="article:modified_time" content="2022-04-07T03:43:33.629Z">
 <meta property="article:author" content="nich0las">
-<meta property="article:tag" content="fuzz">
-<meta property="article:tag" content="fuzzing101">
+<meta property="article:tag" content="matlab">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/image-20220317201033577.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085028888.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -65,7 +74,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>fuzzing-5-parallelize | welc0me</title>
+<title>matlab-2 | welc0me</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -262,11 +271,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-fuzzing-5-parallelize" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-matlab-2" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2022/03/16/fuzzing-5-parallelize/" class="article-date">
-      <time datetime="2022-03-16T13:22:06.000Z" itemprop="datePublished">2022-03-16</time>
+      <a href="/2022/04/07/matlab-2/" class="article-date">
+      <time datetime="2022-04-07T00:47:28.000Z" itemprop="datePublished">2022-04-07</time>
 </a>
 
 
@@ -281,7 +290,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      fuzzing-5-parallelize
+      matlab-2
     </h1>
   
 
@@ -290,13 +299,13 @@
       <div class="article-info article-info-post">
         
     <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/projects/">projects</a>
+    <a class="article-category-link" href="/categories/water-print/">water_print</a>
     </div>
 
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -306,55 +315,51 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>本次测试对象是LibXML2，目的是发现CVE-2017-9048漏洞。此外，还有fuzzingbook中关于mutation相关知识的学习。</p>
+        <p>学校数字水印课笔记——matlab使用小记(二)<br>图像类型转换和颜色模型转换</p>
 <span id="more"></span>
 
-<h1 id="fuzzingbook"><a href="#fuzzingbook" class="headerlink" title="fuzzingbook"></a>fuzzingbook</h1><p>链接一开始说明了一个问题，就是纯随机的变量输入可能要经过非常非常长的时间才能得到一个可能让我们控制流走得更深入的一个输入。(思考一个http://开有的字符串，如果用纯随机，时间将会非常非常漫长)</p>
-<h2 id="变异类型"><a href="#变异类型" class="headerlink" title="变异类型"></a>变异类型</h2><p>一开始，介绍了一些常见的变异类型。包括</p>
-<ol>
-<li>随机删除一个字符</li>
-<li>在随机位置插入一个随机的字符</li>
-<li>将一个随机位置的字符异或上一个随机字符(注意后面这个随机字符一般必须使得异或之后结果还是可见字符)(英文叫flip)</li>
-</ol>
-<p>对于一般的变异类型，如果我们递归的加上新的变异种类，可能得到其他结果。此外，如果叠加了变异次数，也可能得到更多的优秀的变异结果。我们可以创建一个简单的mutationfuzz类，其作用是变异当前的输入，并且在当前输入(seed)用完的情况下，生成新的candidate。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MutationFuzzer</span>(<span class="params">Fuzzer</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;Base class for mutational fuzzing&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, seed: <span class="type">List</span>[<span class="built_in">str</span>],</span></span></span><br><span class="line"><span class="params"><span class="function">                 min_mutations: <span class="built_in">int</span> = <span class="number">2</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                 max_mutations: <span class="built_in">int</span> = <span class="number">10</span></span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Constructor.</span></span><br><span class="line"><span class="string">        `seed` - a list of (input) strings to mutate.</span></span><br><span class="line"><span class="string">        `min_mutations` - the minimum number of mutations to apply.</span></span><br><span class="line"><span class="string">        `max_mutations` - the maximum number of mutations to apply.</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        self.seed = seed</span><br><span class="line">        self.min_mutations = min_mutations</span><br><span class="line">        self.max_mutations = max_mutations</span><br><span class="line">        self.reset()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reset</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Set population to initial seed.</span></span><br><span class="line"><span class="string">        To be overloaded in subclasses.&quot;&quot;&quot;</span></span><br><span class="line">        self.population = self.seed</span><br><span class="line">        self.seed_index = <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<p>可以用以下内容生成新的candidate</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MutationFuzzer</span>(<span class="params">MutationFuzzer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create_candidate</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Create a new candidate by mutating a population member&quot;&quot;&quot;</span></span><br><span class="line">        candidate = random.choice(self.population)</span><br><span class="line">        trials = random.randint(self.min_mutations, self.max_mutations)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(trials):</span><br><span class="line">            candidate = self.mutate(candidate)</span><br><span class="line">        <span class="keyword">return</span> candidate</span><br></pre></td></tr></table></figure>
-
-<p>接着，我们就可以直接调用以下的fuzz()来生成一系列变异的输入。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MutationFuzzer</span>(<span class="params">MutationFuzzer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fuzz</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.seed_index &lt; <span class="built_in">len</span>(self.seed):</span><br><span class="line">            <span class="comment"># Still seeding</span></span><br><span class="line">            self.inp = self.seed[self.seed_index]</span><br><span class="line">            self.seed_index += <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># Mutating</span></span><br><span class="line">            self.inp = self.create_candidate()</span><br><span class="line">        <span class="keyword">return</span> self.inp</span><br></pre></td></tr></table></figure>
-
-<h2 id="用覆盖率引导变异"><a href="#用覆盖率引导变异" class="headerlink" title="用覆盖率引导变异"></a>用覆盖率引导变异</h2><p>这也是变异中非常需要关注的，<strong>如何用程序的结构来引导变异</strong>。这样可以增加代码覆盖面积。</p>
-<p>fuzzingbook中，使用了一个和AFL十分相近的引导方法——如果覆盖率增加了，就说明这次变异产生了良好的效果。可以使用python自带的<a target="_blank" rel="noopener" href="https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjM056cjc32AhWNMZQKHRs_AfUQFnoECBcQAw&url=https://coverage.readthedocs.io/&usg=AOvVaw1_UZjC7lKZbTNEfvza8pJk">coverage库</a>实现对代码覆盖面的评估。</p>
-<p>==但是这里找了很久，也没有找到fuzzingbook中关于coverage()方法返回值的说明?==也就是下面一行</p>
-<p><img src="/2022/03/16/fuzzing-5-parallelize/image-20220317201033577.png" alt="image-20220317201033577"></p>
-<p>不太清楚第返回值的每一个元组中二个参数的含义是什么。</p>
-<p>我们循环运行一个程序，每当coverage没有出现在当前集合中时，就输出这样的输入。因为这样的输入产生了<strong>新的路径</strong>。</p>
-<h1 id="fuzzing101环境"><a href="#fuzzing101环境" class="headerlink" title="fuzzing101环境"></a>fuzzing101环境</h1><p><a target="_blank" rel="noopener" href="https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html">LibXML2</a>安装，编译</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">wget http://xmlsoft.org/download/libxml2-2.9.4.tar.gz</span><br><span class="line">tar xvf libxml2-2.9.4.tar.gz &amp;&amp; cd libxml2-2.9.4/</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 可以看到以下编译加上了ASAN检查</span></span><br><span class="line">sudo apt-get install python-dev</span><br><span class="line">CC=afl-clang-lto CXX=afl-clang-lto++ CFLAGS=&quot;-fsanitize=address&quot; CXXFLAGS=&quot;-fsanitize=address&quot; LDFLAGS=&quot;-fsanitize=address&quot; ./configure --prefix=&quot;$HOME/Fuzzing_libxml2/libxml2-2.9.4/install&quot; --disable-shared --without-debug --without-ftp --without-http --without-legacy --without-python LIBS=&#x27;-ldl&#x27;</span><br><span class="line">make -j$(nproc)</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p>上网查看一下这个<a target="_blank" rel="noopener" href="https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html">库的作用</a>是什么。大致是一个xml库的命令行处理工具。</p>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>matleb中，图像转换关系可以用下图表示。本次实验主要涉及的是下面有标号的几种。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085028888.png" alt="image-20220407085028888"></p>
+<p>一般而言，有以下几种常见的图像处理函数</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085137810.png" alt="image-20220407085137810"></p>
+<h2 id="灰度图像二值化方法"><a href="#灰度图像二值化方法" class="headerlink" title="灰度图像二值化方法"></a>灰度图像二值化方法</h2><p><img src="/2022/04/07/matlab-2/image-20220407085311966.png" alt="image-20220407085311966"></p>
+<p>从伪代码可以看出原理其实很简单。就是根据阈值设置某个像素点取值为0或者1。matlan中的im2bw中就包含一个阈值参数。这里没有做实验，直接复制了老师的图。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085607394.png" alt="image-20220407085607394"></p>
+<h3 id="如何确定阈值"><a href="#如何确定阈值" class="headerlink" title="如何确定阈值"></a>如何确定阈值</h3><p>根据图像全局灰度值确定。从本质上而言，根本思想就是选取的阈值要尽量能区分大部分颜色。这里选在两个阈值之间就使得结果中一半全白，一半全黑。就能够区分两者。反之就会得到全白或者全黑，无法区分两者。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085815283.png" alt="image-20220407085815283"></p>
+<p>如果波峰和波谷交替出现，那么我们应该将阈值放在主要的波峰和波谷之间。</p>
 <blockquote>
-<p>The <strong>xmllint</strong> program parses one or more XML files,     specified on the command line as <em><code>XML-FILE</code></em>     (or the standard input if the filename provided     is <strong>-</strong> ). It prints various types of     output, depending upon the options selected. It is useful for detecting     errors both in XML code and in     the XML parser itself.</p>
+<p>利用matlab的imhist.m函数可以方便地画出一幅灰度图像的灰度直方图。但是说我缺少toolbox，结果下载页下载不了。。。只能重装，真实糟心</p>
 </blockquote>
-<h2 id="Dictionaries"><a href="#Dictionaries" class="headerlink" title="Dictionaries"></a>Dictionaries</h2><p>当我们要fuzz的程序是文本相关的时候，给fuzzer提供一个包含一列基本参数信息的字典是很有帮助的，fuzzer可以用这个来对当前内存中的文件做一些修改，具体而言，包括<strong>替换</strong>和<strong>插入</strong>。</p>
-<p>AFL++官网给我们提供了一系列字典，<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/tree/stable/dictionaries">链接</a>。给fuzzer提供<code>-x</code>参数即可指定dictionaries的位置。</p>
-<h2 id="并行"><a href="#并行" class="headerlink" title="并行"></a>并行</h2><p>在多核系统上，开启多个fuzzer能够最大化的并行程序。由于AFL使用的是不确定的算法，因此我们只要随机运行多个AFL，就能得到不同的变异结果等。但是如果指定了seed，需要确保seed两两不相同。可以看出afl的不确定性算法就是依赖于seed的随机性。</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#c-using-multiple-cores">AFL 多核fuzz官方文档</a>。可以看到我们必须为每一个fuzzer创建一个名字，无论是master还是slave。其次，他们必须共享一个out文件夹。一般而言，子fuzzer需要满足以下要求。</p>
-<p><img src="/2022/03/16/fuzzing-5-parallelize/image-20220316220903643.png" alt="image-20220316220903643"></p>
-<p>第一项就是之前了解过的ASAN</p>
-<p>第二项和控制流分支中的数据处理相关。fuzzer可以在数据被比较之前修改它，达到覆盖更多控制流。</p>
-<p>第三项和第二项列在一起，主要是将整数、字符串、浮点数和switch等等分开，单独拿出来变异等，让AFL能够更全面的解决分支处理。</p>
-<p>AFL有两种并行方式，<strong>独自生成</strong>和<strong>共享份额</strong>。独自生成前一段讲述的内容，共享份额是fuzzer从所有别的fuzzer输出的信息中中获取别的testcase。</p>
-<p>除此以外，fuzzer之间还可以并行联合。在上面的链接中也有提到。</p>
-<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>使用以下两个命令启动AFL。可以看到slave进程不需要设置 -x (是为了对比?还是不用设置呢)</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动master进程</span></span><br><span class="line">afl-fuzz -m none -i ./afl_in -o afl_out -s 123 -x ./dictionaries/xml.dict -D -M master -- ./xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动slave进程</span></span><br><span class="line">afl-fuzz -m none -i ./afl_in -o afl_out -s 234 -S slave1 -- ./xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@</span><br></pre></td></tr></table></figure>
+<p>使用下面代码绘制</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\lena.bmp&quot;</span>);</span><br><span class="line">imhist(rgb)</span><br></pre></td></tr></table></figure>
 
-<p>但是，在经过了将近24小时的fuzz之后，我仍然没有找到crash，最终还是放弃了。</p>
-<p><img src="/2022/03/16/fuzzing-5-parallelize/image-20220317201351435.png" alt="image-20220317201351435"></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在fuzzingbook中，通过python的几个例子，学到了变异的基本原理——随机删除or插入or异或新的数值产生相比于当前输入有所不同的其他输入。在这之后，了解到了如何通过代码覆盖面来引导变异，也就是如果发现了新的运行分支，就把当前的输入保存下来，后续进一步变异。</p>
-<p>在fuzzing101中，学会了怎么对文本处理型的binary进行fuzz(加上-x参数)以及如何并发的fuzz多个程序(利用-S选项)虽然并没有得到结果，但是也收获良多。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407105621922.png" alt="image-20220407105621922"></p>
+<h1 id="不同数字图像文件格式转换"><a href="#不同数字图像文件格式转换" class="headerlink" title="不同数字图像文件格式转换"></a>不同数字图像文件格式转换</h1><h2 id="RGB和索引图象之间的转换"><a href="#RGB和索引图象之间的转换" class="headerlink" title="RGB和索引图象之间的转换"></a>RGB和索引图象之间的转换</h2><p>回顾一下索引图象和RGB图像的区别。RGB图像每一个像素点都有rgb三个分量，而索引图象每一个点是一个下标，下标代表调色板中对应颜色的位置。调色板是一些预设好的颜色组合。我们可以把RGB图像转换为n=16或者n=128的索引图象。例如bmp图像就是一种调色板图像。下面是bmp图像的文件格式。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407105814908.png" alt="image-20220407105814908"></p>
+<p>(看到这里想到，对于一个读取bmp图像的文件，如果fuzz改掉headsize部分，是否可能造成指针越界，造成越界访问？)</p>
+<p>常见的RGB格式图像是PNG。</p>
+<p>我们接下来尝试转换。<strong>将png图像转换为bmp图像</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\onion.png&quot;</span>);</span><br><span class="line"><span class="built_in">figure</span>(<span class="number">1</span>);</span><br><span class="line">[data,map] = rgb2ind(rgb,<span class="number">16</span>);</span><br><span class="line">image(data),colormap(map);</span><br><span class="line">title(<span class="string">&quot;matlab&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">figure</span>(<span class="number">2</span>);</span><br><span class="line">imshow(rgb);</span><br><span class="line">title(<span class="string">&quot;RGB&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/07/matlab-2/image-20220407111023832.png" alt="image-20220407111023832"></p>
+<p>可以看到图像质量发生了变化。位图参数还可以调整为128，图像清晰度会提高。</p>
+<p>转换为灰度图像即为。这里推断它采用能尽可能分辨的多图像的，上面提到的灰度图像的识别方法。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407111326390.png" alt="image-20220407111326390"></p>
+<h2 id="图像读写函数完成转换"><a href="#图像读写函数完成转换" class="headerlink" title="图像读写函数完成转换"></a>图像读写函数完成转换</h2><p><img src="/2022/04/07/matlab-2/image-20220407112731389.png" alt="image-20220407112731389"></p>
+<p>但是文件读写的方法读取图象是有限制的。只能在相同格式文件之间转换。如果需要转换为不同的模型，需要用下面的函数。</p>
+<p><img src="/2022/04/07/matlab-2/image-20220407112759580.png" alt="image-20220407112759580"></p>
+<blockquote>
+<p>注意：imshow本身基于RGB模型观察图像。因此在用其他模型转换后可能导致图像变得很奇怪。例如下图</p>
+</blockquote>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 将jpg转换为rgb</span><br><span class="line">RGB=imread(<span class="string">&#x27;lenna.jpg&#x27;</span>,<span class="string">&#x27;jpg&#x27;</span>);</span><br><span class="line">HSV=<span class="built_in">rgb2hsv</span>(RGB);</span><br><span class="line">subplot(<span class="number">121</span>);imshow(RGB);title(<span class="string">&#x27;原图像&#x27;</span>);</span><br><span class="line">subplot(<span class="number">122</span>);imshow(HSV);title(<span class="string">&#x27;变换后的图像&#x27;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/07/matlab-2/image-20220407113242114.png" alt="image-20220407113242114"></p>
+<p>相同的方法，可以把图片转换为hsv格式。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\score.jpg&quot;</span>);</span><br><span class="line">HSV = <span class="built_in">rgb2hsv</span>(rgb);</span><br><span class="line">subplot(<span class="number">121</span>);imshow(rgb);title(<span class="string">&#x27;original&#x27;</span>);</span><br><span class="line">subplot(<span class="number">122</span>);imshow(HSV);title(<span class="string">&#x27;changed&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/07/matlab-2/image-20220407113802106.png" alt="image-20220407113802106"></p>
+<p>matlab怎样显示hsv格式的图片?应该是无法显示的。我们能做的是先把图像变成hsv格式的，然后再把hsv图片转换回来，这样能修改图片的饱和度等。</p>
 
       
     </div>
@@ -363,13 +368,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></p>
+        <p><span>本文标题:</span><a href="/2022/04/07/matlab-2/">matlab-2</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
-        <p><span>发布时间:</span>2022-03-16, 21:22:06</p>
-        <p><span>最后更新:</span>2022-03-17, 20:21:32</p>
+        <p><span>发布时间:</span>2022-04-07, 08:47:28</p>
+        <p><span>最后更新:</span>2022-04-07, 11:43:33</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2022/03/16/fuzzing-5-parallelize/" title="fuzzing-5-parallelize">https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/03/16/fuzzing-5-parallelize/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2022/04/07/matlab-2/" title="matlab-2">https://nicholas-wei.github.io/2022/04/07/matlab-2/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/04/07/matlab-2/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -381,16 +386,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2022/03/17/fuzzing-6-grammer-fuzzing/">
-                    fuzzing-6-grammer_fuzzing
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2022/03/15/fuzzing-4-code_coverage/">
-                    fuzzing-4
+                <a href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">
+                    SpaceHeroCTF2022_pwn_wp
                 </a>
             </div>
         
@@ -402,7 +401,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#fuzzingbook"><span class="toc-number">1.</span> <span class="toc-text">fuzzingbook</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E5%BC%82%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">变异类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E8%A6%86%E7%9B%96%E7%8E%87%E5%BC%95%E5%AF%BC%E5%8F%98%E5%BC%82"><span class="toc-number">1.2.</span> <span class="toc-text">用覆盖率引导变异</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#fuzzing101%E7%8E%AF%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">fuzzing101环境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dictionaries"><span class="toc-number">2.1.</span> <span class="toc-text">Dictionaries</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C"><span class="toc-number">2.2.</span> <span class="toc-text">并行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-number">2.3.</span> <span class="toc-text">命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%81%B0%E5%BA%A6%E5%9B%BE%E5%83%8F%E4%BA%8C%E5%80%BC%E5%8C%96%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">灰度图像二值化方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E9%98%88%E5%80%BC"><span class="toc-number">1.1.1.</span> <span class="toc-text">如何确定阈值</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.</span> <span class="toc-text">不同数字图像文件格式转换</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#RGB%E5%92%8C%E7%B4%A2%E5%BC%95%E5%9B%BE%E8%B1%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.1.</span> <span class="toc-text">RGB和索引图象之间的转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E5%83%8F%E8%AF%BB%E5%86%99%E5%87%BD%E6%95%B0%E5%AE%8C%E6%88%90%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.2.</span> <span class="toc-text">图像读写函数完成转换</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -438,7 +437,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"fuzzing-5-parallelize　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"matlab-2　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -479,15 +478,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2022/03/17/fuzzing-6-grammer-fuzzing/" title="上一篇: fuzzing-6-grammer_fuzzing">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2022/03/15/fuzzing-4-code_coverage/" title="下一篇: fuzzing-4">
+            <a href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/" title="下一篇: SpaceHeroCTF2022_pwn_wp">
                 <i class="fa fa-angle-right"></i>
             </a>
         
