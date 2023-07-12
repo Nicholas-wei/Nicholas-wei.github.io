@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="关于fuzz领域看的第二篇论文。这篇论文创新性的将数据流差距和控制流顺序也放在seed评估中(而不是传统的代码覆盖率)，并自动化的实现了从core dump和patchlog中提取数据限制的方法。提升了对于direct fuzz效率的提升。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Constraint-guided_Directed_Greybox_Fuzzing">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="关于fuzz领域看的第二篇论文。这篇论文创新性的将数据流差距和控制流顺序也放在seed评估中(而不是传统的代码覆盖率)，并自动化的实现了从core dump和patchlog中提取数据限制的方法。提升了对于direct fuzz效率的提升。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812102243660.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812102911913.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812105618876.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812113604129.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812121743059.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812122313276.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812122724630.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812123241195.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812124503769.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812124537174.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812125102923.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812125408120.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812141139441.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812142148746.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812174548860.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812182354743.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812192036213.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813125009029.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813130309587.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813130946883.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813131802831.png">
+<meta property="article:published_time" content="2022-08-13T05:35:14.000Z">
+<meta property="article:modified_time" content="2022-08-13T05:58:40.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220812102243660.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Constraint-guided_Directed_Greybox_Fuzzing | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-Constraint-guided-Directed-Greybox-Fuzzing" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/" class="article-date">
+      <time datetime="2022-08-13T05:35:14.000Z" itemprop="datePublished">2022-08-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Constraint-guided_Directed_Greybox_Fuzzing
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/fuzz/">fuzz</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>关于fuzz领域看的第二篇论文。这篇论文创新性的将数据流差距和控制流顺序也放在seed评估中(而不是传统的代码覆盖率)，并自动化的实现了从core dump和patchlog中提取数据限制的方法。提升了对于direct fuzz效率的提升。</p>
+<span id="more"></span>
+
+<h1 id="Constraint-guided-Directed-Greybox-Fuzzing"><a href="#Constraint-guided-Directed-Greybox-Fuzzing" class="headerlink" title="Constraint-guided Directed Greybox Fuzzing"></a>Constraint-guided Directed Greybox Fuzzing</h1><h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a><strong>一、概述</strong></h2><p>作者在现在有的DGF的前提下，新增了代码流顺序以及数据流作为seed优劣的一个选择标志。对于堆栈溢出以及UAF等对于代码执行顺序有要求以及对数据要求较高的漏洞提供了一个较好的复现基础。</p>
+<p>此外，作者通过自动化分析core dump和patchlog可以直接得到上述的constrains用于fuzz，大大提升了人工分析时间。</p>
+<h2 id="二、论文背景及前提"><a href="#二、论文背景及前提" class="headerlink" title="二、论文背景及前提"></a><strong>二、论文背景及前提</strong></h2><h3 id="所解决的问题"><a href="#所解决的问题" class="headerlink" title="所解决的问题"></a><strong>所解决的问题</strong></h3><p>当前的direct greybox fuzzing在达到目标位置时的速度较慢，因为没有考虑到达到目标位置的控制流顺序和数据要求(data condition)本文通过自动识别并使得fuzz通过一系列的限制(该限制也是自动生成的)到达目标代码区域，用来增大fuzz效率。</p>
+<h3 id="解决问题的前提"><a href="#解决问题的前提" class="headerlink" title="解决问题的前提"></a><strong>解决问题的前提</strong></h3><p>一般来说，grey box fuzzing在给定一些条件，比如开发者们获取了一个第三方用户的crash report之后，复现起来相对于通过代码覆盖率guided的fuzzing方式还是比较容易的。传统的DGF并没有考虑到数据流的依赖(例如栈溢出，POC生成)，也进行了关于目标位置之间相互独立的错误假设(例如UAF)。</p>
+<h2 id="三、技术原理与实现"><a href="#三、技术原理与实现" class="headerlink" title="三、技术原理与实现"></a><strong>三、技术原理与实现</strong></h2><h3 id="CGDF评估方式"><a href="#CGDF评估方式" class="headerlink" title="CGDF评估方式"></a>CGDF评估方式</h3><p>文章开发了一种以限制为导向的grey box fuzzing工具，CGDF。CGDF的目标是通过满足一系列的限制来达到最终target site。其中目标分为数据流和控制流两方面。</p>
+<p>判断某个seed是否足够满足constrains的方法，CGDF设计了一种<code>distance of the constrains</code>。和传统的DGF不同。下图中红色框是free()，蓝色框是UAF的位置。</p>
+<p><img src="/.io//image-20220812102243660.png" alt="image-20220812102243660"></p>
+<p>例如使用seedA，使用DGF计算距离时首先第一个块距离两个块距离都是3，因此使用调和平均，(1/3+1/3)^(-1)得到3/2。而如果两者不同，则选择到达目标块的最近距离，例如计算e块，e到达红色快距离是3，到达蓝色快是1，因此就计算为1，那么在e块的结果就是(1/1)^(-1)=1.以此类推。因此总的来说，使用DGF得到的距离之和是</p>
+<p><img src="/.io//image-20220812102911913.png" alt="image-20220812102911913"></p>
+<p>这样计算的好处是，如果seed能够cover更多的标准块，那么确实这个距离总和会变少。</p>
+<p>但是我们注意到对于UAF，虽然seedA的DGF距离计算最小，但是它其实并不是理想的UAF触发行为。相反，C才是。然而C的得分却并不高。这正是DGF的<code>independent site</code>所导致的。</p>
+<p>另外一个例子是和数据流有关。如果我们需要访问buf的末尾，这里使用DGF时，由于只需要迭代四次，因此会误认为seedA对应的DGF值最小。但是其实seedC对应的值才是最符合条件的。</p>
+<p><img src="/.io//image-20220812105618876.png" alt="image-20220812105618876"></p>
+<p>为了确保解决上述问题，CGDF定义了新的距离表示方式。当满足以下条件时，CGDF会给出更短的seed距离。</p>
+<ul>
+<li>这个seed满足了更多的constrains</li>
+<li>这个seed和首个unsatisfied constraint距离更近。</li>
+</ul>
+<p>针对以上计算方式</p>
+<p><strong>以UAF作为例子</strong>。看seedA，其距离最先要满足的一个constraint距离是2，并且距离第二个条件%use由于data不满足，距离是MAX。因此结论是MAX+2。</p>
+<p>再看seedB，距离第一个条件最近的块是c块，距离为1，因此未1+MAX。</p>
+<p>再看seedC，第一个条件已经满足，而距离第二个条件距离为1.因此两个加起来就是0+1。这样确实给出了较好的优先级顺序。</p>
+<p><strong>以越界读为例子</strong>，只考虑数据流，也就是越界读的位置和当前读到的位置之差。seedA总共是40，当前读了10，因此CGDF计算的结果是40-10=30，以此类推。</p>
+<p>我们怎么生成constrains?可以直接从core dump中提取。==但是怎么提取网上没有找到好的方法==。</p>
+<p><img src="/.io//image-20220812113604129.png" alt="image-20220812113604129"></p>
+<h3 id="生成constrains"><a href="#生成constrains" class="headerlink" title="生成constrains"></a>生成constrains</h3><ul>
+<li>变量捕获</li>
+</ul>
+<p>一旦我们经过target site，我们会通过变量类型识别一些变量，比方说设置&amp;buf[]为addr，设置L*10为size等。</p>
+<ul>
+<li>数据条件</li>
+</ul>
+<p>是一个boolean表达式，例如alloc.size&lt;=access.addr-alloc.ret这个判断条件。</p>
+<ul>
+<li>顺序</li>
+</ul>
+<p>如果有多个条件需要同时满足，需要对constrains作出一些条件限制。</p>
+<h3 id="constrains的距离"><a href="#constrains的距离" class="headerlink" title="constrains的距离"></a>constrains的距离</h3><ul>
+<li>basic block distance</li>
+</ul>
+<p>对于两个基本块之间的距离可以表示为</p>
+<p><img src="/.io//image-20220812121743059.png" alt="image-20220812121743059"></p>
+<p>其中Bs是B1的后继，其实也就是类似路由算法的一个方程(名字忘记了)，也就是非常直观的计算基本块之间的距离。</p>
+<ul>
+<li>target site distance</li>
+</ul>
+<p>和之前basic block distance基本一致</p>
+<ul>
+<li>data condition distance</li>
+</ul>
+<p>下面这张图比较明显。其实就是我们定义了一些数据之间的差距。</p>
+<p><img src="/.io//image-20220812122313276.png" alt="image-20220812122313276"></p>
+<p>规则为：对于基本块之间的数据差距。是识别到的所有变量之间的差距之和(但是注意这里的comparison operator需要是一样的)。如果有没有识别到的，那就是无穷大。</p>
+<p><img src="/.io//image-20220812122724630.png" alt="image-20220812122724630"></p>
+<p>对于使用assert标记的数据条件，我们使用pass或者fail表示。</p>
+<p>对于多个数据条件的情况，使用如下公式</p>
+<p><img src="/.io//image-20220812123241195.png" alt="image-20220812123241195"></p>
+<p>理解：$N_{unsat}$代表所有不满足data condition的条件数量，cdata是一个4byte的数字。并且后面加上了最小的距离值，这样是突出了最近距离的数据的重要性。</p>
+<h3 id="constrains距离总和"><a href="#constrains距离总和" class="headerlink" title="constrains距离总和"></a>constrains距离总和</h3><p>简单来说，综合控制流和数据流的距离，我们把两者的和作为结果。具体来说，在到达target site之前，距离是</p>
+<p><img src="/.io//image-20220812124503769.png" alt="image-20220812124503769"></p>
+<p>也就是基本块之间的距离+数据流之间的距离。但是此时数据流之间的距离是最大的数据条件距离和所有需要满足的数据条件的数量之和。(也就是一个非常大的值，用最大的距离乘上最多的标准快)</p>
+<p>当到达target site之后，距离变为下图。此时只需要考虑数据流距离。</p>
+<p><img src="/.io//image-20220812124537174.png" alt="image-20220812124537174"></p>
+<p>到最后，变为0就可以了。</p>
+<p>但是注意constrains距离只是其中一个控制流线之下的距离总和。如果我们考虑多个控制流下的总距离，需要用以下公式。</p>
+<p><img src="/.io//image-20220812125102923.png" alt="image-20220812125102923"></p>
+<p>对于三种情况讨论</p>
+<ul>
+<li>当没有限制满足时</li>
+</ul>
+<p><img src="/.io//image-20220812125408120.png" alt="image-20220812125408120"></p>
+<p>此时$\tau$是1，这里的1很有意思，从数据流看出应该是所有需要满足的条件中最近的一个。</p>
+<ul>
+<li>当所有控制流条件满足，并且数据流未满足时，前半部分控制流的$\tau$就是N(B*)因此前半部分没有了，只是计算数据流满足</li>
+</ul>
+<p><img src="/.io//image-20220812141139441.png" alt="image-20220812141139441"></p>
+<h3 id="生成constrains-1"><a href="#生成constrains-1" class="headerlink" title="生成constrains"></a>生成constrains</h3><p>之前提到的生成约束图的方式，在这里是细节。</p>
+<p>对于使用core dump生成constraint的方式，使用模板nT（UAF，double free），或者2T+D(两个target site和一个data，例如heap overflow)，或者1T+D，例如assertion failure或者除0。如下所示</p>
+<p><img src="/.io//image-20220812142148746.png" alt="image-20220812142148746"></p>
+<p>这里的2T+D的生成方式中的assert的目的是确保access到的地址是在之前分配的地址之间。之后我们通过设置cond来驱使产生溢出。</p>
+<p><img src="/.io//image-20220812174548860.png" alt="image-20220812174548860"></p>
+<p>除此以外，生成constrains还有几个原则</p>
+<ul>
+<li>避免wrapper函数</li>
+</ul>
+<p>使得target site更加有标识性。通过检查函数名中是否包含keyword，类似alloc(),free()等</p>
+<h3 id="利用patch生成constrains"><a href="#利用patch生成constrains" class="headerlink" title="利用patch生成constrains"></a>利用patch生成constrains</h3><p>使用1T+D的模板可以很方便的生成。具体算法如下</p>
+<p><img src="/.io//image-20220812182354743.png" alt="image-20220812182354743"></p>
+<p>有以下集中生成constrais的规则</p>
+<ol>
+<li>如果引入了新的exception检查，设置<code>target site</code>到其源地址(我理解是exception所检查的地方)并用新的exception检查条件创建<code>data_cond</code>。在这里将throw或者error识别为exception check。</li>
+<li>如果任何分支语句被修改了，设置<code>target_site</code>到被改掉的条件的地方，并根据patch之前和之后互斥的数据条件修改data_cond。也就是下面的公式。个人认为这样设置因为要找到不属于两个条件之间的情况，进行fuzz。</li>
+</ol>
+<p><img src="/.io//image-20220812192036213.png" alt="image-20220812192036213"></p>
+<ol start="3">
+<li>如果有变量被修改，设置<code>target site</code>到被修改的变量，创建<code>data_cond</code>并检验修改之前和之后的变量数值是否相同。</li>
+<li>如果上述条件都不满足，则对新增的代码设置为target_site进行修改。</li>
+</ol>
+<h2 id="CAFL实现"><a href="#CAFL实现" class="headerlink" title="CAFL实现"></a>CAFL实现</h2><p>CAFL首先生成LLVM的IR代码，并用AFL编译器来instrument。之后生成call graph以及instrument target site(在编译时加上一些标记checkpoint，指示目前的位置)，并捕获变量，将其转发到CAFL runtime。</p>
+<h3 id="CAFL-runtime"><a href="#CAFL-runtime" class="headerlink" title="CAFL runtime"></a>CAFL runtime</h3><p>CAFL runtime从checkpoint接受目标位置的距离[$\tau$,d($B^{n}$,$B_{\tau}$)]其中$\tau$是限制的下标。d是basic block之间的距离。在target site位置，CAFL runtime接受从checkpoint捕获到的变量，计算data之间的距离(在这里还考虑到放置由于内存回收造成地址偏移发生改变)</p>
+<h2 id="CAFL-fuzzer"><a href="#CAFL-fuzzer" class="headerlink" title="CAFL fuzzer"></a>CAFL fuzzer</h2><p>对于seed选择的策略：</p>
+<ul>
+<li>seed 评分</li>
+</ul>
+<p>按照总长度较短的seed给与更高的分数，同时避免局部最优(没有给出具体方法)</p>
+<ul>
+<li>seed 创建</li>
+</ul>
+<p>也没有给出具体算法。当一个中子覆盖了更多边时，就生成一个新的seed(?)</p>
+<ul>
+<li>seed 最优化选择</li>
+</ul>
+<p>按照seed排名的指数倒数作为当前seed被选中的概率来选择seed。</p>
+<h2 id="四、实验评估"><a href="#四、实验评估" class="headerlink" title="四、实验评估"></a><strong>四、实验评估</strong></h2><h3 id="实验数据结果"><a href="#实验数据结果" class="headerlink" title="实验数据结果"></a><strong>实验数据结果</strong></h3><p>以下是从LAVA1中获取到的制造crash的时间对比。</p>
+<p><img src="/.io//image-20220813125009029.png" alt="image-20220813125009029"></p>
+<p>以上将CAFL和AFLGo做对比，发现新增data condition的CAFL到达目标地址的时间确实短了许多。</p>
+<p>接下来，寻找crash reproduction时间对比。使用了ASAN和MS。这里比较alpha GO和CAFL在多种目标下的crash reproduction时间，主要是为了验证数据流存在的意义</p>
+<p><img src="/.io//image-20220813130309587.png" alt="image-20220813130309587"></p>
+<h3 id="PoC生成"><a href="#PoC生成" class="headerlink" title="PoC生成"></a>PoC生成</h3><p>最后一个是PoC生成功能。使用git和Mercurial可以自动生成constrains</p>
+<p><img src="/.io//image-20220813130946883.png" alt="image-20220813130946883"></p>
+<p>上面主要是堆溢出漏洞，使用CAFL的nT+D可以显著加快速度。</p>
+<p>另外对于1T下的数据流对比。</p>
+<p><img src="/.io//image-20220813131802831.png" alt="image-20220813131802831"></p>
+<h2 id="现有问题"><a href="#现有问题" class="headerlink" title="现有问题"></a>现有问题</h2><ol>
+<li>论文结尾提到对于栈溢出漏洞可能需要grammar fuzzing进行补充，目前CAFL无法做到。</li>
+<li>对于例如数据未初始化漏洞等和控制流角度关系较小的漏洞，目前CAFL还无法处理。</li>
+<li>对于例如全局缓冲区溢出和buffer负数溢出的bug，</li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-08-13, 13:35:14</p>
+        <p><span>最后更新:</span>2022-08-13, 13:58:40</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/" title="Constraint-guided_Directed_Greybox_Fuzzing">https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">
+                    Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/08/10/crafting-interpreters4/">
+                    crafting-interpreters4
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Constraint-guided-Directed-Greybox-Fuzzing"><span class="toc-number">1.</span> <span class="toc-text">Constraint-guided Directed Greybox Fuzzing</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%AE%BA%E6%96%87%E8%83%8C%E6%99%AF%E5%8F%8A%E5%89%8D%E6%8F%90"><span class="toc-number">1.2.</span> <span class="toc-text">二、论文背景及前提</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%80%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">所解决的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98%E7%9A%84%E5%89%8D%E6%8F%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">解决问题的前提</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.3.</span> <span class="toc-text">三、技术原理与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CGDF%E8%AF%84%E4%BC%B0%E6%96%B9%E5%BC%8F"><span class="toc-number">1.3.1.</span> <span class="toc-text">CGDF评估方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90constrains"><span class="toc-number">1.3.2.</span> <span class="toc-text">生成constrains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#constrains%E7%9A%84%E8%B7%9D%E7%A6%BB"><span class="toc-number">1.3.3.</span> <span class="toc-text">constrains的距离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#constrains%E8%B7%9D%E7%A6%BB%E6%80%BB%E5%92%8C"><span class="toc-number">1.3.4.</span> <span class="toc-text">constrains距离总和</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90constrains-1"><span class="toc-number">1.3.5.</span> <span class="toc-text">生成constrains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8patch%E7%94%9F%E6%88%90constrains"><span class="toc-number">1.3.6.</span> <span class="toc-text">利用patch生成constrains</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAFL%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.4.</span> <span class="toc-text">CAFL实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CAFL-runtime"><span class="toc-number">1.4.1.</span> <span class="toc-text">CAFL runtime</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAFL-fuzzer"><span class="toc-number">1.5.</span> <span class="toc-text">CAFL fuzzer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E9%AA%8C%E8%AF%84%E4%BC%B0"><span class="toc-number">1.6.</span> <span class="toc-text">四、实验评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%9C"><span class="toc-number">1.6.1.</span> <span class="toc-text">实验数据结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PoC%E7%94%9F%E6%88%90"><span class="toc-number">1.6.2.</span> <span class="toc-text">PoC生成</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%B0%E6%9C%89%E9%97%AE%E9%A2%98"><span class="toc-number">1.7.</span> <span class="toc-text">现有问题</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Constraint-guided_Directed_Greybox_Fuzzing　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/" title="上一篇: Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/08/10/crafting-interpreters4/" title="下一篇: crafting-interpreters4">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

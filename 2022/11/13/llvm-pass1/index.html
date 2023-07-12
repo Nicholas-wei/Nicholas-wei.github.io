@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="开始复现CAFL工具，工具原文和笔记在链接。这一周着手写了一个对于compare条件之前，提取操作数并转发的简单(其实我觉得写起来查资料超级麻烦的)pass">
+<meta property="og:type" content="article">
+<meta property="og:title" content="llvm-pass1">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/11/13/llvm-pass1/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="开始复现CAFL工具，工具原文和笔记在链接。这一周着手写了一个对于compare条件之前，提取操作数并转发的简单(其实我觉得写起来查资料超级麻烦的)pass">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221113113525154.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221113140228527.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221113140409166.png">
+<meta property="article:published_time" content="2022-11-13T03:28:23.000Z">
+<meta property="article:modified_time" content="2022-11-13T06:20:08.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta property="article:tag" content="llvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20221113113525154.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>llvm-pass1 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-llvm-pass1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/11/13/llvm-pass1/" class="article-date">
+      <time datetime="2022-11-13T03:28:23.000Z" itemprop="datePublished">2022-11-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      llvm-pass1
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/projects/">projects</a><a class="article-category-link" href="/categories/projects/llvm/">llvm</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>开始复现CAFL工具，工具原文和笔记在<a href="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">链接</a>。这一周着手写了一个对于compare条件之前，提取操作数并转发的简单(其实我觉得写起来查资料超级麻烦的)pass</p>
+<span id="more"></span>
+
+<h1 id="关于llvm-pass基础知识有用网站"><a href="#关于llvm-pass基础知识有用网站" class="headerlink" title="关于llvm-pass基础知识有用网站"></a>关于llvm-pass基础知识有用网站</h1><p>经过吐血搜索，最后找到集中比较有用的。不得不说，llvm的文档实在是太不友好了，查一个什么类直接告诉你reference，一点解释都没有，直接告诉你源码位置。如下图</p>
+<p><img src="/.io//image-20221113113525154.png" alt="image-20221113113525154"></p>
+<p>我就想说，不想写文档就不要写，还搞个自动生成的文档。。</p>
+<p>不过还是有一些部分是有用的，比如说这些</p>
+<ul>
+<li>学习llvm ir的c++api最好的开始的地方：<a target="_blank" rel="noopener" href="https://llvm.org/docs/ProgrammersManual.html">https://llvm.org/docs/ProgrammersManual.html</a></li>
+<li>学习llvm基础知识：<a target="_blank" rel="noopener" href="https://llvm.org/docs/LangRef.html">https://llvm.org/docs/LangRef.html</a></li>
+<li>特别详细的入门llvm ir c++ api的例子：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Zhanglin_Wu/article/details/125289502">https://blog.csdn.net/Zhanglin_Wu/article/details/125289502</a></li>
+<li>国外的编译器优化教程，会从零基础讲llvm pass如何编写<ul>
+<li>课程网址：<a target="_blank" rel="noopener" href="http://www.cs.toronto.edu/~pekhimenko/courses/cscd70-w20/content.html">http://www.cs.toronto.edu/~pekhimenko/courses/cscd70-w20/content.html</a></li>
+<li>课程视频：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Ml-4hkFQcnE&amp;list=PL0qj8UdnOw30ZGMcM6DwvM1J2tttyy_D6&amp;index=3">https://www.youtube.com/watch?v=Ml-4hkFQcnE&amp;list=PL0qj8UdnOw30ZGMcM6DwvM1J2tttyy_D6&amp;index=3</a></li>
+<li>课程github : <a target="_blank" rel="noopener" href="https://github.com/UofT-EcoSystem/CSCD70">https://github.com/UofT-EcoSystem/CSCD70</a></li>
+</ul>
+</li>
+</ul>
+<p>此外就是stackoverflow了，很多问题的解决办法都是在这上面找的。一定要google搜索相关问题。</p>
+<p>此外还需要感谢肖浩宇学长，帮我解决了很多pass实现上的问题</p>
+<h1 id="instrument-value-pass"><a href="#instrument-value-pass" class="headerlink" title="instrument value pass"></a>instrument value pass</h1><p>这一部分关于我如何编写一个简单的，获取cmp比较的两个操作数的内容，并转发的pass。首先，我选择的是function pass。关于为什么选择了这个pass，是因为我懒得改模板了。(其实是我觉得Function Pass也能完成任务，不知道和Module Pass的区别主要在哪里呜呜</p>
+<p>写一个pass，需要一些prelogue，基本就是声明一个类，然后重载runOnFunction函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">MyPlacementPass</span> : <span class="keyword">public</span> FunctionPass</span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">static</span> <span class="type">char</span> ID;</span><br><span class="line">  <span class="built_in">MyPlacementPass</span>() : <span class="built_in">FunctionPass</span>(ID)&#123;&#125;</span><br><span class="line">  FunctionCallee monitor;</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> <span class="keyword">override</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>runOnFunction</code>内部，我们编写的所有内容都可以作用到<strong>每一个函数</strong>中，而我所想要做的，就是<strong>遍历每一个basic block、遍历每一个instruction、寻找到cmp、提取操作数、插装计算并转发</strong>。</p>
+<h2 id="遍历每一个Basic-Block"><a href="#遍历每一个Basic-Block" class="headerlink" title="遍历每一个Basic Block"></a>遍历每一个Basic Block</h2><p>通过runOnFunction，对于每一个函数做如下操作。首先我打印了一句话，接着我找到一个函数，这个是我暂时用来转发变量的函数(实际复现中可能也需要这样的函数，因为用IR写并且转发似乎没有必要)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> <span class="keyword">override</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;------------- runOnFunction --------------\n&quot;</span>);</span><br><span class="line">  DebugInfoFinder Finder;</span><br><span class="line">  Finder.<span class="built_in">processModule</span>(*(F.<span class="built_in">getParent</span>()));</span><br><span class="line">  <span class="comment">// not instrument before show_var function</span></span><br><span class="line">  <span class="keyword">if</span> (F.<span class="built_in">getName</span>().<span class="built_in">startswith</span>(<span class="string">&quot;show_var&quot;</span>))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">errs</span>()&lt;&lt;<span class="string">&quot;find show var&quot;</span>&lt;&lt;<span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="comment">// monitor = dyn_cast&lt;FunctionCallee&gt;(F);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着就是遍历每一个basic block并获取每一个指令了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">LLVMContext &amp;context = F.<span class="built_in">getParent</span>()-&gt;<span class="built_in">getContext</span>();</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (Function::iterator I = F.<span class="built_in">begin</span>(), E = F.<span class="built_in">end</span>(); I != E; ++I)</span><br><span class="line">&#123;</span><br><span class="line">    BasicBlock &amp;BB = *I;</span><br><span class="line">    FunctionType *type = FunctionType::<span class="built_in">get</span>(Type::<span class="built_in">getVoidTy</span>(context),&#123;Type::<span class="built_in">getInt32Ty</span>(context)&#125;,<span class="literal">false</span>);</span><br><span class="line">    FunctionCallee sendFunc = BB.<span class="built_in">getModule</span>()-&gt;<span class="built_in">getOrInsertFunction</span>(<span class="string">&quot;send_mem&quot;</span>,type);</span><br><span class="line">    Value *zero = ConstantInt::<span class="built_in">get</span>(Type::<span class="built_in">getInt32Ty</span>(context),<span class="number">0</span>);</span><br><span class="line">    Value *one = ConstantInt::<span class="built_in">get</span>(Type::<span class="built_in">getInt32Ty</span>(context),<span class="number">1</span>);</span><br><span class="line">    CallInst * inst;</span><br><span class="line">    <span class="keyword">for</span> (BasicBlock::iterator I = BB.<span class="built_in">begin</span>(), E = BB.<span class="built_in">end</span>(); I != E; ++I)</span><br><span class="line">    &#123;</span><br></pre></td></tr></table></figure>
+
+<p>在llvm中，有一些很有用的API，比如Function，BasicBlock的iterator。这些迭代器能够帮助我们遍历整个程序，并对他们做修改。上图中我们首先建立了一个<code>Function::iterator I</code>（实际上是BasicBlock）接着在程序上下文中找到了一个函数，和上面的show_var是一样的。接着建立<code>BasicBlock::iterator I</code>(其实就是Instruction*)。</p>
+<h2 id="寻找到cmp"><a href="#寻找到cmp" class="headerlink" title="寻找到cmp"></a>寻找到cmp</h2><p>如下，直接用instruction-&gt;getOpcode()就可以了，如果Opcode是<code>Instruction::ICmp</code>，就可以直接拿出来，作为比较的指令。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">IRBuilder&lt;&gt; <span class="built_in">Builder</span>(I-&gt;<span class="built_in">getContext</span>());</span><br><span class="line">std::vector&lt;Value*&gt; args;</span><br><span class="line"><span class="keyword">if</span>(I-&gt;<span class="built_in">getOpcode</span>() == Instruction::ICmp)&#123;</span><br><span class="line">    <span class="comment">// we do instrument here</span></span><br><span class="line">    <span class="built_in">LLVM_DEBUG</span>(<span class="built_in">dbgs</span>() &lt;&lt; <span class="string">&quot;found cmp\n&quot;</span>);</span><br><span class="line">    ICmpInst *cmp = <span class="built_in">dyn_cast</span>&lt;ICmpInst&gt;(I);</span><br><span class="line">    <span class="type">int</span> cmp_operand = cmp-&gt;<span class="built_in">getPredicate</span>(); </span><br></pre></td></tr></table></figure>
+
+<h3 id="提取比较类型"><a href="#提取比较类型" class="headerlink" title="提取比较类型"></a>提取比较类型</h3><p>比方说比较用的是”&gt;”,  “&lt;”,  “==“这样的，我们该怎么提取呢？直接用getPredicate即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> cmp_operand = cmp-&gt;<span class="built_in">getPredicate</span>(); </span><br><span class="line"><span class="type">long</span> distance = <span class="number">0</span>; <span class="comment">// distance of variables</span></span><br><span class="line"><span class="keyword">switch</span> (cmp_operand)&#123;</span><br></pre></td></tr></table></figure>
+
+<p>Opcode类型也可以从<a target="_blank" rel="noopener" href="https://llvm.org/doxygen/classllvm_1_1CmpInst.html#a283f9a5d4d843d20c40bb4d3e364bb05">网站</a>中找到。因此我们的代码框架可以是</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (cmp_operand)&#123;</span><br><span class="line">    <span class="keyword">case</span> CmpInst::ICMP_EQ:&#123;</span><br><span class="line">        &#123;...&#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> ICmpInst::ICMP_SGE:&#123;</span><br><span class="line">        &#123;...&#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="插桩转发"><a href="#插桩转发" class="headerlink" title="插桩转发"></a>插桩转发</h2><p>这一部分是我经过的坑最多的地方！首先是我们要明白，变量的值都是动态产生的，因此我们必须把代码嵌入到LLVM ir中，不能用pass直接分析。那么我们要做的事情就有</p>
+<ul>
+<li>动态获取变量的值</li>
+<li>插入计算语句</li>
+<li>获取计算语句的结果</li>
+<li>将结果转发给已经写好的函数</li>
+</ul>
+<p>我们一步一步来</p>
+<h3 id="详细流程"><a href="#详细流程" class="headerlink" title="详细流程"></a>详细流程</h3><p>下面用大于等于为例说明。</p>
+<p>首先我们建立一个Builder，Builder初始化的语句为</p>
+<p><code>IRBuilder&lt;&gt; Builder(I-&gt;getContext());</code></p>
+<p>这里的context是什么意思？在<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/13184835/what-is-llvm-context">stackoverflow</a>里面可以找到这样的描述</p>
+<blockquote>
+<p>This is an important class for using LLVM in a threaded context. It  (opaquely) owns and manages the core “global” data of LLVM’s core  infrastructure, including the type and constant uniquing tables.</p>
+</blockquote>
+<p>也就是我们可以近似的理解为llvm的一种engine吧。</p>
+<p>在初始化Builder之后，我们首先要设置当前builder得到的ir插入位置。也就是第一句<code>SetInsertPoint()</code>。</p>
+<p>接下来我们创建两个cmp的operand的减法。由于是大于等于，我们直接让第二个参数减去第一个，如果小于0就说明已经满足了，否则就是不满足，并将差距表示出来。</p>
+<p><code>Value* sub_result = Builder.CreateSub(cmp-&gt;getOperand(1),cmp-&gt;getOperand(0));</code></p>
+<p>接下来建立一个cmp和select语句的结合。这两个语句可以简单产生一个<code>max()</code>而不用新建basic block。参考的网站主要是<a target="_blank" rel="noopener" href="https://mapping-high-level-constructs-to-llvm-ir.readthedocs.io/en/latest/control-structures/if-then-else.html">select表示max和min</a>。</p>
+<p>接下来只需要调用在C中的函数就可以了。首先准备参数，下面的args的原型为</p>
+<p><code>std::vector&lt;Value*&gt; args;</code></p>
+<p>我们先把他清空，之后push进去相应的函数参数即可。那么怎么找到源文件中的转发函数呢？其实在上面遍历每一个basic block的时候就已经提到过。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> ICmpInst::ICMP_SGE:&#123;</span><br><span class="line">    <span class="comment">// n1 &gt;= n2</span></span><br><span class="line">    <span class="comment">// if (n1 - n2 &gt; 0), return 0</span></span><br><span class="line">    <span class="comment">// else return n1 - n2</span></span><br><span class="line">    Builder.<span class="built_in">SetInsertPoint</span>(cmp);</span><br><span class="line">    Value* sub_result = Builder.<span class="built_in">CreateSub</span>(cmp-&gt;<span class="built_in">getOperand</span>(<span class="number">1</span>),cmp-&gt;<span class="built_in">getOperand</span>(<span class="number">0</span>)); <span class="comment">// hot to esure it&#x27;s signed?</span></span><br><span class="line">    Value* cmp_result = Builder.<span class="built_in">CreateICmp</span>(ICmpInst::ICMP_SGT, sub_result,zero);</span><br><span class="line">    Value* maxnum = Builder.<span class="built_in">CreateSelect</span>(cmp_result,sub_result,zero);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// give to send_num()</span></span><br><span class="line"></span><br><span class="line">    args.<span class="built_in">clear</span>();</span><br><span class="line">    args.<span class="built_in">push_back</span>(maxnum);</span><br><span class="line">    inst = CallInst::<span class="built_in">Create</span>(sendFunc,args);</span><br><span class="line">    inst-&gt;<span class="built_in">insertBefore</span>(cmp);</span><br><span class="line">    <span class="built_in">errs</span>()&lt;&lt;<span class="string">&quot;instrument for &gt;=(SGE) ok.&quot;</span>&lt;&lt;<span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到此，一个简单的针对大于符号的pass就写好了。在此基础上可以写基于别的符号的pass。</p>
+<h1 id="编译和测试"><a href="#编译和测试" class="headerlink" title="编译和测试"></a>编译和测试</h1><h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>用到的所有编译指令如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">generate a pass</span></span><br><span class="line">clang `llvm-config --cxxflags` -Wl,-znodelete -fno-rtti -fPIC -shared ./instrument_printVar.cpp -o inst_var.so `llvm-config --ldflags`</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">generate bc file</span></span><br><span class="line">clang++ -emit-llvm -c -g test_clang.cpp -o test_clang.bc</span><br><span class="line">llvm-dis ./change_clang.bc -o=change_clang_dis.ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">use a pass</span></span><br><span class="line">opt -load ./output_func.so -function-info ./test_clang.bc -o /dev/null</span><br><span class="line">opt -load ./inst_var.so -var ./test_clang.bc -o ./change_clang.bc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">get .o file</span> </span><br><span class="line">llc -filetype=obj ./change_clang.bc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">compile to binary</span></span><br><span class="line">clang++ ./change_clang.o -o change_clang</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">extern issue</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">https://stackoverflow.com/questions/29903416/how-to-call-function-in-llvm</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>流程一般是这样</p>
+<ol>
+<li>用clang编译pass和源文件，生成pass.so和bc文件</li>
+<li>用opt加载pass，从而对bc进行插桩修改</li>
+<li>从bc获取.o文件</li>
+<li>将.o文件链接成最终可执行文件</li>
+</ol>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>用下面的源文件进行测试</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;malloc.h&gt;</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="type">void</span> <span class="title function_">show_var</span><span class="params">(<span class="type">long</span> num)</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;value content is %ld\n&quot;</span>, num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="type">void</span> <span class="title function_">send_mem</span><span class="params">(<span class="type">int</span> num)</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Value to be send is %d. \n&quot;</span>,num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// static void show_var(long num)&#123;</span></span><br><span class="line"><span class="comment">//     printf(&quot;value content is %ld\n&quot;, num);</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// not equal. we should send 1</span></span><br><span class="line">    <span class="keyword">if</span>(a != <span class="number">20</span>)&#123;</span><br><span class="line">        b ++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// false. we should send (20-10)=10</span></span><br><span class="line">    <span class="comment">// </span></span><br><span class="line">    <span class="keyword">if</span>(a &gt;= <span class="number">20</span>)&#123;</span><br><span class="line">        b++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// True. we should send 0</span></span><br><span class="line">    <span class="keyword">if</span>(a &lt;= <span class="number">20</span>)&#123;</span><br><span class="line">        b++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// false. we should send |10-20| = 10, but now I send -10</span></span><br><span class="line">    <span class="keyword">if</span>(a == <span class="number">20</span>)&#123;</span><br><span class="line">        b++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终成功在ir上面插桩，得到如下文件(下面是部分截图)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">%13 = load i32, i32* %2, align 4</span><br><span class="line">%14 = sub i32 20, %13</span><br><span class="line">%15 = icmp sgt i32 %14, 0</span><br><span class="line">%16 = select i1 %15, i32 %14, i32 0</span><br><span class="line">call void @send_mem(i32 %16)</span><br><span class="line">%17 = icmp sge i32 %13, 20</span><br><span class="line">br i1 %17, label %18, label %21</span><br></pre></td></tr></table></figure>
+
+<p>执行的结果如下，成功~(最后花了快两天时间呜呜呜)</p>
+<p><img src="/.io//image-20221113140228527.png" alt="image-20221113140228527"></p>
+<h1 id="碰到的问题和解决措施"><a href="#碰到的问题和解决措施" class="headerlink" title="碰到的问题和解决措施"></a>碰到的问题和解决措施</h1><p>在执行过程中碰到了很多问题。这也是第一次自己写一个pass</p>
+<h2 id="seg-fault"><a href="#seg-fault" class="headerlink" title="seg fault"></a>seg fault</h2><p>这是最常见的错误了，类似下图</p>
+<p><img src="/.io//image-20221113140409166.png" alt="image-20221113140409166"></p>
+<p>一般原因是：函数参数不匹配/插入的语句不在basic block中（这些是有原因会告诉你的，比方上面这张图，就是broken module found）</p>
+<p><strong>但是有一些报错，根本不会告诉你原因！</strong></p>
+<p>后来才知道，这种情况大部分因为<strong>没有检查API返回内容是否是NULL,从而使用了空指针</strong></p>
+<p>比方说下面修改后的内容，加上了if/else来检查。如果不检查就有可能出现空指针引用的问题。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">I-&gt;<span class="built_in">getModule</span>()-&gt;<span class="built_in">getOrInsertGlobal</span>(<span class="string">&quot;for_equal&quot;</span>,Type::<span class="built_in">getInt32Ty</span>(context));</span><br><span class="line">GlobalVariable* for_equal = I-&gt;<span class="built_in">getModule</span>()-&gt;<span class="built_in">getNamedGlobal</span>(<span class="string">&quot;for_equal&quot;</span>);</span><br><span class="line"><span class="keyword">if</span>(for_equal)&#123;</span><br><span class="line">    for_equal-&gt;<span class="built_in">setAlignment</span>(<span class="built_in">MaybeAlign</span>(<span class="number">4</span>));</span><br><span class="line">    for_equal-&gt;<span class="built_in">setLinkage</span>(GlobalValue::CommonLinkage);</span><br><span class="line">    Constant* const_int_val = ConstantInt::<span class="built_in">get</span>(Type::<span class="built_in">getInt32Ty</span>(context),<span class="built_in">APInt</span>(<span class="number">32</span>,<span class="number">0</span>));</span><br><span class="line">    for_equal-&gt;<span class="built_in">setInitializer</span>(const_int_val);</span><br><span class="line">    Builder.<span class="built_in">SetInsertPoint</span>(cmp);</span><br><span class="line">    LoadInst *load = Builder.<span class="built_in">CreateLoad</span>(for_equal);</span><br><span class="line">    StoreInst *store = Builder.<span class="built_in">CreateStore</span>(NewInst,for_equal);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">errs</span>()&lt;&lt;<span class="string">&quot;not valid&quot;</span>&lt;&lt;<span class="string">&quot;\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="指令不在basic-block中"><a href="#指令不在basic-block中" class="headerlink" title="指令不在basic block中"></a>指令不在basic block中</h2><p>主要是出现下列错误</p>
+<blockquote>
+<p>error: Instruction referencing instruction not embedded in a basic block!</p>
+</blockquote>
+<p>网上根本搜不到怎么做。我当时只是想获取某个指令的计算结果，并传给send_mem函数，就出现了这种问题。</p>
+<p>出现的原因：使用了以下方式进行指令的插入</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inst = CallInst::<span class="built_in">Create</span>(sendFunc,args);</span><br><span class="line">inst-&gt;<span class="built_in">insertBefore</span>(cmp); <span class="comment">// basic block will not remember!</span></span><br></pre></td></tr></table></figure>
+
+<p>使用上面的方法，确实能在IR中插入语句，<strong>但是basic block里面不会记载！</strong>因此，我们不能使用这一条指令对应的结果！</p>
+<p>后来我才知道<strong>正确的插入方法</strong>应该是用<code>IRbuilder</code>，先Builder.SetInsertPoint()之后再编写语句，事实上，这样编写也比直接创建指令来得简单很多。</p>
+<h1 id="后期计划"><a href="#后期计划" class="headerlink" title="后期计划"></a>后期计划</h1><ol>
+<li>在IR中使用debugInfo，实现定位变量</li>
+<li>整合我的pass和AFLGo</li>
+</ol>
+<p>其实进展已经比想象中的快了，希望能够顺利的做完毕设！</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/11/13/llvm-pass1/">llvm-pass1</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-11-13, 11:28:23</p>
+        <p><span>最后更新:</span>2022-11-13, 14:20:08</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/11/13/llvm-pass1/" title="llvm-pass1">https://nicholas-wei.github.io/2022/11/13/llvm-pass1/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/11/13/llvm-pass1/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/12/27/ics-pa1/">
+                    ics-pa
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/09/14/leetcode-1/">
+                    leetcode-1
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Ellvm-pass%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E6%9C%89%E7%94%A8%E7%BD%91%E7%AB%99"><span class="toc-number">1.</span> <span class="toc-text">关于llvm-pass基础知识有用网站</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#instrument-value-pass"><span class="toc-number">2.</span> <span class="toc-text">instrument value pass</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%8D%E5%8E%86%E6%AF%8F%E4%B8%80%E4%B8%AABasic-Block"><span class="toc-number">2.1.</span> <span class="toc-text">遍历每一个Basic Block</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E5%88%B0cmp"><span class="toc-number">2.2.</span> <span class="toc-text">寻找到cmp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E5%8F%96%E6%AF%94%E8%BE%83%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.2.1.</span> <span class="toc-text">提取比较类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E6%A1%A9%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.</span> <span class="toc-text">插桩转发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.1.</span> <span class="toc-text">详细流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%92%8C%E6%B5%8B%E8%AF%95"><span class="toc-number">3.</span> <span class="toc-text">编译和测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91"><span class="toc-number">3.1.</span> <span class="toc-text">编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">3.2.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A2%B0%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%8E%AA%E6%96%BD"><span class="toc-number">4.</span> <span class="toc-text">碰到的问题和解决措施</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#seg-fault"><span class="toc-number">4.1.</span> <span class="toc-text">seg fault</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E4%B8%8D%E5%9C%A8basic-block%E4%B8%AD"><span class="toc-number">4.2.</span> <span class="toc-text">指令不在basic block中</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8E%E6%9C%9F%E8%AE%A1%E5%88%92"><span class="toc-number">5.</span> <span class="toc-text">后期计划</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"llvm-pass1　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/12/27/ics-pa1/" title="上一篇: ics-pa">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/09/14/leetcode-1/" title="下一篇: leetcode-1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

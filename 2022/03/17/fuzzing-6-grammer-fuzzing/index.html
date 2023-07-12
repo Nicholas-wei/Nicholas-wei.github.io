@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="基于语法的fuzzing，主要面向黑盒测试。个人觉得这种方式可以再结合覆盖率动态调整演变方向，并且可以结合AI中的进化算法，演变出coverage更高的输入。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fuzzing-6-grammer_fuzzing">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/03/17/fuzzing-6-grammer-fuzzing/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="基于语法的fuzzing，主要面向黑盒测试。个人觉得这种方式可以再结合覆盖率动态调整演变方向，并且可以结合AI中的进化算法，演变出coverage更高的输入。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220317215559023.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220317215958615.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220317230102013.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220318092644508.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220318093039588.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220318234420004.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220318234902745.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220319142232107.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220319142256145.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220319150332406.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220319160036395.png">
+<meta property="article:published_time" content="2022-03-17T13:32:14.000Z">
+<meta property="article:modified_time" content="2022-03-19T08:08:38.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta property="article:tag" content="fuzzing101">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220317215559023.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>fuzzing-6-grammer_fuzzing | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-fuzzing-6-grammer-fuzzing" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/03/17/fuzzing-6-grammer-fuzzing/" class="article-date">
+      <time datetime="2022-03-17T13:32:14.000Z" itemprop="datePublished">2022-03-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      fuzzing-6-grammer_fuzzing
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/projects/">projects</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>基于语法的fuzzing，主要面向黑盒测试。个人觉得这种方式可以再结合覆盖率动态调整演变方向，并且可以结合AI中的进化算法，演变出coverage更高的输入。</p>
+<span id="more"></span>
+
+<h1 id="输入的语法"><a href="#输入的语法" class="headerlink" title="输入的语法"></a>输入的语法</h1><p>我们的所有”输入”都可以看作是语法构成的。无论是网络上的URL，计算器中的输入计算式，又或者是交互式程序中的输入，都有一定的<code>格式</code>。接下来假设所有的程序只有一种输入方式。</p>
+<p>我们可以把有限状态机和常见语法结合起来，让它产生有意义的数据。我们称表达式和有限状态图灵机之间的联系为<strong>语法</strong>。下面介绍几个简单的例子。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;start&gt; ::= &lt;digit&gt;&lt;digit&gt;</span><br><span class="line">&lt;digit&gt; ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9</span><br></pre></td></tr></table></figure>
+
+<p>上面的式子就是一个简单的<strong>语法</strong>例子。为了生成一个<code>start</code>，我们先将他替换成<code>&lt;digit&gt;&lt;digit&gt;</code>，之后看到最左边有一个位置的用尖括号包裹起来的<code>&lt;digit&gt;</code>，我们需要继续递归。看到下一行是<code>&lt;digit&gt;</code>的内容，并且没有尖括号，此时我们称<code>digit</code>碰到了<code>terminal</code>，也就是终止于此。那么digit就被赋值成一个数字，传递到上面。我们如果选择了”1”，那么<code>&lt;start&gt;</code>将变为1<code>&lt;digit&gt;</code>.递归运行第二步，从而得到一个完整的<code>&lt;start&gt;</code>。</p>
+<p>介绍完例子，正式介绍一下定义</p>
+<blockquote>
+<p>To read such a grammar, start with the start symbol (<code>&lt;start&gt;</code>).  An expansion rule <code>&lt;A&gt; ::= &lt;B&gt;</code> means that the symbol on the left side (<code>&lt;A&gt;</code>) can be replaced by the string on the right side (<code>&lt;B&gt;</code>).  In the above grammar, <code>&lt;start&gt;</code> would be replaced by <code>&lt;digit&gt;&lt;digit&gt;</code></p>
+</blockquote>
+<p>上述定义可以是<em>递归的</em>。考虑下面的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;start&gt;  ::= &lt;integer&gt;</span><br><span class="line">&lt;integer&gt; ::= &lt;digit&gt; | &lt;digit&gt;&lt;integer&gt;</span><br><span class="line">&lt;digit&gt;   ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9</span><br></pre></td></tr></table></figure>
+
+<p>第二行中<code>&lt;interger&gt;</code>生成了一个包含自己的表达式。虽然理论上来说，这种表达式可能无限扩张下去，我们可以设置一个演变值域，让这种变化限制在一个变异次数范围之内。</p>
+<p>考虑下面的问题，可以看到式子中不可能出现两个加减符号，也没有出现小数点。选项就很简单了。</p>
+<p><img src="/.io//image-20220317215559023.png" alt="image-20220317215559023"></p>
+<h2 id="实例：数学表达式"><a href="#实例：数学表达式" class="headerlink" title="实例：数学表达式"></a>实例：数学表达式</h2><p>接下来，考虑一些更加实际的问题。例如<strong>数学表达式的语法</strong>，作为一个递归演算的练习。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;start&gt;   ::= &lt;expr&gt;</span><br><span class="line">&lt;expr&gt;    ::= &lt;term&gt; + &lt;expr&gt; | &lt;term&gt; - &lt;expr&gt; | &lt;term&gt;</span><br><span class="line">&lt;term&gt;    ::= &lt;term&gt; * &lt;factor&gt; | &lt;term&gt; / &lt;factor&gt; | &lt;factor&gt;</span><br><span class="line">&lt;factor&gt;  ::= +&lt;factor&gt; | -&lt;factor&gt; | (&lt;expr&gt;) | &lt;integer&gt; | &lt;integer&gt;.&lt;integer&gt;</span><br><span class="line">&lt;integer&gt; ::= &lt;digit&gt;&lt;integer&gt; | &lt;digit&gt;</span><br><span class="line">&lt;digit&gt;   ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9</span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220317215958615.png" alt="image-20220317215958615"></p>
+<h2 id="在python中编写语法"><a href="#在python中编写语法" class="headerlink" title="在python中编写语法"></a>在python中编写语法</h2><p>使用python的map，可以轻松的建立一种<strong>字符串-列表</strong>映射表，也就是我们的语法。一个例子如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">EXPR_GRAMMAR: Grammar = &#123;</span><br><span class="line">    <span class="string">&quot;&lt;start&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;&lt;expr&gt;&quot;</span>],</span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&lt;expr&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;&lt;term&gt; + &lt;expr&gt;&quot;</span>, <span class="string">&quot;&lt;term&gt; - &lt;expr&gt;&quot;</span>, <span class="string">&quot;&lt;term&gt;&quot;</span>],</span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&lt;term&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;&lt;factor&gt; * &lt;term&gt;&quot;</span>, <span class="string">&quot;&lt;factor&gt; / &lt;term&gt;&quot;</span>, <span class="string">&quot;&lt;factor&gt;&quot;</span>],</span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&lt;factor&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;+&lt;factor&gt;&quot;</span>,</span><br><span class="line">         <span class="string">&quot;-&lt;factor&gt;&quot;</span>,</span><br><span class="line">         <span class="string">&quot;(&lt;expr&gt;)&quot;</span>,</span><br><span class="line">         <span class="string">&quot;&lt;integer&gt;.&lt;integer&gt;&quot;</span>,</span><br><span class="line">         <span class="string">&quot;&lt;integer&gt;&quot;</span>],</span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&lt;integer&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;&lt;digit&gt;&lt;integer&gt;&quot;</span>, <span class="string">&quot;&lt;digit&gt;&quot;</span>],</span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&lt;digit&gt;&quot;</span>:</span><br><span class="line">        [<span class="string">&quot;0&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;9&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于map属性，使用下列方法可以轻松的获取某个grammar列中的内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">EXPR_GRAMMAR[&quot;&lt;digit&gt;&quot;]</span><br><span class="line">输出: [&#x27;0&#x27;, &#x27;1&#x27;, &#x27;2&#x27;, &#x27;3&#x27;, &#x27;4&#x27;, &#x27;5&#x27;, &#x27;6&#x27;, &#x27;7&#x27;, &#x27;8&#x27;, &#x27;9&#x27;]</span><br></pre></td></tr></table></figure>
+
+<p>我们定义：非终止(non-terminal)是指<strong>不是以左右的尖括号作为开始和结束的</strong>表达式。以下表示了一些表达式类型。左侧为输入列表，右侧为输出的<strong>非终止</strong>类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">assert nonterminals(&quot;&lt;term&gt; * &lt;factor&gt;&quot;) == [&quot;&lt;term&gt;&quot;, &quot;&lt;factor&gt;&quot;]</span><br><span class="line">assert nonterminals(&quot;&lt;digit&gt;&lt;integer&gt;&quot;) == [&quot;&lt;digit&gt;&quot;, &quot;&lt;integer&gt;&quot;]</span><br><span class="line">assert nonterminals(&quot;1 &lt; 3 &gt; 2&quot;) == []</span><br><span class="line">assert nonterminals(&quot;1 &lt;3&gt; 2&quot;) == [&quot;&lt;3&gt;&quot;]</span><br><span class="line">assert nonterminals(&quot;1 + 2&quot;) == []</span><br><span class="line">assert nonterminals((&quot;&lt;1&gt;&quot;, &#123;&#x27;option&#x27;: &#x27;value&#x27;&#125;)) == [&quot;&lt;1&gt;&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="一个简单的grammer-fuzzer"><a href="#一个简单的grammer-fuzzer" class="headerlink" title="一个简单的grammer fuzzer"></a>一个简单的grammer fuzzer</h2><p>我是一只小懒虫，我把代码复制到这里，然后分析一下，✌</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">simple_grammar_fuzzer</span>(<span class="params">grammar: Grammar, </span></span><br><span class="line"><span class="params">                          start_symbol: <span class="built_in">str</span> = START_SYMBOL,</span></span><br><span class="line"><span class="params">                          max_nonterminals: <span class="built_in">int</span> = <span class="number">10</span>,</span></span><br><span class="line"><span class="params">                          max_expansion_trials: <span class="built_in">int</span> = <span class="number">100</span>,</span></span><br><span class="line"><span class="params">                          log: <span class="built_in">bool</span> = <span class="literal">False</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Produce a string from `grammar`.</span></span><br><span class="line"><span class="string">       `start_symbol`: use a start symbol other than `&lt;start&gt;` (default).</span></span><br><span class="line"><span class="string">       `max_nonterminals`: the maximum number of nonterminals </span></span><br><span class="line"><span class="string">         still left for expansion</span></span><br><span class="line"><span class="string">       `max_expansion_trials`: maximum # of attempts to produce a string</span></span><br><span class="line"><span class="string">       `log`: print expansion progress if True&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    term = start_symbol</span><br><span class="line">    expansion_trials = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 当术语中还有非终止符号的时候</span></span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">len</span>(nonterminals(term)) &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="comment"># 从术语中所有非终止符中挑选一个扩展。这里和之前讲的有顺序的扩展不太一样。</span></span><br><span class="line">        symbol_to_expand = random.choice(nonterminals(term))</span><br><span class="line">        <span class="comment"># grammar是之前我们写的map类型的规则，作为参数传递进这个类，在这里引用，并找到这个key对应的expansion种类。</span></span><br><span class="line">        expansions = grammar[symbol_to_expand]</span><br><span class="line">        <span class="comment"># 从这个key的所有expansion中随机找到一个</span></span><br><span class="line">        expansion = random.choice(expansions)</span><br><span class="line">        <span class="comment"># In later chapters, we allow expansions to be tuples,</span></span><br><span class="line">        <span class="comment"># with the expansion being the first element</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(expansion, <span class="built_in">tuple</span>):</span><br><span class="line">            expansion = expansion[<span class="number">0</span>]</span><br><span class="line"><span class="comment"># 将随机选取的扩展替换之前的</span></span><br><span class="line">        new_term = term.replace(symbol_to_expand, expansion, <span class="number">1</span>)</span><br><span class="line"><span class="comment"># 这里是防止非术语过多导致爆栈问题。设置了一个非术语数量上限。如果小于上线，就将术语替换成刚才换掉的，否则expansion_trials++，表示超出一次。如果超出多次，就直接停止计算。</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(nonterminals(new_term)) &lt; max_nonterminals:</span><br><span class="line">            term = new_term</span><br><span class="line">            <span class="keyword">if</span> log:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;%-40s&quot;</span> % (symbol_to_expand + <span class="string">&quot; -&gt; &quot;</span> + expansion), term)</span><br><span class="line">            expansion_trials = <span class="number">0</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            expansion_trials += <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> expansion_trials &gt;= max_expansion_trials:</span><br><span class="line">                <span class="keyword">raise</span> ExpansionError(<span class="string">&quot;Cannot expand &quot;</span> + <span class="built_in">repr</span>(term))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> term</span><br></pre></td></tr></table></figure>
+
+<p>用如下方式调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">simple_grammar_fuzzer(grammar=EXPR_GRAMMAR, max_nonterminals=3, log=True)</span><br></pre></td></tr></table></figure>
+
+<p>如下，可以生成很多很有意思的算式。但是更重要的是，这和基于变异的生成方式不同。这里给随机性加上了一定的规则，不能随机变成别的内容比如字母等。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">7 / +48.5</span><br><span class="line">-5.9 / 9 - 4 * +-(-+++((1 + (+7 - (-1 * (++-+7.7 - -+-4.0))))) * +--4 - -(6) + 64)</span><br><span class="line">8.2 - 27 - -9 / +((+9 * --2 + --+-+-((-1 * +(8 - 5 - 6)) * (-((-+(((+(4))))) - ++4) / +(-+---((5.6 - --(3 * -1.8 * +(6 * +-(((-(-6) * ---+6)) / +--(+-+-7 * (-0 * (+(((((2)) + 8 - 3 - ++9.0 + ---(--+7 / (1 / +++6.37) + (1) / 482) / +++-+0)))) * -+5 + 7.513)))) - (+1 / ++((-84)))))))) * ++5 / +-(--2 - -++-9.0)))) / 5 * --++090</span><br><span class="line">1 - -3 * 7 - 28 / 9</span><br><span class="line">(+9) * +-5 * ++-926.2 - (+9.03 / -+(-(-6) / 2 * +(-+--(8) / -(+1.0) - 5 + 4)) * 3.5)</span><br><span class="line">8 + -(9.6 - 3 - -+-4 * +77)</span><br><span class="line">-(((((++((((+((++++-((+-37))))))))))))) / ++(-(+++(+6)) * -++-(+(++(---6 * (((7)) * (1) / (-7.6 * 535338) + +256) * 0) * 0))) - 4 + +1</span><br><span class="line">5.43</span><br><span class="line">(9 / -405 / -23 - +-((+-(2 * (13))))) + +6 - +8 - 934</span><br><span class="line">-++2 - (--+715769550) / 8 / (1)</span><br></pre></td></tr></table></figure>
+
+<p>但是这样的缺点也有很多。比如说，可能包含很多字符串搜索、替换工作等。(或许考法一种面向语法的编译器可以解决问题?)</p>
+<p><img src="/.io//image-20220317230102013.png" alt="image-20220317230102013"></p>
+<h1 id="更多语法例子"><a href="#更多语法例子" class="headerlink" title="更多语法例子"></a>更多语法例子</h1><p>这里放一个比较有趣的吧。比如说下面的例子，可以用来生成书名。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">TITLE_GRAMMAR: Grammar = &#123;</span><br><span class="line">    <span class="string">&quot;&lt;start&gt;&quot;</span>: [<span class="string">&quot;&lt;title&gt;&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;title&gt;&quot;</span>: [<span class="string">&quot;&lt;topic&gt;: &lt;subtopic&gt;&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;topic&gt;&quot;</span>: [<span class="string">&quot;Generating Software Tests&quot;</span>, <span class="string">&quot;&lt;fuzzing-prefix&gt;Fuzzing&quot;</span>, <span class="string">&quot;The Fuzzing Book&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;fuzzing-prefix&gt;&quot;</span>: [<span class="string">&quot;&quot;</span>, <span class="string">&quot;The Art of &quot;</span>, <span class="string">&quot;The Joy of &quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;subtopic&gt;&quot;</span>: [<span class="string">&quot;&lt;subtopic-main&gt;&quot;</span>,</span><br><span class="line">                   <span class="string">&quot;&lt;subtopic-prefix&gt;&lt;subtopic-main&gt;&quot;</span>,</span><br><span class="line">                   <span class="string">&quot;&lt;subtopic-main&gt;&lt;subtopic-suffix&gt;&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;subtopic-main&gt;&quot;</span>: [<span class="string">&quot;Breaking Software&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;Generating Software Tests&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;Principles, Techniques and Tools&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;subtopic-prefix&gt;&quot;</span>: [<span class="string">&quot;&quot;</span>, <span class="string">&quot;Tools and Techniques for &quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;subtopic-suffix&gt;&quot;</span>: [<span class="string">&quot; for &lt;reader-property&gt; and &lt;reader-property&gt;&quot;</span>,</span><br><span class="line">                          <span class="string">&quot; for &lt;software-property&gt; and &lt;software-property&gt;&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;reader-property&gt;&quot;</span>: [<span class="string">&quot;Fun&quot;</span>, <span class="string">&quot;Profit&quot;</span>],</span><br><span class="line">    <span class="string">&quot;&lt;software-property&gt;&quot;</span>: [<span class="string">&quot;Robustness&quot;</span>, <span class="string">&quot;Reliability&quot;</span>, <span class="string">&quot;Security&quot;</span>],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下，解释方式其实上面计算器的例子已经很好的说明了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#x27;Fuzzing: Generating Software Tests&#x27;,</span><br><span class="line"> &#x27;Fuzzing: Principles, Techniques and Tools&#x27;,</span><br><span class="line"> &#x27;Generating Software Tests: Breaking Software&#x27;,</span><br><span class="line"> &#x27;Generating Software Tests: Breaking Software for Robustness and Robustness&#x27;,</span><br><span class="line"> &#x27;Generating Software Tests: Principles, Techniques and Tools&#x27;,</span><br><span class="line"> &#x27;Generating Software Tests: Principles, Techniques and Tools for Profit and Fun&#x27;,</span><br><span class="line"> &#x27;Generating Software Tests: Tools and Techniques for Principles, Techniques and Tools&#x27;,</span><br><span class="line"> &#x27;The Fuzzing Book: Breaking Software&#x27;,</span><br><span class="line"> &#x27;The Fuzzing Book: Generating Software Tests for Profit and Profit&#x27;,</span><br><span class="line"> &#x27;The Fuzzing Book: Generating Software Tests for Robustness and Robustness&#x27;&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="结合mutation和grammar"><a href="#结合mutation和grammar" class="headerlink" title="结合mutation和grammar"></a>结合mutation和grammar</h1><p>如果我们将变异和语法结合起来，语法上的生成数据能够生成有效的输入，而变异的数据能够提供一部分的无效输入，能够得到更好，更大的覆盖面。具体的使用方法也很简单，只需要把语法的生成结果作为种子输入到变异内部即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">number_of_seeds = <span class="number">10</span></span><br><span class="line">seeds = [</span><br><span class="line">    simple_grammar_fuzzer(</span><br><span class="line">        grammar=URL_GRAMMAR,</span><br><span class="line">        max_nonterminals=<span class="number">10</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(number_of_seeds)]</span><br><span class="line">seeds</span><br><span class="line">[<span class="string">&#x27;ftps://user:password@www.google.com:80&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://cispa.saarland/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftp://www.google.com:42/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftps://user:password@fuzzingbook.com:39?abc=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;https://www.google.com?x33=1&amp;x06=1&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://www.google.com:02/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;https://user:password@www.google.com/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftp://cispa.saarland:8080/?abc=abc&amp;def=def&amp;abc=5&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://www.google.com:80/def?def=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://user:password@cispa.saarland/&#x27;</span>]</span><br><span class="line"><span class="comment"># 使用之前讲到的变异fuzzer</span></span><br><span class="line">m = MutationFuzzer(seeds)</span><br><span class="line">[m.fuzz() <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">20</span>)]</span><br><span class="line">[<span class="string">&#x27;ftps://user:password@www.google.com:80&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://cispa.saarland/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftp://www.google.com:42/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftps://user:password@fuzzingbook.com:39?abc=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;https://www.google.com?x33=1&amp;x06=1&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://www.google.com:02/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;https://user:password@www.google.com/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftp://cispa.saarland:8080/?abc=abc&amp;def=def&amp;abc=5&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://www.google.com:80/def?def=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://user:password@cispa.saarland/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;Eh4tp:www.coogle.com:80/def?d%f=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftps://&#125;ser:passwod@fuzzingbook.com:9?abc=abc&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;uftp//cispa.sRaarland:808&amp;0?abc=abc&amp;def=defabc=5&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;http://user:paswor9d@cispar.saarland/v&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ftp://Www.g\x7fogle.cAom:42/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;hht://userC:qassMword@cispy.csaarland/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;httx://ww.googlecom:80defde`f=ac&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;htt://cispq.waarlnd/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;htFtp\t://cmspa./saarna(md/&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;ft:/www.google.com:42\x0f&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<h1 id="grammar-toolbox"><a href="#grammar-toolbox" class="headerlink" title="grammar toolbox"></a>grammar toolbox</h1><h2 id="语法构建程序"><a href="#语法构建程序" class="headerlink" title="语法构建程序"></a>语法构建程序</h2><p>这里主要介绍了一些用来检验、生成(例如正则匹配中的+-？等)的方法。基于的还是python。这里介绍了一个例子BNF，我们需要将他扩充为EBNF，如下所示。实际上就是扩展了一下正则语法。替换了问号、加减等。</p>
+<blockquote>
+<ol>
+<li><p>An expression <code>(content)op</code>, where <code>op</code> is one of <code>?</code>, <code>+</code>, <code>*</code>, becomes <code>&lt;new-symbol&gt;op</code>, with a new rule <code>&lt;new-symbol&gt; ::= content</code>.</p>
+</li>
+<li><p>An expression <code>&lt;symbol&gt;?</code> becomes <code>&lt;new-symbol&gt;</code>, where <code>&lt;new-symbol&gt; ::= &lt;empty&gt; | &lt;symbol&gt;</code>.</p>
+</li>
+<li><p>An expression <code>&lt;symbol&gt;+</code> becomes <code>&lt;new-symbol&gt;</code>, where <code>&lt;new-symbol&gt; ::= &lt;symbol&gt; | &lt;symbol&gt;&lt;new-symbol&gt;</code>.</p>
+</li>
+<li><p>An expression <code>&lt;symbol&gt;*</code> becomes <code>&lt;new-symbol&gt;</code>, where <code>&lt;new-symbol&gt; ::= &lt;empty&gt; | &lt;symbol&gt;&lt;new-symbol&gt;</code></p>
+</li>
+</ol>
+</blockquote>
+<p>接下来讲的其实有点像是编译，大概是符号扩展。书本中提到了实现此方法的三个步骤。第一步是生成新symbol，第二步是将生成的symbol重新表示成我们之前提到的语法的形式。下面是一个例子</p>
+<p><img src="/.io//image-20220318092644508.png" alt="image-20220318092644508"></p>
+<p>处理完这个之后，我们再用正则匹配问号等，并根据上述规则或者加入新符号，或者替换原本的符号。核心代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> operator == <span class="string">&#x27;?&#x27;</span>:</span><br><span class="line">    grammar[new_sym] = [<span class="string">&quot;&quot;</span>, original_symbol]</span><br><span class="line"><span class="keyword">elif</span> operator == <span class="string">&#x27;*&#x27;</span>:</span><br><span class="line">    grammar[new_sym] = [<span class="string">&quot;&quot;</span>, original_symbol + new_sym]</span><br><span class="line"><span class="keyword">elif</span> operator == <span class="string">&#x27;+&#x27;</span>:</span><br><span class="line">     grammar[new_sym] = [</span><br><span class="line">         original_symbol, original_symbol + new_sym]</span><br></pre></td></tr></table></figure>
+
+<p>上述三步完成之后，就可以根据正则语法写一些”语法”了。</p>
+<p><img src="/.io//image-20220318093039588.png" alt="image-20220318093039588"></p>
+<h2 id="语法检查程序"><a href="#语法检查程序" class="headerlink" title="语法检查程序"></a>语法检查程序</h2><p>这个有点过于复杂。牵涉到reachable和unreachable，并且检查语法合法性。这里后面有时间看的时候再进一步详细补充原理。总感觉相当于写了一个小编译器或者小解释器的感觉。</p>
+<h1 id="efficient-grammar-fuzzing"><a href="#efficient-grammar-fuzzing" class="headerlink" title="efficient grammar fuzzing"></a>efficient grammar fuzzing</h1><p>这一节介绍了一种用树结构表示变异的方法。用树结构的好处是：能够更清晰的看出变异过程，并且可以相应的控制变异什么时候开始和结束(通过监视变异树)</p>
+<p>在上面提到的简单语法树中，其实存在不少问题。例如下面的输入。在给定<code>max_nonterminals=3</code>的条件下，存在无限父节点的问题。观察第四行。由于我们严格限定了非终止符号长度，因此第四行只能选择<expr>，于是产生了无限父类的错误。</expr></p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#x27;&lt;start&gt;&#x27;: [&#x27;&lt;expr&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;expr&gt;&#x27;: [&#x27;&lt;term&gt; + &lt;expr&gt;&#x27;, &#x27;&lt;term&gt; - &lt;expr&gt;&#x27;, &#x27;&lt;term&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;term&gt;&#x27;: [&#x27;&lt;factor&gt; * &lt;term&gt;&#x27;, &#x27;&lt;factor&gt; / &lt;term&gt;&#x27;, &#x27;&lt;factor&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;factor&gt;&#x27;: [&#x27;&lt;sign-1&gt;&lt;factor&gt;&#x27;, &#x27;(&lt;expr&gt;)&#x27;, &#x27;&lt;integer&gt;&lt;symbol-1&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;sign&gt;&#x27;: [&#x27;+&#x27;, &#x27;-&#x27;],</span><br><span class="line"> &#x27;&lt;integer&gt;&#x27;: [&#x27;&lt;digit-1&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;digit&gt;&#x27;: [&#x27;0&#x27;, &#x27;1&#x27;, &#x27;2&#x27;, &#x27;3&#x27;, &#x27;4&#x27;, &#x27;5&#x27;, &#x27;6&#x27;, &#x27;7&#x27;, &#x27;8&#x27;, &#x27;9&#x27;],</span><br><span class="line"> &#x27;&lt;symbol&gt;&#x27;: [&#x27;.&lt;integer&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;sign-1&gt;&#x27;: [&#x27;&#x27;, &#x27;&lt;sign&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;symbol-1&gt;&#x27;: [&#x27;&#x27;, &#x27;&lt;symbol&gt;&#x27;],</span><br><span class="line"> &#x27;&lt;digit-1&gt;&#x27;: [&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;digit&gt;&lt;digit-1&gt;&#x27;]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了上述错误之外，这种语法结构也难以控制大小和监视变化。因此，我们通过引入树的结构就能够很好的解决这种问题(简单思考一下就能发现，解决上述问题只需要确保树没有循环指针就可以了)</p>
+<h2 id="语法树定义"><a href="#语法树定义" class="headerlink" title="语法树定义"></a>语法树定义</h2><p>每一次随机选定的终止符与非终止符作为叶节点(注意，类似加减乘除单独作为节点)之后将树展开。前序遍历得到的结果就是当前语法树的输出结果。如下图所示。</p>
+<p><img src="/.io//image-20220318234420004.png" alt="image-20220318234420004"></p>
+<p>这种结构如何表示呢?使用python</p>
+<h2 id="语法树的表示"><a href="#语法树的表示" class="headerlink" title="语法树的表示"></a>语法树的表示</h2><p>我们用如下结构体表示一个节点</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(SYMBOL_NAME, CHILDREN)</span><br></pre></td></tr></table></figure>
+
+<p>其中symbol_name如果是非终止符，就一定有叶节点，否则一定没有叶节点。下面是一个很简单的分叉树的表示</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DerivationTree = <span class="type">Tuple</span>[<span class="built_in">str</span>, <span class="type">Optional</span>[<span class="type">List</span>[<span class="type">Any</span>]]]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">derivation_tree: DerivationTree = (<span class="string">&quot;&lt;start&gt;&quot;</span>,</span><br><span class="line">                   [(<span class="string">&quot;&lt;expr&gt;&quot;</span>,</span><br><span class="line">                     [(<span class="string">&quot;&lt;expr&gt;&quot;</span>, <span class="literal">None</span>),</span><br><span class="line">                      (<span class="string">&quot; + &quot;</span>, []),</span><br><span class="line">                         (<span class="string">&quot;&lt;term&gt;&quot;</span>, <span class="literal">None</span>)]</span><br><span class="line">                     )])</span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220318234902745.png" alt="image-20220318234902745"></p>
+<p>注意如果是none，说明在未来还要扩展。否则一个空的list表示为终止符。</p>
+<h2 id="语法树的操作"><a href="#语法树的操作" class="headerlink" title="语法树的操作"></a>语法树的操作</h2><p>有一些比较重要的操作，例如扩展结点。这一步需要首先选定要扩展的节点，其次使用扩展算法。以下方法能够计算在输入一个分叉树时，计算当前可能的扩展数量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">GrammarFuzzer</span>(<span class="title class_ inherited__">GrammarFuzzer</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">possible_expansions</span>(<span class="params">self, node: DerivationTree</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        (symbol, children) = node</span><br><span class="line">        <span class="keyword">if</span> children <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">sum</span>(self.possible_expansions(c) <span class="keyword">for</span> c <span class="keyword">in</span> children)</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到使用了递归来计算能够扩展多少。如果当前children是none，说明到达了结尾，可以返回1，表示这里有一个可以扩展的节点。</p>
+<p>接下来当我们判定当前树存在可扩展的结点之后，就可以进行扩展。关键方法如下（<code>expand_tree_once</code>）。</p>
+<p>下面代码的大致思路是：首先看当前node的子节点是不是none。如果是none就说明到达了可以扩展的节点，使用expand_node扩展当前节点。否则说明当前还在树枝节点上，那么需要以当前节点作为根节点，进一步往下选择任意一个后面可以扩展的节点，选择它并进行<code>expand_tree_once</code>。是一个典型的树操作。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">GrammarFuzzer</span>(<span class="title class_ inherited__">GrammarFuzzer</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">choose_tree_expansion</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                              tree: DerivationTree,</span></span><br><span class="line"><span class="params">                              children: <span class="type">List</span>[DerivationTree]</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;Return index of subtree in `children` to be selected for expansion.</span></span><br><span class="line"><span class="string">           Defaults to random.&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> random.randrange(<span class="number">0</span>, <span class="built_in">len</span>(children))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">expand_tree_once</span>(<span class="params">self, tree: DerivationTree</span>) -&gt; DerivationTree:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;Choose an unexpanded symbol in tree; expand it.</span></span><br><span class="line"><span class="string">           Can be overloaded in subclasses.&quot;&quot;&quot;</span></span><br><span class="line">        (symbol, children) = tree</span><br><span class="line">        <span class="keyword">if</span> children <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="comment"># Expand this node</span></span><br><span class="line">            <span class="keyword">return</span> self.expand_node(tree)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Find all children with possible expansions</span></span><br><span class="line">        expandable_children = [</span><br><span class="line">            c <span class="keyword">for</span> c <span class="keyword">in</span> children <span class="keyword">if</span> self.any_possible_expansions(c)]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># `index_map` translates an index in `expandable_children`</span></span><br><span class="line">        <span class="comment"># back into the original index in `children`</span></span><br><span class="line">        index_map = [i <span class="keyword">for</span> (i, c) <span class="keyword">in</span> <span class="built_in">enumerate</span>(children)</span><br><span class="line">                     <span class="keyword">if</span> c <span class="keyword">in</span> expandable_children]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Select a random child</span></span><br><span class="line">        child_to_be_expanded = \</span><br><span class="line">            self.choose_tree_expansion(tree, expandable_children)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Expand in place</span></span><br><span class="line">        children[index_map[child_to_be_expanded]] = \</span><br><span class="line">            self.expand_tree_once(expandable_children[child_to_be_expanded])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> tree</span><br></pre></td></tr></table></figure>
+
+<p>可以用图的方法简明地看到效果。下面是第一次扩展的结果。</p>
+<p><img src="/.io//image-20220319142232107.png" alt="image-20220319142232107"></p>
+<p>下面是第二次扩展</p>
+<p><img src="/.io//image-20220319142256145.png" alt="image-20220319142256145"></p>
+<h2 id="优化分叉"><a href="#优化分叉" class="headerlink" title="优化分叉"></a>优化分叉</h2><p>为了监视二叉树的行为，我们加上一些树在expand时候的控制。例如控制树扩展次数和广度。我们首先定义了一个cost用来计算树在扩展时产生的开销。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">GrammarFuzzer</span>(<span class="title class_ inherited__">GrammarFuzzer</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">symbol_cost</span>(<span class="params">self, symbol: <span class="built_in">str</span>, seen: <span class="type">Set</span>[<span class="built_in">str</span>] = <span class="built_in">set</span>(<span class="params"></span>)</span>) \</span><br><span class="line">    -&gt; <span class="type">Union</span>[<span class="built_in">int</span>, <span class="built_in">float</span>]:</span><br><span class="line">        expansions = self.grammar[symbol]</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">min</span>(self.expansion_cost(e, seen | &#123;symbol&#125;) <span class="keyword">for</span> e <span class="keyword">in</span> expansions)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">expansion_cost</span>(<span class="params">self, expansion: Expansion,</span></span><br><span class="line"><span class="params">                       seen: <span class="type">Set</span>[<span class="built_in">str</span>] = <span class="built_in">set</span>(<span class="params"></span>)</span>) -&gt; <span class="type">Union</span>[<span class="built_in">int</span>, <span class="built_in">float</span>]:</span><br><span class="line">        symbols = nonterminals(expansion)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(symbols) == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>  <span class="comment"># no symbol</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">any</span>(s <span class="keyword">in</span> seen <span class="keyword">for</span> s <span class="keyword">in</span> symbols):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">float</span>(<span class="string">&#x27;inf&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># the value of a expansion is the sum of all expandable variables</span></span><br><span class="line">        <span class="comment"># inside + 1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">sum</span>(self.symbol_cost(s, seen) <span class="keyword">for</span> s <span class="keyword">in</span> symbols) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>我们定义的规则是：如果当前扩展中含有自己，说明可能潜在的存在无限递归的可能性，设置此时权值为正无穷，否则权值+1。使用symbol_cost能够输出扩展的最小权值。下面是例子</p>
+<p><img src="/.io//image-20220319150332406.png" alt="image-20220319150332406"></p>
+<p>至此，我们可以有一种选择策略，<strong>每次扩展树时，选择cost最小的扩展，如果都相同，随机选择一个进行扩展</strong></p>
+<blockquote>
+<p>思考：这里就可以把很多图里面有关的算法引入了。有了权值之后我们可以定义最小生成树，或者计算路径等等。可以把每次扩展的权值和覆盖率的提升作比较。可以后面深入思考一下。</p>
+<p>思考一下每次进行最小扩展具有的性质：cost表示的其实是能够最快达到演变结束的路径。也就是说每一次演变，我们朝着<strong>最快达到terminal</strong>的路径。</p>
+</blockquote>
+<p>同样的，为了获得更多可以演变的节点，我们一样可以编写<code>expand_node_max_cost</code>，来让演变变得越来越庞大。那么每一次演变，我们都尽可能朝着能够扩展expr的路径。下图为一个例子</p>
+<p><img src="/.io//image-20220319160036395.png" alt="image-20220319160036395"></p>
+<p>由上述，我们有了三种扩展策略。</p>
+<blockquote>
+<ol>
+<li><strong>Max cost expansion.</strong> Expand the tree using expansions with maximum cost until we have at least <code>min_nonterminals</code> nonterminals.  This phase can be easily skipped by setting <code>min_nonterminals</code> to zero.</li>
+<li><strong>Random expansion.</strong>  Keep on expanding the tree randomly until we reach <code>max_nonterminals</code> nonterminals.</li>
+<li><strong>Min cost expansion.</strong> Close the expansion with minimum cost.</li>
+</ol>
+</blockquote>
+<p>我们用如下策略来扩展树</p>
+<ol>
+<li>首先调用expand_node_max_cost来获得尽量多的node用来扩展。</li>
+<li>接着expand_random</li>
+<li>最后expand_min来企图快速达到收敛。</li>
+</ol>
+<p>这样就能实现对于任何一种语法树，我们有了控制其发散和收敛的方法。也就不会出现本章一开始提出的问题了。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-03-17, 21:32:14</p>
+        <p><span>最后更新:</span>2022-03-19, 16:08:38</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/03/17/fuzzing-6-grammer-fuzzing/" title="fuzzing-6-grammer_fuzzing">https://nicholas-wei.github.io/2022/03/17/fuzzing-6-grammer-fuzzing/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/03/17/fuzzing-6-grammer-fuzzing/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/03/29/zer0pts2022-accountant/">
+                    zer0pts2022_accountant
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/03/16/fuzzing-5-parallelize/">
+                    fuzzing-5-parallelize
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E7%9A%84%E8%AF%AD%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">输入的语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%EF%BC%9A%E6%95%B0%E5%AD%A6%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">实例：数学表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8python%E4%B8%AD%E7%BC%96%E5%86%99%E8%AF%AD%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">在python中编写语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84grammer-fuzzer"><span class="toc-number">1.3.</span> <span class="toc-text">一个简单的grammer fuzzer</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9B%B4%E5%A4%9A%E8%AF%AD%E6%B3%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.</span> <span class="toc-text">更多语法例子</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E5%90%88mutation%E5%92%8Cgrammar"><span class="toc-number">3.</span> <span class="toc-text">结合mutation和grammar</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#grammar-toolbox"><span class="toc-number">4.</span> <span class="toc-text">grammar toolbox</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E6%9E%84%E5%BB%BA%E7%A8%8B%E5%BA%8F"><span class="toc-number">4.1.</span> <span class="toc-text">语法构建程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E6%A3%80%E6%9F%A5%E7%A8%8B%E5%BA%8F"><span class="toc-number">4.2.</span> <span class="toc-text">语法检查程序</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#efficient-grammar-fuzzing"><span class="toc-number">5.</span> <span class="toc-text">efficient grammar fuzzing</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E6%A0%91%E5%AE%9A%E4%B9%89"><span class="toc-number">5.1.</span> <span class="toc-text">语法树定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E6%A0%91%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="toc-number">5.2.</span> <span class="toc-text">语法树的表示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E6%A0%91%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-number">5.3.</span> <span class="toc-text">语法树的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%88%86%E5%8F%89"><span class="toc-number">5.4.</span> <span class="toc-text">优化分叉</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"fuzzing-6-grammer_fuzzing　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/03/29/zer0pts2022-accountant/" title="上一篇: zer0pts2022_accountant">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/03/16/fuzzing-5-parallelize/" title="下一篇: fuzzing-5-parallelize">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

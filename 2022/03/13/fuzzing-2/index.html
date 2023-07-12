@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="学习网站,，这次主要基于libexif，fizz共享库。封校了，安心学习ing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fuzzing-2">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/03/13/fuzzing-2/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="学习网站,，这次主要基于libexif，fizz共享库。封校了，安心学习ing">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314102227098.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314111515233.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314112758534.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314130801214.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314105819541.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314131953777.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314132049731.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314132420032.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314132857871.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314132952712.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314141910400.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314143045368.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314143628351.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314143918338.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314145152643.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314145306512.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314150233892.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314150952796.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314151059213.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314152919806.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220314153340392.png">
+<meta property="article:published_time" content="2022-03-13T12:23:00.000Z">
+<meta property="article:modified_time" content="2022-03-14T07:45:42.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta property="article:tag" content="fuzzing101">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220314102227098.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>fuzzing-2 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-fuzzing-2" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/03/13/fuzzing-2/" class="article-date">
+      <time datetime="2022-03-13T12:23:00.000Z" itemprop="datePublished">2022-03-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      fuzzing-2
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/projects/">projects</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><a target="_blank" rel="noopener" href="https://github.com/antonio-morales/Fuzzing101/tree/main/Exercise%202">学习网站</a>,，这次主要基于libexif，fizz共享库。<br>封校了，安心学习ing</p>
+<span id="more"></span>
+
+<p>本次尝试使用afl++对一个library进行fuzz。fuzz本身倒是不难，我觉得难的是配置这样那样的环境，找到合适的训练样本。</p>
+<p>按照练习的说法，我们的workflow是</p>
+<ol>
+<li>Find an interface application that makes use of the libexif library</li>
+<li>Create a seed corpus of exif samples</li>
+<li>Compile libexif and the chosen application to be fuzzed using afl-clang-lto</li>
+<li>Fuzz libexif until you have a few unique crashes</li>
+<li>Triage the crashes to find a PoC for each vulnerability</li>
+<li>Fix the issues</li>
+</ol>
+<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>找到libexif倒不是很困难，难的是编译的时候总是报错。直接在github上面搜索<code>libexif</code>即可。<a target="_blank" rel="noopener" href="https://github.com/libexif/libexif">链接</a>。但是注意要下特定版本的(0.6.14)。<strong>这里遇到了第一个问题，怎么下载历史版本library</strong>。看了答案，完全不理解怎么找到的这个网站。甚至直接浏览器搜索<a target="_blank" rel="noopener" href="https://github.com/libexif/libexif/archive/%E9%83%BD%E6%98%AF404%EF%BC%8C%E4%BD%86%E6%98%AF%E5%8D%B4%E5%8F%AF%E4%BB%A5%E4%B8%8B%E8%BD%BD%E3%80%82">https://github.com/libexif/libexif/archive/都是404，但是却可以下载。</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/libexif/libexif/archive/refs/tags/libexif-0_6_14-release.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>接下来解压</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf libexif-0_6_14-release.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>接下来是编译。这里找到了一个很好的<a target="_blank" rel="noopener" href="http://blog.fpliu.com/it/software/development/language/c/library/libexif">介绍编译选项的网站</a>，然后发现其实在这里也有<a target="_blank" rel="noopener" href="http://blog.fpliu.com/it/software/development/language/c/library/libexif/build-for-current-host">下载链接</a>，不用去github那个诡异的链接里面下载了。</p>
+<p><img src="/.io//image-20220314102227098.png" alt="image-20220314102227098"></p>
+<p>通过这个网站的学习，了解到configure的用法——生成makefile文件。具体的我不搬运了，讲的挺好的。重点写一下自己学到的。</p>
+<blockquote>
+<p>一般git clone下载的文件，由于不知道要在那些系统上(windows,linux等)，用什么编译器(gcc,clang)编译，因此需要<strong>生成</strong>一个符合系统配置的makefile文件。这时就需要用configure生成了。除此以外，手工编写makefile文件也是很大的挑战。具体来说，有以下几步</p>
+<p>利用命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">autoreconf -fvi</span><br></pre></td></tr></table></figure>
+
+<p>来生成一个全新的configure文件。<a target="_blank" rel="noopener" href="https://docs.oracle.com/cd/E56344_01/html/E54075/autoreconf-1.html">参考</a></p>
+<p>之后设置configure的参数。我们重点设置安装路径和使用的编译器种类。(编译器可能不设置默认为gcc？)这里是看了答案的。类似于上一次lab，指定安装路径为/install文件夹即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot;</span><br></pre></td></tr></table></figure>
+
+<p>之后就可以make了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; sudo make install</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>期间遇到了一些问题，记录在下文了。</p>
+<p>之后嘞，需要找一个使用libexif的文件，最好不是GUI的。我们在<a target="_blank" rel="noopener" href="https://github.com/libexif/libexif">libexif的官网</a>上其实能找到。</p>
+<p><img src="/.io//image-20220314111515233.png" alt="image-20220314111515233"></p>
+<p>看到答案是下了exif，我这里也下这个吧。之后编译exif的过程和上面差不多，网上也能查到，看答案也没问题。需要注意的是这里的configure文件编写。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot; PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>PKG_CONFIG_PATH</code>是什么意思呢?网上查</p>
+<blockquote>
+<p><code>PKG_CONFIG_PATH</code>是一个环境变量，它指定<code>pkg-config</code>将在其中搜索其.pc文件的其他路径。</p>
+<p>此变量用于增强pkg-config的默认搜索路径。在典型的Unix系统上，它将搜索目录<code>/usr/lib/pkgconfig</code>和<code>/usr/share/pkgconfig</code>。这通常包括系统安装的模块。但是，某些本地模块可能安装在不同的前缀中，例如<code>/usr/local</code>。在这种情况下，必须预先设置搜索路径，以便pkg-config可以找到.pc文件。</p>
+</blockquote>
+<p>我的理解是，既然我们把libexif它安装在了我们指定路径下(编译libexif时的configure)，这里就需要指定pkgconfig，因为它并不是安装在上面写的默认搜索路径中。在这两步之后，就能够正常运行libexif了。</p>
+<h2 id="环境配置遇到的问题"><a href="#环境配置遇到的问题" class="headerlink" title="环境配置遇到的问题"></a>环境配置遇到的问题</h2><p>尝试<code>./configure</code>时：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">* Fatal: libexif command line interface requires libexif to build.</span><br><span class="line">*</span><br><span class="line">* Possible solutions:</span><br><span class="line">*   - set PKG_CONFIG_PATH to adequate value</span><br><span class="line">*   - call configure with LIBEXIF_LIBS=.. and LIBEXIF_CFLAGS=..</span><br><span class="line">*   - call configure with one of the --with-libexif parameters</span><br><span class="line">*   - get libexif and install it:</span><br></pre></td></tr></table></figure>
+
+<p>解决：这个是exif而不是libexif。需要先安装libexif。</p>
+<p>尝试<code>make install</code>时</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make[2]: *** No rule to make target &#x27;install-apidocs&#x27;, needed by &#x27;install-data-local&#x27;.  Stop.</span><br></pre></td></tr></table></figure>
+
+<p>解决：这个似乎完全不需要管，程序照样能运行。(输入/home/fuzz/fuzzing_libexif/install/bin/exif)可以看到输出。</p>
+<p><img src="/.io//image-20220314112758534.png" alt="image-20220314112758534"></p>
+<h1 id="fuzz"><a href="#fuzz" class="headerlink" title="fuzz"></a>fuzz</h1><p>在fuzz之前，按照练习的说法，需要用<code>afl-clang-lto</code>重新编译上述两个文件。只需要指定CC与CXX两个环境变量即可。（这里为什么是llvm-config-11不太清楚，不过看说明这应该是一个专门写在config上面的配置文件）</p>
+<p><img src="/.io//image-20220314130801214.png" alt="image-20220314130801214"></p>
+<p>以下是代码。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">rm -r $HOME/fuzzing_libexif/install</span><br><span class="line">cd $HOME/fuzzing_libexif/libexif-libexif-0_6_14-release/</span><br><span class="line">make clean</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot;</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"></span><br><span class="line">cd $HOME/fuzzing_libexif/exif-exif-0_6_15-release</span><br><span class="line">make clean</span><br><span class="line">export LLVM_CONFIG=&quot;llvm-config-11&quot;</span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=&quot;$HOME/fuzzing_libexif/install/&quot; PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>之后可以用afl-clang-lto编译上述文件。查看文档，afl-lto实际上是首选项。这样会导致之前讲到的hashmap冲突发生的可能性更小。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">+--------------------------------+</span><br><span class="line">| clang/clang++ 11+ is available | --&gt; use LTO mode (afl-clang-lto/afl-clang-lto++)</span><br><span class="line">+--------------------------------+     see [instrumentation/README.lto.md](instrumentation/README.lto.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if the target fails with LTO afl-clang-lto/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">+---------------------------------+</span><br><span class="line">| clang/clang++ 3.8+ is available | --&gt; use LLVM mode (afl-clang-fast/afl-clang-fast++)</span><br><span class="line">+---------------------------------+     see [instrumentation/README.llvm.md](instrumentation/README.llvm.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if the target fails with LLVM afl-clang-fast/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line"> +--------------------------------+</span><br><span class="line"> | gcc 5+ is available            | -&gt; use GCC_PLUGIN mode (afl-gcc-fast/afl-g++-fast)</span><br><span class="line"> +--------------------------------+    see [instrumentation/README.gcc_plugin.md](instrumentation/README.gcc_plugin.md) and</span><br><span class="line">                                       [instrumentation/README.instrument_list.md](instrumentation/README.instrument_list.md)</span><br><span class="line">    |</span><br><span class="line">    | if not, or if you do not have a gcc with plugin support</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">   use GCC mode (afl-gcc/afl-g++) (or afl-clang/afl-clang++ for clang)</span><br></pre></td></tr></table></figure>
+
+<p>使用以下语句完成编译</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz -i /home/fuzz/fuzzing_libexif/exif-samples-master/jpg -o /home/fuzz/fuzzing_libexif/out -s 123 -- $HOME/fuzzing_libexif/install/bin/exif @@</span><br></pre></td></tr></table></figure>
+
+<p>解释一下上面语句的含义。-i指定了输入文件，-o指定输出文件夹(这两个都是fuzzer所需要的)，-s是seed，一个随机种子。后面的<code>--</code>代表命令行的输入，也就是我们如何从命令行调用这个文件，@@表示afl将在这里替换我们的输入，也就是上面-i的内容。跑了一会儿之后得到下面的内容。</p>
+<p><img src="/.io//image-20220314105819541.png" alt="image-20220314105819541"></p>
+<p>发现还是出现了蛮多错误的，都是sigmentation fault。</p>
+<p><img src="/.io//image-20220314131953777.png" alt="image-20220314131953777"></p>
+<p><img src="/.io//image-20220314132049731.png" alt="image-20220314132049731"></p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>之前是用gdb调试，这次练习教的是用eclipse。但是我不想用，linux中图形化支持有点慢。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br><span class="line">0x000000000022baef in exif_data_load_data (data=0x4535b0, d_orig=&lt;optimized out&gt;, ds_orig=&lt;optimized out&gt;) at exif-utils.c:92</span><br><span class="line">92                      return ((buf[0] &lt;&lt; 8) | buf[1]);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220314132420032.png" alt="image-20220314132420032"></p>
+<p>还是用的gdb。可以看到停在了这里</p>
+<p><img src="/.io//image-20220314132857871.png" alt="image-20220314132857871"></p>
+<p>这里$rcx并不是一个合理的值，可能是溢出之后的结果。就是这里导致了segmentation fault。</p>
+<p><img src="/.io//image-20220314132952712.png" alt="image-20220314132952712"></p>
+<h2 id="源码查看"><a href="#源码查看" class="headerlink" title="源码查看"></a>源码查看</h2><p>使用以下命令递归查找文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find . -name &quot;exif-utils.c&quot;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">./libexif/exif-utils.c</span></span><br></pre></td></tr></table></figure>
+
+<p>之后利用先前的gdb中backtrace（bt）查找调用栈。这里学到的一点是不能再fault之后再backtrace，好像和断在之前不一样。以下是断在segmentation fault之前的结果。</p>
+<p><img src="/.io//image-20220314141910400.png" alt="image-20220314141910400"></p>
+<p>漏洞函数为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">ExifSShort</span><br><span class="line"><span class="title function_">exif_get_sshort</span> <span class="params">(<span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> *buf, ExifByteOrder order)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span> (!buf) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">switch</span> (order) &#123;</span><br><span class="line">        <span class="keyword">case</span> EXIF_BYTE_ORDER_MOTOROLA:</span><br><span class="line">                <span class="keyword">return</span> ((buf[<span class="number">0</span>] &lt;&lt; <span class="number">8</span>) | buf[<span class="number">1</span>]); &lt;== crash here</span><br><span class="line">        <span class="keyword">case</span> EXIF_BYTE_ORDER_INTEL:</span><br><span class="line">                <span class="keyword">return</span> ((buf[<span class="number">1</span>] &lt;&lt; <span class="number">8</span>) | buf[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Won&#x27;t be reached */</span></span><br><span class="line">	<span class="keyword">return</span> (<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由上面的分析，是传入的第一个参数有问题。</p>
+<p>向上追溯，定位到以下关键函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ExifShort</span><br><span class="line"><span class="title function_">exif_get_short</span> <span class="params">(<span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> *buf, ExifByteOrder order)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> (exif_get_sshort (buf, order) &amp; <span class="number">0xffff</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来向上寻找，到<code>exif_data_load_data</code>第804行和819行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	<span class="comment">/* Fixed value */</span></span><br><span class="line">	<span class="keyword">if</span> (exif_get_short (d + <span class="number">8</span>, data-&gt;priv-&gt;order) != <span class="number">0x002a</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line"><span class="comment">// line 819</span></span><br><span class="line">	n = exif_get_short (d + <span class="number">6</span> + offset, data-&gt;priv-&gt;order);</span><br><span class="line">	<span class="keyword">if</span> (offset + <span class="number">6</span> + <span class="number">2</span> + <span class="number">12</span> * n + <span class="number">4</span> &gt; ds) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里给d也就是buf加了一个8。可能就是这里的问题吗?(假设d为空?)断在这个函数之前调试一下。</p>
+<p><img src="/.io//image-20220314143045368.png" alt="image-20220314143045368"></p>
+<p>看源码发现memcmp用的参数1和exif_get_short用的参数是一样的，查看了一下寄存器的值</p>
+<p><img src="/.io//image-20220314143628351.png" alt="image-20220314143628351"></p>
+<p>memcpy结束后，将会判定两者相等，从而跳出循环到下面的漏洞函数中。注意观察这一段汇编代码，正是判断是否等于0x002a的一段。</p>
+<p><img src="/.io//image-20220314143918338.png" alt="image-20220314143918338"></p>
+<p>这一段应该直接被优化成内联汇编展开了，而不是函数调用(卡了好久，，就说为什么没有断上去)但是这一段现在没有问题，直接经过了??</p>
+<p><img src="/.io//image-20220314145152643.png" alt="image-20220314145152643"></p>
+<p>找这个问题还是挺麻烦的。但是我们知道了汇编代码的行数，尝试直接在汇编代码上面下断点?</p>
+<p><img src="/.io//image-20220314145306512.png" alt="image-20220314145306512"></p>
+<p>终于找到了，原来有两个地方调用了<code>exif_get_short</code>，在819行还有一个。这里看的就比较清楚了，是offset越界导致的错误。注意4294967295是0xFFFFFFFF！好的，找到了一个整数溢出的bug。</p>
+<p><img src="/.io//image-20220314150233892.png" alt="image-20220314150233892"></p>
+<p>接下来就可以看源码找offset在哪里了。和offset相关的代码一定在这句话附近。我们逐个调试一下。分别在808,813行，最终定位到808行会出现问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* IFD 0 offset */</span></span><br><span class="line">offset = exif_get_long (d + <span class="number">10</span>, data-&gt;priv-&gt;order);</span><br><span class="line">exif_log (data-&gt;priv-&gt;<span class="built_in">log</span>, EXIF_LOG_CODE_DEBUG, <span class="string">&quot;ExifData&quot;</span>, </span><br><span class="line">	  <span class="string">&quot;IFD 0 at %i.&quot;</span>, (<span class="type">int</span>) offset);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Parse the actual exif data (usually offset 14 from start) */</span></span><br><span class="line">exif_data_load_data_content (data, EXIF_IFD_0, d + <span class="number">6</span>, ds - <span class="number">6</span>, offset, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* IFD 1 offset */</span></span><br><span class="line"><span class="keyword">if</span> (offset + <span class="number">6</span> + <span class="number">2</span> &gt; ds) &#123;</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line">n = exif_get_short (d + <span class="number">6</span> + offset, data-&gt;priv-&gt;order);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220314150952796.png" alt="image-20220314150952796"></p>
+<p>那搞了半天，应该是exif_get_long返回值的问题，如下</p>
+<p><img src="/.io//image-20220314151059213.png" alt="image-20220314151059213"></p>
+<p>下面是汇编部分，只用了一句汇编指令就完成了(不愧是intel!)关键是这里</p>
+<p><img src="/.io//image-20220314152919806.png" alt="image-20220314152919806"></p>
+<p>查询<a target="_blank" rel="noopener" href="https://faydoc.tripod.com/cpu/bswap.htm">intel汇编手册</a></p>
+<blockquote>
+<p><strong>Description</strong><br> Reverses the byte order of a 32-bit (destination) register: bits 0  through 7 are swapped with bits 24 through 31, and bits 8 through 15 are swapped with bits 16 through 23. This instruction is provided for  converting little-endian values to big-endian format and vice versa.</p>
+</blockquote>
+<p>确实一句话完成了这个工作。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) si</span><br><span class="line">(gdb) p $ebp</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">10 = -1</span></span><br></pre></td></tr></table></figure>
+
+<p>感觉已经接近真相了！看看exp是哪里来的，是0xa(%r15)，应该就是这个函数的参数d+10!（exif-data.c第808行）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">offset = exif_get_long (d + <span class="number">10</span>, data-&gt;priv-&gt;order);</span><br></pre></td></tr></table></figure>
+
+<p>这里应该就是一个越界读的操作了，通过以下命令可以看出。至此，完成了我们的分析。</p>
+<p><img src="/.io//image-20220314153340392.png" alt="image-20220314153340392"></p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>对上面offset返回值加上一个sanity-check，控制大小范围。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这次是fuzz共享库，一方面要找共享库文件、使用共享库的文件、输入集合；另外一方面要学会怎么编译一个共享库，怎么使用afl-clang-lto编译。最重要的是，调试并复现漏洞(真的花了将近六个小时)，学到了一些，还是很有收获的。</p>
+<ul>
+<li>常用的下载网站</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="http://blog.fpliu.com/it/software/development/language/c/library/libexif/build-for-current-host">http://blog.fpliu.com/it/software/development/language/c/library/libexif/build-for-current-host</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/03/13/fuzzing-2/">fuzzing-2</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-03-13, 20:23:00</p>
+        <p><span>最后更新:</span>2022-03-14, 15:45:42</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/03/13/fuzzing-2/" title="fuzzing-2">https://nicholas-wei.github.io/2022/03/13/fuzzing-2/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/03/13/fuzzing-2/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/03/15/fuzzing-4-code_coverage/">
+                    fuzzing-4
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/03/09/software-security-lab1/">
+                    software-security_lab1
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83"><span class="toc-number">1.</span> <span class="toc-text">环境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.</span> <span class="toc-text">环境配置遇到的问题</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#fuzz"><span class="toc-number">2.</span> <span class="toc-text">fuzz</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">3.</span> <span class="toc-text">调试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E6%9F%A5%E7%9C%8B"><span class="toc-number">3.1.</span> <span class="toc-text">源码查看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.2.</span> <span class="toc-text">问题解决</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"fuzzing-2　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/03/15/fuzzing-4-code_coverage/" title="上一篇: fuzzing-4">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/03/09/software-security-lab1/" title="下一篇: software-security_lab1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

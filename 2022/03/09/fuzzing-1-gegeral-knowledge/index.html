@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="fuzz零基础第一课——fuzz关键思想、AFL实现综述">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fuzzing-1-gegeral_knowledge">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/03/09/fuzzing-1-gegeral-knowledge/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="fuzz零基础第一课——fuzz关键思想、AFL实现综述">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312194235177.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312215055637.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312220623934.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312225515617.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312225618505.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220312225830866.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220313082846650.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220313002543874.png">
+<meta property="article:published_time" content="2022-03-09T06:49:58.000Z">
+<meta property="article:modified_time" content="2022-03-14T07:38:18.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta property="article:tag" content="fuzzing101">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220312194235177.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>fuzzing-1-gegeral_knowledge | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-fuzzing-1-gegeral-knowledge" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/03/09/fuzzing-1-gegeral-knowledge/" class="article-date">
+      <time datetime="2022-03-09T06:49:58.000Z" itemprop="datePublished">2022-03-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      fuzzing-1-gegeral_knowledge
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/projects/">projects</a><a class="article-category-link" href="/categories/projects/basic/">basic</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>fuzz零基础第一课——fuzz关键思想、AFL实现综述</p>
+<span id="more"></span>
+
+<h1 id="AFL实现阅读笔记"><a href="#AFL实现阅读笔记" class="headerlink" title="AFL实现阅读笔记"></a>AFL实现阅读笔记</h1><h2 id="控制流侦测"><a href="#控制流侦测" class="headerlink" title="控制流侦测"></a>控制流侦测</h2><p>大致了解了一下AFL的实现。AFL的本质还是动态插桩，其插桩的方式是在汇编语言角度上根据控制流形成的一种插桩手法。为此，afl专门使用了自己的编译器<code>afl-gcc/afl-clang</code>以及汇编器<code>afl-as</code>。在使用此编译器之后，插入程序的汇编代码如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">fprintf</span>(outf, use_64bit ? trampoline_fmt_64 : trampoline_fmt_32, R(MAP_SIZE));</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">static const u8* trampoline_fmt_32 =</span><br><span class="line"></span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">  &quot;/* --- AFL TRAMPOLINE (32-BIT) --- */\n&quot;</span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">  &quot;.align 4\n&quot;</span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">  &quot;leal -16(%%esp), %%esp\n&quot;</span><br><span class="line">  &quot;movl %%edi, 0(%%esp)\n&quot;</span><br><span class="line">  &quot;movl %%edx, 4(%%esp)\n&quot;</span><br><span class="line">  &quot;movl %%ecx, 8(%%esp)\n&quot;</span><br><span class="line">  &quot;movl %%eax, 12(%%esp)\n&quot;</span><br><span class="line">  &quot;movl $0x%08x, %%ecx\n&quot;</span><br><span class="line">  &quot;call __afl_maybe_log\n&quot;</span><br><span class="line">  &quot;movl 12(%%esp), %%eax\n&quot;</span><br><span class="line">  &quot;movl 8(%%esp), %%ecx\n&quot;</span><br><span class="line">  &quot;movl 4(%%esp), %%edx\n&quot;</span><br><span class="line">  &quot;movl 0(%%esp), %%edi\n&quot;</span><br><span class="line">  &quot;leal 16(%%esp), %%esp\n&quot;</span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">  &quot;/* --- END --- */\n&quot;</span><br><span class="line">  &quot;\n&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>除了保存一些寄存器之外，程序调用了<code>__afl_maybe_log</code>(将在下面说明)。(保存寄存器的地方注意ecx保存了sprintf的参数 R(MAP_SIZE))。这是一个随机数，用来标识程序当前执行到哪个控制块。</p>
+<blockquote>
+<p> 何时调用sprintf呢？网上有文章说是<code>在处理到某个分支，需要插入桩代码时，afl-as会生成一个随机数，作为运行时保存在ecx中的值</code>。但是也没有说清楚什么是分支，以及怎么判断分支。</p>
+</blockquote>
+<p>我觉得这是比较巧妙的。fuzz的实现这里可以理解为基于达到了多少控制流。看到这里也许脑海中已经对fuzz的基本思路有了一个想法。</p>
+<h2 id="fork-server"><a href="#fork-server" class="headerlink" title="fork-server"></a>fork-server</h2><p>可想而知的是fuzzer一定会多次导致程序崩溃，那么必然要执行多次execve操作，这样将很花时间(<a target="_blank" rel="noopener" href="https://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html">这篇博客</a>有提到)。一个解决办法是使用一个fork-server。因为所有的fork都是写时复制，比较节省调用开销。从而AFL的逻辑是：fuzzer生成一个fork-server，之后在fuzzer和fork-server之间通信。包括fuzzer告知fork-server可以开始fork，以及在fork-server fork子进程运行完毕之后告知fuzzer子进程运行状况。大致的思路是这样。</p>
+<blockquote>
+<p>为什么要这么做?</p>
+<p>我个人认为是想要便于处理。mit6.828里面文件系统部分也是IPC通信，和这个还是比较类似的，甚至更复杂一些。</p>
+</blockquote>
+<h3 id="消息传递"><a href="#消息传递" class="headerlink" title="消息传递?"></a>消息传递?</h3><p>怎样在fork-server和fuzzer之间传递信息呢？阅读源码发现主要是通过一个共享内存的方式传递的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | <span class="number">0600</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="分支信息的记录"><a href="#分支信息的记录" class="headerlink" title="分支信息的记录"></a>分支信息的记录</h2><p>具体一点讲，怎么记录fork出来的子进程覆盖了多少代码呢?</p>
+<p>由官网文档可知，AFL是根据二元tuple(跳转的源地址和目标地址)来记录分支信息，从而获取target的执行流程和代码覆盖情况，其伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>AFL通过写入之前提到的共享内存，作为记录执行了多少分支的依据。从上面的伪代码可以看出，cur_location就是一个随机数，是在控制流侦测中 <code>R(MAP_SIZE)</code>生成的。通过把cur_location和prev_location异或，就能够得到一个能够标志某个分支的key。</p>
+<blockquote>
+<p>AFL为每个代码块生成一个随机数，作为其“位置”的记录；随后，对分支处的”源位置“和”目标位置“进行异或，并将异或的结果作为该分支的key，保存每个分支的执行次数</p>
+</blockquote>
+<p>这里比较迷惑的是为什么要<code>prev_location = cur_location &gt;&gt; 1;</code>文档里面给出的解释是</p>
+<blockquote>
+<p>官方文档中解释了这样做的原因。假设target中存在<code>A-&gt;A</code>和<code>B-&gt;B</code>这样两个跳转，如果不右移，那么这两个分支对应的异或后的key都是0，从而无法区分；另一个例子是<code>A-&gt;B</code>和<code>B-&gt;A</code>，如果不右移，这两个分支对应的异或后的key也是相同的</p>
+</blockquote>
+<p>一开始我还是有疑惑，那不就相当于修改了cur_location为另一个数值了吗，如果A-&gt;B-&gt;C是一个执行流，那么是不是有可能存在一个A-&gt;D-&gt;C的B-&gt;C和D-&gt;C部分碰撞呢?<strong>这里可能是hashmap碰撞检测的部分</strong>。因为只需要B和C不相同就可以了。(那么+1之后也不会相同)</p>
+<p>需要注意到的是，作为目标地址的A和作为起始地址的A可以理解为带有不同的信息，因此**+1影响到地址改变只是一种错觉**。</p>
+<p>看一下完整的源码，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&quot;__afl_store:\n&quot;</span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">  &quot; /* Calculate and store hit for the code location specified in ecx. There\n&quot;</span><br><span class="line">  &quot; is a double-XOR way of doing this without tainting another register,\n&quot;</span><br><span class="line">  &quot; and we use it on 64-bit systems; but it&#x27;s slower for 32-bit ones. */\n&quot;</span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">#ifndef COVERAGE_ONLY</span><br><span class="line"></span><br><span class="line">  &quot; movl __afl_prev_loc, %edi\n&quot;</span><br><span class="line">  &quot; xorl %ecx, %edi\n&quot;</span><br><span class="line">  &quot; shrl $1, %ecx\n&quot;</span><br><span class="line">  &quot; movl %ecx, __afl_prev_loc\n&quot;</span><br><span class="line">#else</span><br><span class="line"></span><br><span class="line">  &quot; movl %ecx, %edi\n&quot;</span><br><span class="line">#endif /* ^!COVERAGE_ONLY */</span><br><span class="line"></span><br><span class="line">  &quot;\n&quot;</span><br><span class="line">#ifdef SKIP_COUNTS</span><br><span class="line"></span><br><span class="line">  &quot; orb $1, (%edx, %edi, 1)\n&quot;</span><br><span class="line">#else</span><br><span class="line"></span><br><span class="line">  &quot; incb (%edx, %edi, 1)\n&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="分支信息的处理"><a href="#分支信息的处理" class="headerlink" title="分支信息的处理"></a>分支信息的处理</h2><p>在fuzzer接收到fork-server发出的共享内存信息之后(回想一下，共享内存是什么：是一个hashmap，记录了每个<strong>路径</strong>执行的次数。)fuzzer自然不能将这些信息全部存起来，需要进行一些处理并分析。目的之一肯定是压缩信息(不然每次共享内存无法得到回收，开销太大)以下就是fuzzer处理分支信息的方式。</p>
+<p>借助于上面提到的某个分支的hash值，我们可以简单地用一个桶结构记录某个路径被执行了多少次。这样的好处是，对于一些比较细小差别的执行次数(例如A分支执行了10次，B执行了11次)就把他们归为一类。之后将所有的分支桶中的代码块标志hash一下，变成当前执行结果的输出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> u8 count_class_lookup8[<span class="number">256</span>] = &#123;</span><br><span class="line"></span><br><span class="line">  [<span class="number">0</span>]           = <span class="number">0</span>, </span><br><span class="line">  [<span class="number">1</span>]           = <span class="number">1</span>, </span><br><span class="line">  [<span class="number">2</span>]           = <span class="number">2</span>, </span><br><span class="line">  [<span class="number">3</span>]           = <span class="number">4</span>, </span><br><span class="line">  [<span class="number">4</span> ... <span class="number">7</span>]     = <span class="number">8</span>, </span><br><span class="line">  [<span class="number">8</span> ... <span class="number">15</span>]    = <span class="number">16</span>,</span><br><span class="line">  [<span class="number">16</span> ... <span class="number">31</span>]   = <span class="number">32</span>,</span><br><span class="line">  [<span class="number">32</span> ... <span class="number">127</span>]  = <span class="number">64</span>,</span><br><span class="line">  [<span class="number">128</span> ... <span class="number">255</span>] = <span class="number">128</span></span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>举个例子，如果某分支执行了1次，那么落入第2个bucket，其计数byte仍为1；如果某分支执行了4次，那么落入第5个bucket，其计数byte将变为8，等等。fuzzer对fork-server传回的共享内存作上述处理之后，将一次结果保存下来。之后继续进行下一次的fuzz。</p>
+<p>通过把稀疏的map结构转变为桶结构，能够压缩一定的空间。</p>
+<h2 id="文件变异"><a href="#文件变异" class="headerlink" title="文件变异"></a>文件变异</h2><p>AFL提供的主要的文件变异种类有以下几种</p>
+<blockquote>
+<ul>
+<li>bitflip，按位翻转，1变为0，0变为1</li>
+<li>arithmetic，整数加/减算术运算</li>
+<li>interest，把一些特殊内容替换到原文件中</li>
+<li>dictionary，把自动生成或用户提供的token替换/插入到原文件中</li>
+<li>havoc，中文意思是“大破坏”，此阶段会对原文件进行大量变异，具体见下文</li>
+<li>splice，中文意思是“绞接”，此阶段会将两个文件拼接起来得到一个新的文件</li>
+</ul>
+</blockquote>
+<p>这些变异方法也不是随机变的，例如bitflip中，AFL可以通过每一字节、两字节、四字节、八字节的方法改变文件中的比特串，从而识别出哪些比特串是<code>tag</code>(也就是文件标识符，例如ELF文件开头的ELF)，又比如进行一个byte级别的反转时，如果执行路径没有发生变化，那么说明这个byte很有可能属于data部分，而不是”metadata”。因此这样变化带来的意义就不大，从而后面多个byte的变异就可以跳过这些byte。</p>
+<p>这里另外一个比较有意思的地方是<code>havoc</code>大破坏，它确实能造成很大的破坏。具体来说，havoc包含了对原文件的多轮变异，每一轮都是将多种方式组合（stacked）而成：</p>
+<blockquote>
+<ul>
+<li>随机选取某个bit进行翻转</li>
+<li>随机选取某个byte，将其设置为随机的interesting value</li>
+<li>随机选取某个word，并随机选取大、小端序，将其设置为随机的interesting value</li>
+<li>随机选取某个dword，并随机选取大、小端序，将其设置为随机的interesting value</li>
+<li>随机选取某个byte，对其减去一个随机数</li>
+<li>随机选取某个byte，对其加上一个随机数</li>
+<li>随机选取某个word，并随机选取大、小端序，对其减去一个随机数</li>
+<li>随机选取某个word，并随机选取大、小端序，对其加上一个随机数</li>
+<li>随机选取某个dword，并随机选取大、小端序，对其减去一个随机数</li>
+<li>随机选取某个dword，并随机选取大、小端序，对其加上一个随机数</li>
+<li>随机选取某个byte，将其设置为随机数</li>
+<li>随机删除一段bytes</li>
+<li>随机选取一个位置，插入一段随机长度的内容，其中75%的概率是插入原文中随机位置的内容，25%的概率是插入一段随机选取的数</li>
+<li>随机选取一个位置，替换为一段随机长度的内容，其中75%的概率是替换成原文中随机位置的内容，25%的概率是替换成一段随机选取的数</li>
+<li>随机选取一个位置，用随机选取的token（用户提供的或自动生成的）替换</li>
+<li>随机选取一个位置，用随机选取的token（用户提供的或自动生成的）插入</li>
+</ul>
+</blockquote>
+<p>此外，interest这里还会给出一些常见的特殊data，如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* List of interesting values to use in fuzzing. */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTERESTING_8 \</span></span><br><span class="line"><span class="meta">  -128,          <span class="comment">/* Overflow signed 8-bit when decremented  */</span> \</span></span><br><span class="line"><span class="meta">  -1,            <span class="comment">/*                                         */</span> \</span></span><br><span class="line"><span class="meta">   0,            <span class="comment">/*                                         */</span> \</span></span><br><span class="line"><span class="meta">   1,            <span class="comment">/*                                         */</span> \</span></span><br><span class="line"><span class="meta">   16,           <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   32,           <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   64,           <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   100,          <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   127           <span class="comment">/* Overflow signed 8-bit when incremented  */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTERESTING_16 \</span></span><br><span class="line"><span class="meta">  -32768,        <span class="comment">/* Overflow signed 16-bit when decremented */</span> \</span></span><br><span class="line"><span class="meta">  -129,          <span class="comment">/* Overflow signed 8-bit                   */</span> \</span></span><br><span class="line"><span class="meta">   128,          <span class="comment">/* Overflow signed 8-bit                   */</span> \</span></span><br><span class="line"><span class="meta">   255,          <span class="comment">/* Overflow unsig 8-bit when incremented   */</span> \</span></span><br><span class="line"><span class="meta">   256,          <span class="comment">/* Overflow unsig 8-bit                    */</span> \</span></span><br><span class="line"><span class="meta">   512,          <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   1000,         <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   1024,         <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   4096,         <span class="comment">/* One-off with common buffer size         */</span> \</span></span><br><span class="line"><span class="meta">   32767         <span class="comment">/* Overflow signed 16-bit when incremented */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTERESTING_32 \</span></span><br><span class="line"><span class="meta">  -2147483648LL, <span class="comment">/* Overflow signed 32-bit when decremented */</span> \</span></span><br><span class="line"><span class="meta">  -100663046,    <span class="comment">/* Large negative number (endian-agnostic) */</span> \</span></span><br><span class="line"><span class="meta">  -32769,        <span class="comment">/* Overflow signed 16-bit                  */</span> \</span></span><br><span class="line"><span class="meta">   32768,        <span class="comment">/* Overflow signed 16-bit                  */</span> \</span></span><br><span class="line"><span class="meta">   65535,        <span class="comment">/* Overflow unsig 16-bit when incremented  */</span> \</span></span><br><span class="line"><span class="meta">   65536,        <span class="comment">/* Overflow unsig 16 bit                   */</span> \</span></span><br><span class="line"><span class="meta">   100663045,    <span class="comment">/* Large positive number (endian-agnostic) */</span> \</span></span><br><span class="line"><span class="meta">   2147483647    <span class="comment">/* Overflow signed 32-bit when incremented */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这些都是容易导致出现bug的字符。</p>
+<p>还有一些别的，<a target="_blank" rel="noopener" href="https://paper.seebug.org/496/#_4">这篇文章</a>讲的灰常清楚，我这里就不重复了。至此应该对AFL的基本实现有一定的了解。</p>
+<h1 id="afl-fuzz环境配置"><a href="#afl-fuzz环境配置" class="headerlink" title="afl-fuzz环境配置"></a>afl-fuzz环境配置</h1><p>不得不说环境配置真是搞人心态。我总共前前后后花了大概三天时间。一开始看fuzzing010讲的是用gcc的，但是无论如何耶不行，一直出现not instrumented标记，上网查也没找到解决方法。所以下定决心看一看AFL官网配置文件中的，不走捷径。</p>
+<p>不看不知道，官网中说明白了，编译器的选择是llvm比gcc好。于是我后面选择的都是llvm。</p>
+<h2 id="安装llvm"><a href="#安装llvm" class="headerlink" title="安装llvm"></a>安装llvm</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">echo deb http://apt.llvm.org/NAME/ llvm-toolchain-NAME NAME &gt;&gt; /etc/apt/sources.list</span><br><span class="line">wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -</span><br><span class="line">apt-get update &amp;&amp; apt-get upgrade -y</span><br><span class="line">apt-get install -y clang-12 clang-tools-12 libc++1-12 libc++-12-dev \</span><br><span class="line">    libc++abi1-12 libc++abi-12-dev libclang1-12 libclang-12-dev \</span><br><span class="line">    libclang-common-12-dev libclang-cpp12 libclang-cpp12-dev liblld-12 \</span><br><span class="line">    liblld-12-dev liblldb-12 liblldb-12-dev libllvm12 libomp-12-dev \</span><br><span class="line">    libomp5-12 lld-12 lldb-12 llvm-12 llvm-12-dev llvm-12-runtime llvm-12-tools</span><br><span class="line">apt-get install llvm-5.0</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译二进制文件时插桩"><a href="#编译二进制文件时插桩" class="headerlink" title="编译二进制文件时插桩"></a>编译二进制文件时插桩</h2><p>从上面的分析中可以看到AFL的原理其实就是在编译时插桩，从而记录各种各样的代码块执行情况。我们用以下命令控制编译文件的方式(使用afl-clang-lto以及afl-clang-lto++)。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CC=afl-clang-lto CXX=afl-clang-lto++ RANLIB=llvm-ranlib AR=llvm-ar ./configure</span><br></pre></td></tr></table></figure>
+
+<p>如果一切正常，终端**不会显示”C compiler cannot create executables”**。一旦显示说明当前编译器选择不正确。最好检查上面安装llvm过程是否出现了问题。</p>
+<h2 id="使用llvm进行fuzz"><a href="#使用llvm进行fuzz" class="headerlink" title="使用llvm进行fuzz"></a>使用llvm进行fuzz</h2><p>这里采用的是fuzzing010的命令。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz -i $HOME/fuzzing_xpdf/pdf_examples/ -o $HOME/fuzzing_xpdf/out/ -s 123 -- $HOME/fuzzing_xpdf/install/bin/pdftotext @@ $HOME/fuzzing_xpdf/output</span><br></pre></td></tr></table></figure>
+
+<p>这句话是什么意思呢?</p>
+<blockquote>
+<ul>
+<li><em>-i</em> indicates the directory where we have to put the input cases (a.k.a file examples)</li>
+<li><em>-o</em> indicates the directory where AFL++ will store the mutated files</li>
+<li><em>-s</em> indicates the static random seed to use</li>
+<li><em>@@</em> is the placeholder target’s command line that AFL will substitute with each input file name</li>
+</ul>
+</blockquote>
+<p>正常情况下，执行后会得到这样的输出。</p>
+<p><img src="/.io//image-20220312194235177.png" alt="image-20220312194235177"></p>
+<h1 id="分析crash"><a href="#分析crash" class="headerlink" title="分析crash"></a>分析crash</h1><p>作为ics的学习经验，一开始尝试做lab出发点是好的，但是结果一般还是得看别人的解答。但是我头比较铁。</p>
+<p>选择crash里面第一个来分析，输出这些内容，使用gdb尝试调试</p>
+<p><img src="/.io//image-20220312215055637.png" alt="image-20220312215055637"></p>
+<p>想要用gdb传入参数，使用以下命令（注意到pdfinfo在install/bin文件夹下，这里先进入文件夹）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb ./pdfinfo --args ../../out/default/crashes/id:000001,sig:11,src:001598,time:460946,execs:312004,op:havoc,rep:2.txt</span><br></pre></td></tr></table></figure>
+
+<p>好像输出不太对?</p>
+<p><img src="/.io//image-20220312220623934.png" alt="image-20220312220623934"></p>
+<p>投降，去看看答案怎么写(毕竟是第一次做，不知道怎么做很正常，蒽)</p>
+<p>答案说的crash里面是有segmentation fault的，但是我的没有??(可能这个就是unique crash吗)。上网查了一下，发现输出的crash里面其实有信号类型。(可以看到下面sig:11的位置)</p>
+<p><img src="/.io//image-20220312225515617.png" alt="image-20220312225515617"></p>
+<p>在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Unix%E4%BF%A1%E5%8F%B7">wiki</a>上面查到，11对应的错误就是segmentation fault?</p>
+<p><img src="/.io//image-20220312225618505.png" alt="image-20220312225618505"></p>
+<p>查了一下<code>unique_crash</code>是什么。指的是和当前crash相关的程序执行流没有在之前的crash情况中碰到过。那会不会是我AFL配置的有问题?(回想起来我是用LLVM编译的)</p>
+<p><img src="/.io//image-20220312225830866.png" alt="image-20220312225830866"></p>
+<p>经过各种尝试，终于分析到结果了。如下所示。之前没有下载一张helloworld.pdf的托i按，现在下载下来就有了(只能说样本对于fuzz关系很微妙啊)</p>
+<h2 id="调试样本"><a href="#调试样本" class="headerlink" title="调试样本"></a>调试样本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb ~/fuzzing_xpdf/install/<span class="built_in">bin</span>/pdftotext</span><br><span class="line"><span class="built_in">set</span> args ./<span class="built_in">id</span>:<span class="number">000000</span>,sig:<span class="number">11</span>,src:001467,time:<span class="number">492166</span>,execs:<span class="number">256801</span>,op:havoc,rep:<span class="number">8</span></span><br></pre></td></tr></table></figure>
+
+<p>以上语句设置gdb的路径以及参数。这里我和答案做法不一样，答案还带符号编译了一下，但是我就用llvm编译的结果就是有符号的。</p>
+<p>运行之后结果如下</p>
+<p><img src="/.io//image-20220313082846650.png" alt="image-20220313082846650"></p>
+<p>使用backtrace或者bt可以看到以下内容</p>
+<p><img src="/.io//image-20220313002543874.png" alt="image-20220313002543874"></p>
+<p>可以看到程序递归调用了<code>parser::getObj</code>这里的函数，导致出现了爆栈。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">11</span> <span class="number">0x0000000000321116</span> <span class="keyword">in</span> XRef::fetch (this=&lt;optimized out&gt;, num=<span class="number">7</span>, gen=<span class="number">0</span>, obj=<span class="number">0x7fffff7ff748</span>) at XRef.cc:<span class="number">823</span></span><br><span class="line"><span class="number">12</span> <span class="number">0x00000000002ed608</span> <span class="keyword">in</span> Parser::getObj (this=<span class="number">0x1dad260</span>, obj=<span class="number">0x7fffff7ff8e8</span>, fileKey=&lt;optimized out&gt;, encAlgorithm=cryptRC4, keyLength=<span class="number">0</span>, objNum=<span class="number">7</span>, objGen=<span class="number">0</span>) at Object.cc:<span class="number">106</span></span><br><span class="line"><span class="number">13</span> <span class="number">0x0000000000321116</span> <span class="keyword">in</span> XRef::fetch (this=&lt;optimized out&gt;, num=<span class="number">7</span>, gen=<span class="number">0</span>, obj=<span class="number">0x7fffff7ff8e8</span>) at XRef.cc:<span class="number">823</span></span><br><span class="line"><span class="number">14</span> <span class="number">0x00000000002ed608</span> <span class="keyword">in</span> Parser::getObj (this=<span class="number">0x1dacd80</span>, obj=<span class="number">0x7fffff7ffa88</span>, fileKey=&lt;optimized out&gt;, encAlgorithm=cryptRC4, keyLength=<span class="number">0</span>, objNum=<span class="number">7</span>, objGen=<span class="number">0</span>) at Object.cc:<span class="number">106</span></span><br><span class="line"><span class="number">15</span> <span class="number">0x0000000000321116</span> <span class="keyword">in</span> XRef::fetch (this=&lt;optimized out&gt;, num=<span class="number">7</span>, gen=<span class="number">0</span>, obj=<span class="number">0x7fffff7ffa88</span>) at XRef.cc:<span class="number">823</span></span><br><span class="line"><span class="number">16</span> <span class="number">0x00000000002ed608</span> <span class="keyword">in</span> Parser::getObj (this=<span class="number">0x1dac8a0</span>, obj=<span class="number">0x7fffff7ffc28</span>, fileKey=&lt;optimized out&gt;, encAlgorithm=cryptRC4, keyLength=<span class="number">0</span>, objNum=<span class="number">7</span>, objGen=<span class="number">0</span>) at Object.cc:<span class="number">106</span></span><br><span class="line"><span class="number">17</span> <span class="number">0x0000000000321116</span> <span class="keyword">in</span> XRef::fetch (this=&lt;optimized out&gt;, num=<span class="number">7</span>, gen=<span class="number">0</span>, obj=<span class="number">0x7fffff7ffc28</span>) at XRef.cc:<span class="number">823</span></span><br><span class="line"><span class="number">18</span> <span class="number">0x00000000002ed608</span> <span class="keyword">in</span> Parser::getObj (this=<span class="number">0x1dac3c0</span>, obj=<span class="number">0x7fffff7ffdc8</span>, fileKey=&lt;optimized out&gt;, encAlgorithm=cryptRC4, keyLength=<span class="number">0</span>, objNum=<span class="number">7</span>, objGen=<span class="number">0</span>) at Object.cc:<span class="number">106</span></span><br><span class="line"><span class="number">19</span> <span class="number">0x0000000000321116</span> <span class="keyword">in</span> XRef::fetch (this=&lt;optimized out&gt;, num=<span class="number">7</span>, gen=<span class="number">0</span>, obj=<span class="number">0x7fffff7ffdc8</span>) at XRef.cc:<span class="number">823</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="调试源码"><a href="#调试源码" class="headerlink" title="调试源码"></a>调试源码</h2><p>找到了问题所在，可以回头看一下源码。发现确实存在递归调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// XRef.cc</span></span><br><span class="line">Object *<span class="title function_">XRef::fetch</span><span class="params">(<span class="type">int</span> num, <span class="type">int</span> gen, Object *obj)</span> &#123;</span><br><span class="line">  XRefEntry *e;</span><br><span class="line">  Parser *parser;</span><br><span class="line">  Object obj1, obj2, obj3;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// check for bogus ref - this can happen in corrupted PDF files</span></span><br><span class="line">  <span class="keyword">if</span> (num &lt; <span class="number">0</span> || num &gt;= size) &#123;</span><br><span class="line">    <span class="keyword">goto</span> err;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  e = &amp;entries[num];</span><br><span class="line">  <span class="keyword">switch</span> (e-&gt;type) &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> xrefEntryUncompressed:</span><br><span class="line">    <span class="keyword">if</span> (e-&gt;gen != gen) &#123;</span><br><span class="line">      <span class="keyword">goto</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">    obj1.initNull();</span><br><span class="line">    parser = new Parser(this,</span><br><span class="line">	       new Lexer(this,</span><br><span class="line">		 str-&gt;makeSubStream(start + e-&gt;offset, gFalse, <span class="number">0</span>, &amp;obj1)),</span><br><span class="line">	       gTrue);</span><br><span class="line">    parser-&gt;getObj(&amp;obj1);</span><br><span class="line">    parser-&gt;getObj(&amp;obj2);</span><br><span class="line">    parser-&gt;getObj(&amp;obj3);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Object.cc</span></span><br><span class="line">Object *<span class="title function_">Object::fetch</span><span class="params">(XRef *xref, Object *obj)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (type == objRef &amp;&amp; xref) ?</span><br><span class="line">         xref-&gt;fetch(ref.num, ref.gen, obj) : copy(obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到上面这两个方法循环的调用了自己。到此完成了这次lab的学习。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-03-09, 14:49:58</p>
+        <p><span>最后更新:</span>2022-03-14, 15:38:18</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/03/09/fuzzing-1-gegeral-knowledge/" title="fuzzing-1-gegeral_knowledge">https://nicholas-wei.github.io/2022/03/09/fuzzing-1-gegeral-knowledge/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/03/09/fuzzing-1-gegeral-knowledge/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/03/09/software-security-lab1/">
+                    software-security_lab1
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/03/07/umdctf2022-pwn/">
+                    umdctf2022-pwn
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AFL%E5%AE%9E%E7%8E%B0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0"><span class="toc-number">1.</span> <span class="toc-text">AFL实现阅读笔记</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E6%B5%81%E4%BE%A6%E6%B5%8B"><span class="toc-number">1.1.</span> <span class="toc-text">控制流侦测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fork-server"><span class="toc-number">1.2.</span> <span class="toc-text">fork-server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="toc-number">1.2.1.</span> <span class="toc-text">消息传递?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E4%BF%A1%E6%81%AF%E7%9A%84%E8%AE%B0%E5%BD%95"><span class="toc-number">1.3.</span> <span class="toc-text">分支信息的记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E4%BF%A1%E6%81%AF%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">1.4.</span> <span class="toc-text">分支信息的处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8F%98%E5%BC%82"><span class="toc-number">1.5.</span> <span class="toc-text">文件变异</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#afl-fuzz%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">afl-fuzz环境配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85llvm"><span class="toc-number">2.1.</span> <span class="toc-text">安装llvm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E6%97%B6%E6%8F%92%E6%A1%A9"><span class="toc-number">2.2.</span> <span class="toc-text">编译二进制文件时插桩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8llvm%E8%BF%9B%E8%A1%8Cfuzz"><span class="toc-number">2.3.</span> <span class="toc-text">使用llvm进行fuzz</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90crash"><span class="toc-number">3.</span> <span class="toc-text">分析crash</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E6%A0%B7%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">调试样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E6%BA%90%E7%A0%81"><span class="toc-number">3.2.</span> <span class="toc-text">调试源码</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"fuzzing-1-gegeral_knowledge　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/03/09/software-security-lab1/" title="上一篇: software-security_lab1">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/03/07/umdctf2022-pwn/" title="下一篇: umdctf2022-pwn">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

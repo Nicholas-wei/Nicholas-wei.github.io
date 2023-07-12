@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="好久好久之前就想做的ics-pa，在毕业之前一定可以尝试一下！那么就从这个寒假开始吧感谢南大 但是本篇记录的不是很完整，比较零碎">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ics-pa">
+<meta property="og:url" content="https://nicholas-wei.github.io/2022/12/27/ics-pa1/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="好久好久之前就想做的ics-pa，在毕业之前一定可以尝试一下！那么就从这个寒假开始吧感谢南大 但是本篇记录的不是很完整，比较零碎">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221227161624376.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228110847355.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228112011498.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228112652781.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228114517414.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228114659340.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228121938972.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228122223675.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228122315893.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228122507451.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228132041843.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228132145170.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228132628859.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228133818479.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228134007776.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228135632538.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228141605848.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228143417178.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228145609605.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228154834007.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228193026436.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228195745063.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228215357311.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20221228195830109.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102094304705.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102094622099.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102140007605.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102094549034.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102130209094.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102140107148.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102142345923.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102142255932.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102193707988.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102145930587.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//QQ%E5%9B%BE%E7%89%8720220821230349.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102153700232.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102163648907.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102163948116.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102192320315.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103123759768.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102223445959.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102224520084.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230102224458958.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103101241210.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103102448659.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103213239171.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103104955564.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103105009618.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103105138704.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103144034176.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103143957615.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103154540106.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103143925722.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103124827286.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103130557076.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103131257231.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103133159507.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103211342559.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103211746944.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103212626030.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103212554682.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103212506910.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103221630781.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230103221616485.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230104152223300.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230111105248845.png">
+<meta property="article:published_time" content="2022-12-27T02:42:09.000Z">
+<meta property="article:modified_time" content="2023-01-19T02:44:02.000Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="ics-pa">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20221227161624376.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>ics-pa | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-ics-pa1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/12/27/ics-pa1/" class="article-date">
+      <time datetime="2022-12-27T02:42:09.000Z" itemprop="datePublished">2022-12-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ics-pa
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/system/">system</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>好久好久之前就想做的ics-pa，在毕业之前一定可以尝试一下！那么就从这个寒假开始吧<br>感谢南大</p>
+<p>但是本篇记录的不是很完整，比较零碎</p>
+<span id="more"></span>
+
+<h1 id="preparations"><a href="#preparations" class="headerlink" title="preparations"></a>preparations</h1><p>需要安装一个ubuntu22.04，算了，新装一个虚拟机吧。</p>
+<p>vim相对行之间的跳转</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用比如 7j 和 7k 向下或者向上移动 7 行</span><br></pre></td></tr></table></figure>
+
+<h1 id="PA1"><a href="#PA1" class="headerlink" title="PA1"></a>PA1</h1><h2 id="RTFSC"><a href="#RTFSC" class="headerlink" title="RTFSC"></a>RTFSC</h2><p>（这个东西的意思时read the fxxk source code的意思，我还以为是什么基础设施的意思）</p>
+<p>这个里面提到，我们的NEMU啊，是一个用来运行用户代码的程序，但是把客户代码读入NEMU，是通过所谓的monitor完成的。于是我们可以看看NEMU的monitor/monitor.c的源代码。下面是一些例子</p>
+<ul>
+<li>rand.c。位于/nemu/src/utils/rand.c下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;common.h&gt;</span>                             </span></span><br><span class="line"><span class="number">16</span> <span class="meta">#<span class="keyword">ifndef</span> CONFIG_TARGET_AM                             </span></span><br><span class="line"><span class="number">17</span> <span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span>                            </span></span><br><span class="line"><span class="number">18</span> <span class="meta">#<span class="keyword">endif</span>                             </span></span><br><span class="line"><span class="number">20</span> <span class="type">void</span> <span class="title function_">init_rand</span><span class="params">()</span> &#123;                               </span><br><span class="line"><span class="number">21</span>   srand(MUXDEF(CONFIG_TARGET_AM, <span class="number">0</span>, time(<span class="number">0</span>)));                              </span><br><span class="line"><span class="number">22</span> &#125;  </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>init_mem()初始化了一块malloc出来的内存，里面存放了一些随机数，并且用这些内容作为所谓的physical memory。位于<code>nemu/src/memory/paddr.c</code>下。</li>
+</ul>
+<p><img src="/.io//image-20221227161624376.png" alt="image-20221227161624376"></p>
+<ul>
+<li>ISA。关于ISA其实挺迷惑的。目前还没有说可以在哪里指定写x86或者别的指令集。在官网上也没有找到x86的??算了，就尝试一下riscv32吧，也算是跨越舒适区。在<code>init_isa()</code>中，代码非常简短</li>
+</ul>
+<p><img src="/.io//image-20221228110847355.png" alt="image-20221228110847355"></p>
+<p>根据文档里的说明，这里RESET_VECTOR是monitor直接把客户程序读入到一个固定的内存位置的地方，然后restart让cpu.pc指向这个RESET_VECTOR。这里做了一个memcpy，把一部分指令读入到RESET VECTOR的开头。暂时还不太清楚是什么意思。在官方文档上查到内容如下。</p>
+<blockquote>
+<p>lui: load upper immediate，表示使用无符号数字形式构造一个常量。这里就是t0=0x80000</p>
+<p>sw: store word, 注意：sw src, off(dst) =&gt; M[dst + off] = src[31:0]。所以这里也就是把0x80000的地方写入0。这里的地址映射是通过paddr.c中guest_to_host实现的。实现的非常简单。其实应该就是做加减之后在mmap出来的一部分内存中使用。</p>
+<p>lw: load word。也就是读入a0=0。</p>
+<p>ebreak: 可能是一个中断trap。</p>
+</blockquote>
+<p>所以这段代码就是简单的测试了一下内容访问和读取，就转交控制权了。</p>
+<p>顺便看一下这个模拟的CPU的格式。对于riscv32，只有一个pc，还有32个word大小的寄存器组合。</p>
+<p><img src="/.io//image-20221228112011498.png" alt="image-20221228112011498"></p>
+<p>之后，NEMU调用load_img()把指定的客户img读入内存，如下图。也是非常简单，相当于二进制读文件到RESET_VECTOR中。</p>
+<p><img src="/.io//image-20221228112652781.png" alt="image-20221228112652781"></p>
+<p>之后就make就行了。期间遇到这个错误</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Makefile:18: *** NEMU_HOME= is not a NEMU repo.  Stop.</span><br></pre></td></tr></table></figure>
+
+<p>改正方式如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export NEMU_HOME=/home/nicholas/Desktop/ics-pa/nemu</span><br></pre></td></tr></table></figure>
+
+<p>收获一个welcome()的截图</p>
+<p><img src="/.io//image-20221228114517414.png" alt="image-20221228114517414"></p>
+<p>我们来看看，关于这个(nemu)的提示，该怎么解释。根据官网提示，主要在sdb_mainloop()中，输出的hint，以及主循环部分。下面显然是读取标准输入，并解析和分割命令的部分。(但是好像没找到nemu提示符在哪里)</p>
+<p><img src="/.io//image-20221228114659340.png" alt="image-20221228114659340"></p>
+<p>之后如果输入”c”,NEMU开始进入指令执行的主循环<code>cpu_exec()</code>。一共有以下几种命令。</p>
+<p><img src="/.io//image-20221228121938972.png" alt="image-20221228121938972"></p>
+<p>很简单的，看到cpu_exec中，指令的含义。就是调用execute()执行代码，并且获取状态值。</p>
+<p><img src="/.io//image-20221228122223675.png" alt="image-20221228122223675"></p>
+<p>而execute()如下所示</p>
+<p><img src="/.io//image-20221228122315893.png" alt="image-20221228122315893"></p>
+<p>又调用了exec_once()这里调用isa_exec_once()估计才是真正让指令集工作的地方。然后应该是输出了一些状态信息。我们可以调试一下看看。</p>
+<p><img src="/.io//image-20221228122507451.png" alt="image-20221228122507451"></p>
+<p>这边传入-1是因为-1转为uint之后非常大，会让CPU一直执行下去。</p>
+<p>这里还发现一个对于调试特别有用的，TUI工具。是gdb自带的。<code>layout split</code>即可使用。可以同时显示源代码和汇编。非常方便。</p>
+<p>如果在make menuconfig中打开调试，则zuto.conf中就会出现CONFIG_CC_DEBUG=y</p>
+<h3 id="添加exit代码"><a href="#添加exit代码" class="headerlink" title="添加exit代码"></a>添加exit代码</h3><p>在cmd_q中加一行输出，看看是怎么调用到cmd_q的。因为下面结构体中传入了函数指针。注意handler结构，是一个函数指针。</p>
+<p><img src="/.io//image-20221228132041843.png" alt="image-20221228132041843"></p>
+<p>而在下面比对的时候，发现找到一个名称一致的，就去把对应的handler拿出来执行，并判断返回值是否小于0。小于0就return。那么是谁调用了sbd_mainloop()呢？答案在nemu/src/engine/interpreter/init.c中</p>
+<p><img src="/.io//image-20221228132145170.png" alt="image-20221228132145170"></p>
+<p><img src="/.io//image-20221228132628859.png" alt="image-20221228132628859"></p>
+<p>而main()调用engine start.（nemu-main.c）</p>
+<p><img src="/.io//image-20221228133818479.png" alt="image-20221228133818479"></p>
+<p><img src="/.io//image-20221228134007776.png" alt="image-20221228134007776"></p>
+<p>然后我们只要去改掉NEMU_QUIT就可以了。使用`grep -rn “words” *可以在当前目录下递归搜索文件中的字符串。但是貌似这个只是执行代码的时候才会设置的。因此最好的办法是给engine_start加上一个返回值吧。改几个函数签名就行了。(直接exit(-1))也可以，但是最好不要这样。</p>
+<p><img src="/.io//image-20221228135632538.png" alt="image-20221228135632538"></p>
+<h2 id="基础设施"><a href="#基础设施" class="headerlink" title="基础设施"></a>基础设施</h2><p>这里需要实现三个：单步执行、打印寄存器、扫描内存三个调试用API。</p>
+<p>注意可以用nemu/include/debug.h中的API进行调试</p>
+<h3 id="单步执行"><a href="#单步执行" class="headerlink" title="单步执行"></a>单步执行</h3><p><img src="/.io//image-20221228141605848.png" alt="image-20221228141605848"></p>
+<h3 id="打印寄存器"><a href="#打印寄存器" class="headerlink" title="打印寄存器"></a>打印寄存器</h3><p>这个只需要把对应寄存器内容打出来就可以了。主要是去改src/isa/riscv32下的reg.c文件。需要用到两个函数。第一个是把下标转换成名字。对于riscv，一共有32个寄存器。</p>
+<p><img src="/.io//image-20221228143417178.png" alt="image-20221228143417178"></p>
+<p>另一个是gpr()，直接获取了寄存器的值。</p>
+<p>由于word_t是uint_16，因此输出内容用到的格式化字符串为hd，或者也可以十六进制打印，hx</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PRIu8 <span class="string">&quot;hu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRId8 <span class="string">&quot;hd&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIx8 <span class="string">&quot;hx&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIu16 <span class="string">&quot;hu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRId16 <span class="string">&quot;hd&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIx16 <span class="string">&quot;hx&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIu32 <span class="string">&quot;u&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRId32 <span class="string">&quot;d&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIx32 <span class="string">&quot;x&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIu64 <span class="string">&quot;llu&quot;</span> <span class="comment">// or possibly &quot;lu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRId64 <span class="string">&quot;lld&quot;</span> <span class="comment">// or possibly &quot;ld&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIx64 <span class="string">&quot;llx&quot;</span> <span class="comment">// or possibly &quot;lx&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="扫描内存"><a href="#扫描内存" class="headerlink" title="扫描内存"></a>扫描内存</h3><p>命令格式如下</p>
+<p><img src="/.io//image-20221228145609605.png" alt="image-20221228145609605"></p>
+<p>首先需要知道内存存在什么位置，应该是上文pmem()。但是为了虚拟地址和真实地址转换，需要通过一些映射。也就是<code>guest_to_host</code>和<code>host_to_guest</code>。</p>
+<p>用到两个最重要的交互函数</p>
+<p><img src="/.io//image-20221228154834007.png" alt="image-20221228154834007"></p>
+<p><img src="/.io//image-20221228193026436.png" alt="image-20221228193026436"></p>
+<p>因此代码如下</p>
+<p><img src="/.io//image-20221228195745063.png" alt="image-20221228195745063"></p>
+<h3 id="功能测试"><a href="#功能测试" class="headerlink" title="功能测试"></a>功能测试</h3><p><img src="/.io//image-20221228215357311.png" alt="image-20221228215357311"></p>
+<p>测试了一下上述三个功能，都还不错。第一部分完结啦</p>
+<p><img src="/.io//image-20221228195830109.png" alt="image-20221228195830109"></p>
+<h1 id="PA2"><a href="#PA2" class="headerlink" title="PA2"></a>PA2</h1><p><code>decode_operand</code>中用到了宏<code>BITS</code>和<code>SEXT</code>, 它们均在<code>nemu/include/macro.h</code>中定义, 分别用于位抽取和符号扩展</p>
+<p>decode_operand在nemu/src/isa/riscv32/inst.c中</p>
+<p>INSTPAT等宏展开在nemu/include/cpu/decode.h中</p>
+<p>decode-exec在src/isa/riscv32/inst.c中，但是好像无法正常解析</p>
+<p>exec_once在nemu/src/cpu/cpu-exec.c中</p>
+<p>inst_fetch在</p>
+<h2 id="一条指令在NEMU的执行过程"><a href="#一条指令在NEMU的执行过程" class="headerlink" title="一条指令在NEMU的执行过程"></a>一条指令在NEMU的执行过程</h2><p>首先，指令被放在INITIAL_VECTOR中，首先进入execute(cpu-exec.c)里面。execute会调用exec_once函数，之后exec_once会设置PC和snpc，去调用isa_exec_once，并传入一个参数Decode*。</p>
+<p>之后到了inst.c的isa_exec_once中，它会调用ifetch从INITIAL_VECTOR取出指令，这其实就是从INITIAL_VECTOR对应的虚拟地址映射到的物理地址上取出四个字节作为指令。之后会调用decode_exec()。在这里，指令将被解码和模拟执行。</p>
+<p>使用INSTPAT()宏来模拟CPU对于一个32-bit指令的匹配，格式如下。其中?代表0或者1，其余的是确定的比特。这一部分其实是译码和执行部分加起来。</p>
+<p><img src="/.io//image-20230102094304705.png" alt="image-20230102094304705"></p>
+<p>其中INSTPAT宏的展开在nemu/include/cpu/decode.h中。尝试过gcc -E展开，但是发现效果并不好，遂放弃。实际上INSTPAT的意思就是通过对上述规则的每个字符进行匹配，然后根据RISCV的特点，找到源寄存器，目标寄存器一类的，再用C代码模拟执行这条指令。</p>
+<p><img src="/.io//image-20230102094622099.png" alt="image-20230102094622099"></p>
+<p><img src="/.io//image-20230102140007605.png" alt="image-20230102140007605"></p>
+<p><img src="/.io//image-20230102094549034.png" alt="image-20230102094549034"></p>
+<p>然后把保存下来的内容放在key、mask、shift里面。调用decode_operand完成c语言中执行的操作。</p>
+<p><img src="/.io//image-20230102130209094.png" alt="image-20230102130209094"></p>
+<p>我们要做的呢，实际上就是为INSTPAT()添加其他指令的对应匹配过程，并且在decode_operand中加上处理行为即可。使用的测试程序是dummy.c。反编译出来的内容如下。</p>
+<p><img src="/.io//image-20230102140107148.png" alt="image-20230102140107148"></p>
+<p>先对照原先就有的一些指令理解一下下面是来自riscv volumn1的第19页，关于lui指令格式的介绍。对照着NEMU中的格式（这里的空格好奇怪）</p>
+<p><img src="/.io//image-20230102142345923.png" alt="image-20230102142345923"></p>
+<p><img src="/.io//image-20230102142255932.png" alt="image-20230102142255932"></p>
+<p>可以看到除了最后7个bit是固定的之外，其余都是不确定的。但是最后7个bit结合type指定了指令内容。如下所示</p>
+<p><img src="/.io//image-20230102193707988.png" alt="image-20230102193707988"></p>
+<p>现在尝试加一个addi进去，网上找到一张特别有用的图。<a target="_blank" rel="noopener" href="http://anya.cool/archives/81c5e64f.html">地址</a>。因此就按照这个改了。在volumn(1)156页也能找到。这个volumn1和volumn2应该就是指一个是user模式下，另一个是privileged模式。</p>
+<p>addi的描述是下面这样的</p>
+<p><img src="/.io//image-20230102145930587.png" alt="image-20230102145930587"></p>
+<p><img src="/.io//QQ%E5%9B%BE%E7%89%8720220821230349.png" alt="QQ图片20220821230349"></p>
+<h3 id="li指令"><a href="#li指令" class="headerlink" title="li指令"></a>li指令</h3><p>这个指令上面查不到。在手册中查到如下。</p>
+<p><img src="/.io//image-20230102153700232.png" alt="image-20230102153700232"></p>
+<p>参考：cheetsheet:<a target="_blank" rel="noopener" href="https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8">https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8</a></p>
+<p>同样的cheetsheet <a target="_blank" rel="noopener" href="https://mark.theis.site/riscv/">https://mark.theis.site/riscv/</a></p>
+<p>发现真的是查不到这个指令。没办法，跟着网上博主的做法，实现了一个和addi一样的。</p>
+<h3 id="auipc"><a href="#auipc" class="headerlink" title="auipc"></a>auipc</h3><p>太nb了这个makefile，竟然能显示宏不展开的源文件，一定要研究一下，之前搞了好久。</p>
+<p><img src="/.io//image-20230102163648907.png" alt="image-20230102163648907"></p>
+<p><img src="/.io//image-20230102163948116.png" alt="image-20230102163948116"></p>
+<h3 id="jal"><a href="#jal" class="headerlink" title="jal"></a>jal</h3><p><img src="/.io//image-20230102192320315.png" alt="image-20230102192320315"></p>
+<p>同时，J也是这样的行为</p>
+<p><img src="/.io//image-20230103123759768.png" alt="image-20230103123759768"></p>
+<h3 id="mv"><a href="#mv" class="headerlink" title="mv"></a>mv</h3><p><img src="/.io//image-20230102223445959.png" alt="image-20230102223445959"></p>
+<h3 id="ret"><a href="#ret" class="headerlink" title="ret"></a>ret</h3><p>还是不知道哪里能看伪指令。ret也是伪指令。</p>
+<p><img src="/.io//image-20230102224520084.png" alt="image-20230102224520084"></p>
+<p><img src="/.io//image-20230102224458958.png" alt="image-20230102224458958"></p>
+<h3 id="beq等条件跳转"><a href="#beq等条件跳转" class="headerlink" title="beq等条件跳转"></a>beq等条件跳转</h3><p><img src="/.io//image-20230103101241210.png" alt="image-20230103101241210"></p>
+<p><img src="/.io//image-20230103102448659.png" alt="image-20230103102448659"></p>
+<p><img src="/.io//image-20230103213239171.png" alt="image-20230103213239171"></p>
+<h3 id="add等"><a href="#add等" class="headerlink" title="add等"></a>add等</h3><p><img src="/.io//image-20230103104955564.png" alt="image-20230103104955564"></p>
+<p><img src="/.io//image-20230103105009618.png" alt="image-20230103105009618"></p>
+<p><img src="/.io//image-20230103105138704.png" alt="image-20230103105138704"></p>
+<h3 id="mul等"><a href="#mul等" class="headerlink" title="mul等"></a>mul等</h3><p><img src="/.io//image-20230103144034176.png" alt="image-20230103144034176"></p>
+<p><img src="/.io//image-20230103143957615.png" alt="image-20230103143957615"></p>
+<p><img src="/.io//image-20230103154540106.png" alt="image-20230103154540106"></p>
+<p><img src="/.io//image-20230103143925722.png" alt="image-20230103143925722"></p>
+<h3 id="slti"><a href="#slti" class="headerlink" title="slti"></a>slti</h3><p><img src="/.io//image-20230103124827286.png" alt="image-20230103124827286"></p>
+<h3 id="store相关"><a href="#store相关" class="headerlink" title="store相关"></a>store相关</h3><p><img src="/.io//image-20230103130557076.png" alt="image-20230103130557076"></p>
+<h3 id="load相关"><a href="#load相关" class="headerlink" title="load相关"></a>load相关</h3><p><img src="/.io//image-20230103131257231.png" alt="image-20230103131257231"></p>
+<h3 id="slli"><a href="#slli" class="headerlink" title="slli"></a>slli</h3><p><img src="/.io//image-20230103133159507.png" alt="image-20230103133159507"></p>
+<h3 id="andi"><a href="#andi" class="headerlink" title="andi"></a>andi</h3><p><img src="/.io//image-20230103211342559.png" alt="image-20230103211342559"></p>
+<p><img src="/.io//image-20230103211746944.png" alt="image-20230103211746944"></p>
+<h3 id="p155开始是指令集"><a href="#p155开始是指令集" class="headerlink" title="p155开始是指令集"></a>p155开始是指令集</h3><h3 id="rem"><a href="#rem" class="headerlink" title="rem"></a>rem</h3><p>这个看起来比较麻烦啊，是什么余数，其实就是mod</p>
+<p><img src="/.io//image-20230103212626030.png" alt="image-20230103212626030"></p>
+<p><img src="/.io//image-20230103212554682.png" alt="image-20230103212554682"></p>
+<p><img src="/.io//image-20230103212506910.png" alt="image-20230103212506910"></p>
+<h3 id="sra"><a href="#sra" class="headerlink" title="sra"></a>sra</h3><p>手酸</p>
+<p><img src="/.io//image-20230103221630781.png" alt="image-20230103221630781"></p>
+<p><img src="/.io//image-20230103221616485.png" alt="image-20230103221616485"></p>
+<h3 id="string-和hello-string不用测"><a href="#string-和hello-string不用测" class="headerlink" title="string 和hello string不用测"></a>string 和hello string不用测</h3><p>由于<code>string</code>和<code>hello-str</code>还需要实现额外的内容才能运行(具体在后续小节介绍), 目前可以先使用其它测试用例进行测试.</p>
+<h2 id="学习makefile"><a href="#学习makefile" class="headerlink" title="学习makefile"></a>学习makefile</h2><p>在monitor.c里面看到有一个batch模式，加上-b即可。于是修改home/nicholas/Desktop/ics-pa/abstract-machine/scripts/platform/nemu.mk(在/home/nicholas/Desktop/ics-pa/abstract-machine/Makefile里面用到了)，在args里面加上-b。亲测可以</p>
+<p><img src="/.io//image-20230104152223300.png" alt="image-20230104152223300"></p>
+<h2 id="gcc的所有参数"><a href="#gcc的所有参数" class="headerlink" title="gcc的所有参数"></a>gcc的所有参数</h2><p>我个人觉得，RTFM是一种方法，但是碰到GNU的manual，还是算了。这是mit的</p>
+<p><a target="_blank" rel="noopener" href="https://web.mit.edu/rhel-doc/3/rhel-gcc-en-3/invoking-gcc.html">https://web.mit.edu/rhel-doc/3/rhel-gcc-en-3/invoking-gcc.html</a></p>
+<h3 id="添加ringbuf"><a href="#添加ringbuf" class="headerlink" title="添加ringbuf"></a>添加ringbuf</h3><p>在nemu/src/memory中，有一个out_of_memory函数，感觉在这里添加比较靠谱。同时需要查看一下<code>nemu/src/utils/disasm.cc</code>。</p>
+<p>还要参考一下<code>exec_once</code>里面对于disassemble的调用</p>
+<p><img src="/.io//image-20230111105248845.png" alt="image-20230111105248845"></p>
+<p>截止2023-1-4完成到PA2的一半，暂缓</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2022/12/27/ics-pa1/">ics-pa</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2022-12-27, 10:42:09</p>
+        <p><span>最后更新:</span>2023-01-19, 10:44:02</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2022/12/27/ics-pa1/" title="ics-pa">https://nicholas-wei.github.io/2022/12/27/ics-pa1/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2022/12/27/ics-pa1/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2023/01/19/wasm-pwn/">
+                    wasm-1
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2022/11/13/llvm-pass1/">
+                    llvm-pass1
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#preparations"><span class="toc-number">1.</span> <span class="toc-text">preparations</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PA1"><span class="toc-number">2.</span> <span class="toc-text">PA1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#RTFSC"><span class="toc-number">2.1.</span> <span class="toc-text">RTFSC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0exit%E4%BB%A3%E7%A0%81"><span class="toc-number">2.1.1.</span> <span class="toc-text">添加exit代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="toc-number">2.2.</span> <span class="toc-text">基础设施</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="toc-number">2.2.1.</span> <span class="toc-text">单步执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">2.2.2.</span> <span class="toc-text">打印寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F%E5%86%85%E5%AD%98"><span class="toc-number">2.2.3.</span> <span class="toc-text">扫描内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="toc-number">2.2.4.</span> <span class="toc-text">功能测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PA2"><span class="toc-number">3.</span> <span class="toc-text">PA2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E6%9D%A1%E6%8C%87%E4%BB%A4%E5%9C%A8NEMU%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">一条指令在NEMU的执行过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#li%E6%8C%87%E4%BB%A4"><span class="toc-number">3.1.1.</span> <span class="toc-text">li指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#auipc"><span class="toc-number">3.1.2.</span> <span class="toc-text">auipc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jal"><span class="toc-number">3.1.3.</span> <span class="toc-text">jal</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mv"><span class="toc-number">3.1.4.</span> <span class="toc-text">mv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ret"><span class="toc-number">3.1.5.</span> <span class="toc-text">ret</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#beq%E7%AD%89%E6%9D%A1%E4%BB%B6%E8%B7%B3%E8%BD%AC"><span class="toc-number">3.1.6.</span> <span class="toc-text">beq等条件跳转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add%E7%AD%89"><span class="toc-number">3.1.7.</span> <span class="toc-text">add等</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mul%E7%AD%89"><span class="toc-number">3.1.8.</span> <span class="toc-text">mul等</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#slti"><span class="toc-number">3.1.9.</span> <span class="toc-text">slti</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#store%E7%9B%B8%E5%85%B3"><span class="toc-number">3.1.10.</span> <span class="toc-text">store相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#load%E7%9B%B8%E5%85%B3"><span class="toc-number">3.1.11.</span> <span class="toc-text">load相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#slli"><span class="toc-number">3.1.12.</span> <span class="toc-text">slli</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#andi"><span class="toc-number">3.1.13.</span> <span class="toc-text">andi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#p155%E5%BC%80%E5%A7%8B%E6%98%AF%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="toc-number">3.1.14.</span> <span class="toc-text">p155开始是指令集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rem"><span class="toc-number">3.1.15.</span> <span class="toc-text">rem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sra"><span class="toc-number">3.1.16.</span> <span class="toc-text">sra</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#string-%E5%92%8Chello-string%E4%B8%8D%E7%94%A8%E6%B5%8B"><span class="toc-number">3.1.17.</span> <span class="toc-text">string 和hello string不用测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0makefile"><span class="toc-number">3.2.</span> <span class="toc-text">学习makefile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gcc%E7%9A%84%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0"><span class="toc-number">3.3.</span> <span class="toc-text">gcc的所有参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0ringbuf"><span class="toc-number">3.3.1.</span> <span class="toc-text">添加ringbuf</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"ics-pa　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2023/01/19/wasm-pwn/" title="上一篇: wasm-1">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/11/13/llvm-pass1/" title="下一篇: llvm-pass1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/07/12/testfile/">testfile</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
