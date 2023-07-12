@@ -22,15 +22,15 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="关于编译器学习的第二课，这次介绍了一个和C语言风格极其类似的LOX语言。后面我们要实现的编译器就和这个语言相关。 此外本篇还介绍了关于tree-walk interpreter中，scanner的代码原理部分。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220801163746371.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220804111114669.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220804145726428.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/04/crafting-interpreters2/image-20220801163746371.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/04/crafting-interpreters2/image-20220804111114669.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/04/crafting-interpreters2/image-20220804145726428.png">
 <meta property="article:published_time" content="2022-08-04T07:59:21.000Z">
 <meta property="article:modified_time" content="2022-08-04T07:03:24.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="interpreter">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220801163746371.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/08/04/crafting-interpreters2/image-20220801163746371.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -323,7 +323,7 @@
 <p>逻辑表达式包含and 和or，这部分和python的类似，不在说明了。</p>
 <p>Lox语言表达式中和C不同得地方在于没有位操作。比方说bitwise move, xor等等。</p>
 <h1 id="闭包-closure"><a href="#闭包-closure" class="headerlink" title="闭包(closure)"></a>闭包(closure)</h1><p>这里提到了LOX语言的一个神奇的特性。<strong>热河函数可以被当作变量传递</strong>。这就会导致以下问题。</p>
-<p><img src="/.io//image-20220801163746371.png" alt="image-20220801163746371"></p>
+<p><img src="/2022/08/04/crafting-interpreters2/image-20220801163746371.png" alt="image-20220801163746371"></p>
 <p>比如上面的例子，返回的fn将会是inner()但是他要输出outside这个变量，但是它是在函数外部定义的。此时inner确实还可以访问得到这个数据。这种技术就是closure()</p>
 <blockquote>
 <p>For that to work, <code>inner()</code> has to “hold on” to references to any surrounding variables that it uses so that they stay around even after the outer function has returned. We call functions that do this <strong>closures</strong>. </p>
@@ -340,7 +340,7 @@
 <h2 id="词法分析-定位"><a href="#词法分析-定位" class="headerlink" title="词法分析\定位"></a>词法分析\定位</h2><p>词法分析就是把当前的语句拆分成</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">language</span> <span class="operator">=</span> <span class="string">&quot;lox&quot;</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220804111114669.png" alt="image-20220804111114669"></p>
+<p><img src="/2022/08/04/crafting-interpreters2/image-20220804111114669.png" alt="image-20220804111114669"></p>
 <p>拆分得到的一个一个小小块，称作token。token服务于parser，一般来说token中需要规定一些限定词，比如说<code>class</code>，<code>public</code>等。由此我们定义了一个常量表。</p>
 <p>关于定位，就是当我们做词法分析时，将一行字拆分开来，分成type，lexeme，literal等部分。之后最有用的地方是报错分析时可以使用。</p>
 <p>token的结构体为</p>
@@ -390,7 +390,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String, TokenType&gt; keywords;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">  keywords = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">  keywords.put(<span class="string">&quot;and&quot;</span>,    AND);</span><br><span class="line">  keywords.put(<span class="string">&quot;class&quot;</span>,  CLASS);</span><br><span class="line">  keywords.put(<span class="string">&quot;else&quot;</span>,   ELSE);</span><br><span class="line">  keywords.put(<span class="string">&quot;false&quot;</span>,  FALSE);</span><br><span class="line">  keywords.put(<span class="string">&quot;for&quot;</span>,    FOR);</span><br><span class="line">  keywords.put(<span class="string">&quot;fun&quot;</span>,    FUN);</span><br><span class="line">  keywords.put(<span class="string">&quot;if&quot;</span>,     IF);</span><br><span class="line">  keywords.put(<span class="string">&quot;nil&quot;</span>,    NIL);</span><br><span class="line">  keywords.put(<span class="string">&quot;or&quot;</span>,     OR);</span><br><span class="line">  keywords.put(<span class="string">&quot;print&quot;</span>,  PRINT);</span><br><span class="line">  keywords.put(<span class="string">&quot;return&quot;</span>, RETURN);</span><br><span class="line">  keywords.put(<span class="string">&quot;super&quot;</span>,  SUPER);</span><br><span class="line">  keywords.put(<span class="string">&quot;this&quot;</span>,   THIS);</span><br><span class="line">  keywords.put(<span class="string">&quot;true&quot;</span>,   TRUE);</span><br><span class="line">  keywords.put(<span class="string">&quot;var&quot;</span>,    VAR);</span><br><span class="line">  keywords.put(<span class="string">&quot;while&quot;</span>,  WHILE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这样就基本完成了我们对输入一行内容的词法分析，分类。</p>
-<p><img src="/.io//image-20220804145726428.png" alt="image-20220804145726428"></p>
+<p><img src="/2022/08/04/crafting-interpreters2/image-20220804145726428.png" alt="image-20220804145726428"></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总结一下这一部分内容：我们把得到的输入按照每行进行处理，分为几种类别</p>
 <ol>
 <li>运算符，特征为直接switch case识别</li>

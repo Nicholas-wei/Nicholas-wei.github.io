@@ -22,19 +22,19 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="学习手动实现编译器上面的编译器原理内容，希望难度不大，能跟着学下去~ crafting-interpreters 1">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729104647438.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729112029271.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729112209998.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729112903666.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729134247305.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729134303830.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220729152618803.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729104647438.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729112029271.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729112209998.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729112903666.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729134247305.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729134303830.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729152618803.png">
 <meta property="article:published_time" content="2022-07-29T01:32:12.000Z">
 <meta property="article:modified_time" content="2022-07-31T07:58:24.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="interpreter">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220729104647438.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/07/29/crafting-interpreters1/image-20220729104647438.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -318,14 +318,14 @@
 <p>My hope is that if you’ve felt intimidated by languages and this book helps you overcome that fear, maybe I’ll leave you just a tiny bit braver than you were before.</p>
 </blockquote>
 <p>镇楼*2，编译的流程图</p>
-<p><img src="/.io//image-20220729104647438.png" alt="image-20220729104647438"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729104647438.png" alt="image-20220729104647438"></p>
 <h1 id="map-of-territory"><a href="#map-of-territory" class="headerlink" title="map of territory"></a>map of territory</h1><p>我们可以从上面这张图入手，分析一下一个编译器看到一段代码之后会发生什么事情</p>
-<p><img src="/.io//image-20220729112029271.png" alt="image-20220729112029271"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729112029271.png" alt="image-20220729112029271"></p>
 <h2 id="step1-scanning"><a href="#step1-scanning" class="headerlink" title="step1: scanning"></a>step1: scanning</h2><p>第一步是扫描，也叫做<em>词法分析</em>。一个扫描器接受一系列<em>线性流</em>(也就是刚才提到的词语的组合)，并把他们组合在一起，生成一系列更接近<em>词</em>的东西(也叫做word/token)。有些token是单个的字符，比如括号，或者是逗号。另外一些可以是字符串，(“hi”)，或者类似<em>min</em>这类的区分符号。</p>
 <p>在这一步中，编译器会去掉类似空格，或者注释等。这种情况下，上面这句话最终将变成这种形式。</p>
-<p><img src="/.io//image-20220729112209998.png" alt="image-20220729112209998"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729112209998.png" alt="image-20220729112209998"></p>
 <h2 id="step2-parse"><a href="#step2-parse" class="headerlink" title="step2: parse"></a>step2: parse</h2><p>这一部分编译器需要把长的表达式分成更小的部分，比桑说：生成AST。</p>
-<p><img src="/.io//image-20220729112903666.png" alt="image-20220729112903666"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729112903666.png" alt="image-20220729112903666"></p>
 <p>这里就将average的表达式拆分成上面的表达形式。</p>
 <h2 id="step3-static-analysis"><a href="#step3-static-analysis" class="headerlink" title="step3:static analysis"></a>step3:static analysis</h2><p>在上面两步中，几乎是所有语言都会进行的操作，接下来的内容对于不同语言，就会产生不同实现。</p>
 <p>一个很简单的例子：比方说对于提到的变量a和b我们怎么追溯到他的值，也不知道他的<strong>属性</strong>(比方说：是否是全局的，是静态还是局部等)，也就是binding/resolution</p>
@@ -340,8 +340,8 @@
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面三点称作<strong>编译器前端</strong>的工作。也很好理解。前端代表我们如何处理用户输入，解析用户的语句表达式，而后端则更注重怎样将代码转化为机器语言。接下来介绍的<strong>中间语言</strong>就是两者之间的桥梁。</p>
 <h2 id="IR"><a href="#IR" class="headerlink" title="IR"></a>IR</h2><p>在前端和后端之间的中间语言(IR)承担的工作是在两种语言之间搭建桥梁。也就是说：我们可以依赖中间表示，从而并不在意我们编写的代码最终运行在哪种架构的机器上。类似gcc使用的中间语言就是<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gccint/GIMPLE.html">GIMPLE</a>。</p>
 <h2 id="optimization"><a href="#optimization" class="headerlink" title="optimization"></a>optimization</h2><p>编译器除了翻译文件之外，还要做的很重要的事情就是优化。一个常见的例子就是常量折叠。如果我们要反复计算某个数值，我们可以单独把结果作为计算表达式的代替。例如作者给出的例子。将下面这一行，直接用结果代替。</p>
-<p><img src="/.io//image-20220729134247305.png" alt="image-20220729134247305"></p>
-<p><img src="/.io//image-20220729134303830.png" alt="image-20220729134303830"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729134247305.png" alt="image-20220729134247305"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729134303830.png" alt="image-20220729134303830"></p>
 <p>常见的优化措施例如：循环展开，死代码消除，全局变量计数等。</p>
 <h2 id="code-generate"><a href="#code-generate" class="headerlink" title="code generate"></a>code generate</h2><p>在完成了上述步骤之后，最后一步就是要生成真正能够运行的机器代码。也就是01二进制机器码。但是这里要牵涉到对于特种架构的代码生成。我们也要在这里考虑究竟是针对虚拟机生成还是针对真实机器生成。</p>
 <h3 id="虚拟机"><a href="#虚拟机" class="headerlink" title="虚拟机"></a>虚拟机</h3><p>一般来说字节码(bytecode)翻译成机器码(native code或者machine code)也是需要一次转换。这里一般的思路就是把字节码当作中间表示，再转化为CPU所能识别的。但是在这一过程中，我们最好能够根据不同架构进行分别处理和优化。</p>
@@ -357,7 +357,7 @@
 <h1 id="compiler-v-s-interpreter"><a href="#compiler-v-s-interpreter" class="headerlink" title="compiler v.s interpreter"></a>compiler v.s interpreter</h1><p>编译器(compiler)和解释器(interpreter)的区别是什么呢？</p>
 <p><strong>编译</strong>：把一种源代码转化为另外一种通常来说是低级的表示形式。</p>
 <p><strong>解释</strong>：表示我们接受源码并且直接执行它。也就是“从源码直接执行文件”</p>
-<p><img src="/.io//image-20220729152618803.png" alt="image-20220729152618803"></p>
+<p><img src="/2022/07/29/crafting-interpreters1/image-20220729152618803.png" alt="image-20220729152618803"></p>
 <p>比方说一个例子：go语言，go语言是一个编译器(我们可以编译go语言，并且不执行它)，也是一个解释器(我们可以直接从源码运行go语言)。而解释的过程，也是需要编译的，只不过是在内部发生的。</p>
 <p>比较纯正的编译器比方说gcc，javac等，就只能编译，但是不能执行。</p>
 <h2 id="JIT的缺陷"><a href="#JIT的缺陷" class="headerlink" title="JIT的缺陷"></a>JIT的缺陷</h2><p>文章末尾提示一个问题：思考JIT技术的弊端。</p>

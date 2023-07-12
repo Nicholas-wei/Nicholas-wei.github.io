@@ -22,8 +22,8 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="最后一个pwn是一个python，看了半天实在不知道哪里有问题。最后一题是赛后看了wp复现的，后来才知道是对puthon的性质不熟悉，利用的是侧信道攻击。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220425125032396.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220425170001768.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/25/b01lersCTF2022-pwn/image-20220425125032396.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/25/b01lersCTF2022-pwn/image-20220425170001768.png">
 <meta property="article:published_time" content="2022-04-25T04:30:54.000Z">
 <meta property="article:modified_time" content="2022-04-25T09:17:54.000Z">
 <meta property="article:author" content="nich0las">
@@ -32,7 +32,7 @@
 <meta property="article:tag" content="fmtstr">
 <meta property="article:tag" content="meltdown">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220425125032396.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/25/b01lersCTF2022-pwn/image-20220425125032396.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -344,7 +344,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a = &#123;&#125;</span><br><span class="line">a = &#123;<span class="number">1</span>:<span class="number">111</span>,<span class="number">2</span>:<span class="number">222</span>&#125;</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> a:</span><br><span class="line">    <span class="built_in">print</span>(i)</span><br></pre></td></tr></table></figure>
 
 <p>输出的内容是</p>
-<p><img src="/.io//image-20220425125032396.png" alt="image-20220425125032396"></p>
+<p><img src="/2022/04/25/b01lersCTF2022-pwn/image-20220425125032396.png" alt="image-20220425125032396"></p>
 <p>并不是两个元组！也就是说，上面的key-map的每一个元素，<strong>其实只是每个元素的key值</strong>。</p>
 <p>那么这道题的漏洞点其实就很清楚了。回看reset，有这样一句指令。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> self.X03.keys():</span><br><span class="line">    self.X03[k] = <span class="number">0</span> <span class="comment"># X03是访问过的内存</span></span><br></pre></td></tr></table></figure>
@@ -364,7 +364,7 @@
 <h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>总结一下思路：首先是用<code>movfrom</code>读出随机数，然后访问随机数下标对应的内存。访问了之后调用reset。这应该回到我们开始的位置。但是除了之前提到的下标之外，所有信息全被清空了。为此，我们需要在程序一开始加上一个访问第0个内存的判断。如果访问过第0个，说明已经reset过，反之就是第一次访问。在第二次访问时，需要判断从零开始访问所有memory的时间，如果找到时间大于2的，就记录下来。这个下标就是随机数。</p>
 <h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>在写的时候碰到的问题：<strong>由于限制了我们能够执行的指令数目至多为20000条，因此不能遍历所有内存。</strong>没看解法之前，感觉没有想法，按理来说是要全部看一遍的，不然就是思路错了。</p>
 <p>看了wp才发现，更巧妙的做法是**每次不直接读取对应的随机数，之后保存在随机数下标位置，而是获得随机数的二进制表示下的所有bit。考虑到给定的随机数是有范围的，至多可以用32个bit表示。那么我们可以为每个数字，在内存下标中记录二进制表示方法..感觉难以用语言描述。比如说下面的例子。</p>
-<p><img src="/.io//image-20220425170001768.png" alt="image-20220425170001768"></p>
+<p><img src="/2022/04/25/b01lersCTF2022-pwn/image-20220425170001768.png" alt="image-20220425170001768"></p>
 <p>我们假定直到是从256开始的。那么我们规定，如果那个对应的二进制位置(比如说是第i位置)是0，就访问(256+i),让内存中cache这个数据。上面就相当于知道了这个数字的二进制表示是第一位(256)是0，第二位(257)是0，…以此类推，算满32位，就可以恢复出原始数字。</p>
 <p>通过这种方法，访问每个数字时只需要访问内存32次，并且能够保存数字顺序。实在是很巧妙。</p>
 <p>exp没有手写，调试了一边了解了原理。这位作者估计也是觉得没有注释太麻烦了，实现了一个前端编译器。</p>

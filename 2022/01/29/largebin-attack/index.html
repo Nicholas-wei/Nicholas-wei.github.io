@@ -22,24 +22,24 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="对于largebin attach的学习，这段时间决定好好复习一下基础。PWN还是很吃基础的。heap还有一些攻击方法，后续也会接着学习。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129142721399.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129143135813.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129143454363.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129144212899.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129144900563.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129145052204.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129145322368.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129163143279.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129161319249.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129161549534.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129161858696.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220129162221450.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129142721399.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129143135813.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129143454363.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129144212899.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129144900563.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129145052204.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129145322368.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129163143279.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129161319249.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129161549534.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129161858696.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129162221450.png">
 <meta property="article:published_time" content="2022-01-29T05:19:27.000Z">
 <meta property="article:modified_time" content="2022-01-29T12:31:24.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="heap">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220129142721399.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/01/29/largebin-attack/image-20220129142721399.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -336,7 +336,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> *p2 = <span class="built_in">malloc</span>(<span class="number">0x500</span>); <span class="comment">// chunk2</span></span><br><span class="line"><span class="built_in">malloc</span>(<span class="number">0x20</span>);</span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> *p2 = <span class="built_in">malloc</span>(<span class="number">0x500</span>); <span class="comment">// chunk3</span></span><br><span class="line"><span class="built_in">malloc</span>(<span class="number">0x20</span>);</span><br></pre></td></tr></table></figure>
 
 <p>之后free(p1),free(p2)，他们会被放在unsortedbin中。</p>
-<p><img src="/.io//image-20220129142721399.png" alt="image-20220129142721399"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129142721399.png" alt="image-20220129142721399"></p>
 <p>接下来**malloc(0x90)**这将会从unsortedbin末尾chunk中切割出0xa0大小空间，并把0x510的chunk放到largebin中，然后剩下的0x430-0xa0的chunk，仍然被放回到unsortedbin中。这一步完成了许多过程</p>
 <ul>
 <li>从 unsorted bin 中拿出最后一个 chunk（p1 属于 small bin 的范围）</li>
@@ -346,21 +346,21 @@
 <li> 现在 unsorted bin 为空，从 small bin （p1）中分配一个小的 chunk 满足请求 0x90，并把剩下的 chunk（0x330 - 0xa0）放入 unsorted bin 中</li>
 </ul>
 <p>如下图。</p>
-<p><img src="/.io//image-20220129143135813.png" alt="image-20220129143135813"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129143135813.png" alt="image-20220129143135813"></p>
 <p>接下来释放chunk3。他会被插入到unsortedbin中。可以看到是插在最前面。</p>
-<p><img src="/.io//image-20220129143454363.png" alt="image-20220129143454363"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129143454363.png" alt="image-20220129143454363"></p>
 <p>接下来是触发部分。设置p2(在largebins中的块)先看一下没改的时候堆布局</p>
-<p><img src="/.io//image-20220129144212899.png" alt="image-20220129144212899"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129144212899.png" alt="image-20220129144212899"></p>
 <p>将largebin按照如下方式修改。改自身size，bk和bk_nextsize。fd和fd_nextsize均写为0，按照前面所说的。</p>
-<p><img src="/.io//image-20220129144900563.png" alt="image-20220129144900563"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129144900563.png" alt="image-20220129144900563"></p>
 <p>在接下来分配0x90的块，使得unsortedbin中的chunk能够插入largebin之前，先看一下堆布局。</p>
-<p><img src="/.io//image-20220129145052204.png" alt="image-20220129145052204"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129145052204.png" alt="image-20220129145052204"></p>
 <p>之后，就能成功写入两个值。写入的是被插入unsortedbin中的chunk地址。</p>
 <p><strong>这是因为当前插入的chunk属于largebin，大小为0x410(取出Unsortedbin，放入对应largebin中)寻找到fwd的size是0x3f0被我们修改过，小于0x410，会相应的执行这一句</strong></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">victim-&gt;bk_nextsize = fwd-&gt;bk_nextsize</span><br><span class="line"><span class="comment">// then</span></span><br><span class="line">victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br></pre></td></tr></table></figure>
 
 <p><strong>注意这里的fwd是经过遍历比较找到的正好比自己小的那个chunk。这里0x3f0正好比自己小。插入在0x3f0后面。此时执行上述代码，相当于利用原先largebin中我们伪造好的指针，写入了main arena数据</strong>此时应该修改了var2，因为它在bk_nextsize位置。</p>
-<p><img src="/.io//image-20220129145322368.png" alt="image-20220129145322368"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129145322368.png" alt="image-20220129145322368"></p>
 <p>同时，可以看到var1也被修改了，因为存在以下利用。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bck-&gt;fd = victim;</span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line">(fwd-&gt;bk)-&gt;fd = victim;</span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line">*(addr1+<span class="number">2</span>) = victim;</span><br></pre></td></tr></table></figure>
 
@@ -395,7 +395,7 @@
 <li>size最大的chunk的<code>bk_nextsize</code>指向最小的chunk; size最小的chunk的<code>fd_nextsize</code>指向最大的chunk</li>
 </ul>
 </blockquote>
-<p><img src="/.io//image-20220129163143279.png" alt="image-20220129163143279"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129163143279.png" alt="image-20220129163143279"></p>
 <h3 id="glibc2-31"><a href="#glibc2-31" class="headerlink" title="glibc2.31"></a>glibc2.31</h3><p>glibc2.31为largebin添加了两条类似unsortedbin中的检查。分别检查bck和bk指针是否被修改过。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((<span class="type">unsigned</span> <span class="type">long</span>) (size) &lt; (<span class="type">unsigned</span> <span class="type">long</span>) chunksize_nomask (bck-&gt;bk))&#123;</span><br><span class="line">    fwd = bck;</span><br><span class="line">    bck = bck-&gt;bk;</span><br><span class="line">    victim-&gt;fd_nextsize = fwd-&gt;fd;</span><br><span class="line">    victim-&gt;bk_nextsize = fwd-&gt;fd-&gt;bk_nextsize;</span><br><span class="line">    fwd-&gt;fd-&gt;bk_nextsize = victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -403,17 +403,17 @@
 <p>接下来是how2heap的做法</p>
 <p>首先是创建了0x428,0x18,0x418,0x18四个chunk。记0x428的chunk为p1，0x418的chunk为p2。大小选择需要确保p2小于p1，并且两个在同一个bins中。</p>
 <p>接着释放p1（较大的那个），p1将存在于unsortedbin中，分配一个p3(比p1大)让p1进入largebin。现在bins如下所示。</p>
-<p><img src="/.io//image-20220129161319249.png" alt="image-20220129161319249"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129161319249.png" alt="image-20220129161319249"></p>
 <p>之后释放p2，p2进入unsortedbin。如下图</p>
-<p><img src="/.io//image-20220129161549534.png" alt="image-20220129161549534"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129161549534.png" alt="image-20220129161549534"></p>
 <p>现在修改p1的<code>bk_nextsize</code>为我们想要的地址-0x20</p>
-<p><img src="/.io//image-20220129161858696.png" alt="image-20220129161858696"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129161858696.png" alt="image-20220129161858696"></p>
 <p>之后创建一个chunk，使得unsortedbin中的chunk(p2)被放入largebin中。注意，此时p2大小是小于p1的。</p>
 <blockquote>
 <p>此时glibc有一个机制：当被放入的chunk是当前largebin中<strong>最小的chunk时</strong>，不会检查<code> chunk-&gt;bk_nextsize</code>。我们上述修改就会生效。</p>
 </blockquote>
 <p>此时，目标地址将写入原先在unsortedbin中的chunk的地址。</p>
-<p><img src="/.io//image-20220129162221450.png" alt="image-20220129162221450"></p>
+<p><img src="/2022/01/29/largebin-attack/image-20220129162221450.png" alt="image-20220129162221450"></p>
 <blockquote>
 <p>这里修改的又是较大的chunk，可能会感到疑惑？</p>
 <p>这是因为largebin 的fd_nextsize和bk_nextsize构成的是一个环形链表。<strong>可能需要记住的是在2.31中，修改的是较大块，在2.27之前，修改的是较小的</strong>。</p>

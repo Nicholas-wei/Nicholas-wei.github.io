@@ -22,18 +22,18 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="tcache stashing unlink attack最先一次见到是在buuoj上的新春红包题上。链接这次再次学习，是为了后面的House-of-pig做准备">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220207124623191.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//2.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220207125352106.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220207130126149.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220207130244398.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/image-20220207124623191.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/2.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/image-20220207125352106.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/image-20220207130126149.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/image-20220207130244398.png">
 <meta property="article:published_time" content="2022-02-07T06:59:55.000Z">
 <meta property="article:modified_time" content="2022-02-11T11:13:52.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="heap">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220207124623191.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/02/07/tcache-stashing-unlink-attack/image-20220207124623191.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -319,19 +319,19 @@
 <p>其中最关键的是验证<code>bck-&gt;fd != victim</code>。即smallbin中正常的块的fd位置是不是指向我们伪造的块，并且我们伪造的块的bk地址要指向smallbin中之前的堆块(也可以伪造，类似unlink一样的方法即可)</p>
 <h3 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache stashing unlink attack"></a>tcache stashing unlink attack</h3><p>简单来说，就是<strong>当smallbin中存在块，但是tcache未满时</strong>，如果从smallbin在取出一个块后未空，那么就会把这个对应大小的smallbin中的所有chunk全部转移到相应大小的tcache中，直到tcache满为止。这个看似矛盾的情况，在calloc的使用中存在可能性。因为calloc永远都不从tcache里面取块，可以越过tcache取smallbin中的块，从而触发攻击。</p>
 <p>举个例子。如果出现以下情景。有两个smallbin的块，<strong>六个tcache对应的块</strong></p>
-<p><img src="/.io//image-20220207124623191.png" alt="image-20220207124623191"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/image-20220207124623191.png" alt="image-20220207124623191"></p>
 <p>在使用calloc从smallbin取出一块之后之后，堆结构如下所示</p>
-<p><img src="/.io//2.png" alt="2"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/2.png" alt="2"></p>
 <p>注意，<strong>当原先tcache有六个块时</strong>，只会把A放入tcache中，<strong>无法完成一个任意地址分配块的操作</strong>。但是此时会把A的BK位置写上一个main_arena。（因为此时glibc误以为，A的bk位置还是一个块，需要把这个快标记上循环链表指针）</p>
 <p>但是当原先tcache有五个块，就可以实现分配一个任意地址到堆。</p>
 <p>原理应该很好理解。<strong>就是一个不断在tcache中追溯bk的过程</strong>。由于tcache没有任何bk的检查，<strong>因此会直接分配一个tcache结构体</strong>。回顾之前讲的house of lore，两者的区别是一个关注了smallbin，另一个关注的是tcache。用一个简单的图表示如下。</p>
 <p>第一步还是和之前一样</p>
-<p><img src="/.io//image-20220207125352106.png" alt="image-20220207125352106"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/image-20220207125352106.png" alt="image-20220207125352106"></p>
 <p>但是此时在取出过后，<strong>由于tcache未满7个，会继续向上追溯</strong>，此时需要注意被伪造的堆块位置需要有可写条件。这里我就用下面相关实践题目的情形来写了。</p>
-<p><img src="/.io//%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png" alt="未命名文件"></p>
-<p><img src="/.io//image-20220207130126149.png" alt="image-20220207130126149"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png" alt="未命名文件"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/image-20220207130126149.png" alt="image-20220207130126149"></p>
 <p>执行完tcache-stashing-unlink-attack后，效果为下图</p>
-<p><img src="/.io//image-20220207130244398.png" alt="image-20220207130244398"></p>
+<p><img src="/2022/02/07/tcache-stashing-unlink-attack/image-20220207130244398.png" alt="image-20220207130244398"></p>
 <p>可以看到分配了一个块到tcache，并且写入了一个main_arena。</p>
 <h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>向任意指定位置写入指定值</p>
 <p>向任意地址分配一个Chunk</p>

@@ -22,20 +22,20 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="学校数字水印课笔记——matlab使用小记">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331092824217.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331094757382.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331095515663.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331095540793.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331102104241.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331101522030.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331102808801.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220331110046214.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331092824217.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331094757382.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331095515663.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331095540793.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331102104241.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331101522030.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331102808801.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331110046214.png">
 <meta property="article:published_time" content="2022-03-31T01:25:25.000Z">
 <meta property="article:modified_time" content="2022-03-31T03:06:46.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="matlab">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220331092824217.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/03/31/matlab-1/image-20220331092824217.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -315,25 +315,25 @@
 
 <h1 id="task1-清除最低RGB位"><a href="#task1-清除最低RGB位" class="headerlink" title="task1 清除最低RGB位"></a>task1 清除最低RGB位</h1><p>将图像的第0位位平面清零。</p>
 <p>位平面就是把图像RGB表示下的每一个bit分层表示。</p>
-<p><img src="/.io//image-20220331092824217.png" alt="image-20220331092824217"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331092824217.png" alt="image-20220331092824217"></p>
 <p>完成task1代码。主要是用bitand来去除最后一个bit。注意这里输入结束之后好像没有自动弹窗?<strong>要放在脚本中运行才可以，如果是交互式可能一次只能弹出一个图像</strong></p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; data = imread(<span class="string">&#x27;e:\\lena.bmp&#x27;</span>);</span><br><span class="line">&gt;&gt; data1 = bitand(data,<span class="number">254</span>);</span><br><span class="line">&gt;&gt; subplot(<span class="number">2</span>,<span class="number">1</span>,<span class="number">1</span>),imshow(data),title(<span class="string">&#x27;original&#x27;</span>);</span><br><span class="line">&gt;&gt; subplot(<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>),imshow(data1),title(<span class="string">&#x27;after&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220331094757382.png" alt="image-20220331094757382"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331094757382.png" alt="image-20220331094757382"></p>
 <p>新建脚本的地方在这里。</p>
-<p><img src="/.io//image-20220331095515663.png" alt="image-20220331095515663"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331095515663.png" alt="image-20220331095515663"></p>
 <h1 id="task2-清除最高RGB位"><a href="#task2-清除最高RGB位" class="headerlink" title="task2 清除最高RGB位"></a>task2 清除最高RGB位</h1><p>和上面的代码类似，现在是处理最高位，将最高位清零。</p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">data = imread(<span class="string">&#x27;e:\\lena.bmp&#x27;</span>);</span><br><span class="line">data1 = bitand(data,<span class="number">127</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">1</span>,<span class="number">1</span>),imshow(data),title(<span class="string">&#x27;original&#x27;</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>),imshow(data1),title(<span class="string">&#x27;after&#x27;</span>)</span><br></pre></td></tr></table></figure>
 
 <p>可以看到差别很大</p>
-<p><img src="/.io//image-20220331095540793.png" alt="image-20220331095540793"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331095540793.png" alt="image-20220331095540793"></p>
 <h1 id="task3-处理每个图层生成灰度图像"><a href="#task3-处理每个图层生成灰度图像" class="headerlink" title="task3 处理每个图层生成灰度图像"></a>task3 处理每个图层生成灰度图像</h1><p>这里需要知道图层是怎么储存的。在matlab中，每读入一个图片，图片的bitmap都会以[R,G,B]的数组形式储存。因此我们需要把每一个像素点切片。代码如下。</p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">data = imread(<span class="string">&#x27;e:\\lena.bmp&#x27;</span>);</span><br><span class="line">R = data(:,:,<span class="number">1</span>);</span><br><span class="line">G = data(:,:,<span class="number">2</span>);</span><br><span class="line">B = data(:,:,<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>),imshow(data),title(<span class="string">&#x27;full&#x27;</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>),imshow(R),title(<span class="string">&#x27;R layer&#x27;</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>),imshow(G),title(<span class="string">&#x27;G layer&#x27;</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>),imshow(B),title(<span class="string">&#x27;B layer&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
 <p>可以直接观察data和RGB三种数组的区别。可以看到matlab为了节省空间，并不是将每一个像素点用一个结构体(red,green,blue)表示，而是分开存放每一种像素。这种操作能够在我们提取出每种像素点时，大大节约空间。(不然会出现(0,0,255)这种情况，会浪费)</p>
-<p><img src="/.io//image-20220331102104241.png" alt="image-20220331102104241"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331102104241.png" alt="image-20220331102104241"></p>
 <p>以下是输出结果。</p>
-<p><img src="/.io//image-20220331101522030.png" alt="image-20220331101522030"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331101522030.png" alt="image-20220331101522030"></p>
 <blockquote>
 <p>这里有一个疑问，为什么不是输出每种颜色的纯色图像，而是灰度图像呢?</p>
 <p>个人觉得是因为储存方式改变了(没有*3的bitmap)，让matlab默认处理时当成了灰度图片输出。</p>
@@ -341,10 +341,10 @@
 <blockquote>
 <p>同时注意，如果按照1中方法对图片末尾bit清零，<strong>实际上是对R,G,B三个数组的每一个的最后一位都清零</strong>。也就是方法一等价于我们提取出每一种RGB的图层，清除最低位之后再合并的结果。</p>
 </blockquote>
-<p><img src="/.io//image-20220331102808801.png" alt="image-20220331102808801"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331102808801.png" alt="image-20220331102808801"></p>
 <p>直观上来理解，也是原始图像的三维数组每一个数组都经过了这种操作。</p>
 <h1 id="合并图像各个图层"><a href="#合并图像各个图层" class="headerlink" title="合并图像各个图层"></a>合并图像各个图层</h1><p>下面做实验复现一下上面的想法。用两种方法处理各个图层，后者进行合并。然后用assert判断两者是相等的。</p>
-<p><img src="/.io//image-20220331110046214.png" alt="image-20220331110046214"></p>
+<p><img src="/2022/03/31/matlab-1/image-20220331110046214.png" alt="image-20220331110046214"></p>
 <p>代码如下</p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">data = imread(<span class="string">&#x27;e:\\lena.bmp&#x27;</span>);</span><br><span class="line">data1 = bitand(data,<span class="number">254</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>),imshow(data1),title(<span class="string">&#x27;直接处理&#x27;</span>)</span><br><span class="line">R = data(:,:,<span class="number">1</span>);</span><br><span class="line">G = data(:,:,<span class="number">2</span>);</span><br><span class="line">B = data(:,:,<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>),imshow(data),title(<span class="string">&#x27;原始图像&#x27;</span>);</span><br><span class="line">R=bitand(R,<span class="number">254</span>);</span><br><span class="line">G=bitand(G,<span class="number">254</span>);</span><br><span class="line">B=bitand(B,<span class="number">254</span>);</span><br><span class="line">data2(:,:,<span class="number">1</span>) = R;</span><br><span class="line">data2(:,:,<span class="number">2</span>) = G;</span><br><span class="line">data2(:,:,<span class="number">3</span>) = B;</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>),imshow(data2),title(<span class="string">&#x27;三个维度合并图像&#x27;</span>);</span><br><span class="line">assert(<span class="built_in">isequal</span>(data2,data1));</span><br></pre></td></tr></table></figure>
 

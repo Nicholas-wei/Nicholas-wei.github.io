@@ -22,15 +22,15 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="和之前题目realloc代码部分几乎一样，新增了GOT表不可写，导致堆布局更加复杂。个人觉得能够独立完成这道题(或者看了大致思路之后自己完成堆布局)能够算是堆布局方面至少是中级水平了。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220302234703924.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220303000034444.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/02/pwnable-re-alloc-revenge/image-20220302234703924.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/02/pwnable-re-alloc-revenge/image-20220303000034444.png">
 <meta property="article:published_time" content="2022-03-02T15:12:03.000Z">
 <meta property="article:modified_time" content="2022-03-02T16:01:38.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="heap">
 <meta property="article:tag" content="pwnable.tw">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220302234703924.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/03/02/pwnable-re-alloc-revenge/image-20220302234703924.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -326,9 +326,9 @@
 <p>但是这里只能用一个指针，也是很精巧的用法：用地址覆盖到下一个可用的bins中的fd，从而避免了修改自己的fd。这里还好我最后构造到能这样写，不然真的又要推倒重来，十分复杂。可能就要放弃了。</p>
 <p>关于realloc感觉能用的洞和需要了解的知识点在自己做了realloc和realloc-revenge之后就能够比较清楚了。我这道题前后大概花了要10小时，真的好复杂，差点崩溃了(也可能我做的麻烦)</p>
 <p>以下是成功截图。</p>
-<p><img src="/.io//image-20220302234703924.png" alt="image-20220302234703924"></p>
+<p><img src="/2022/03/02/pwnable-re-alloc-revenge/image-20220302234703924.png" alt="image-20220302234703924"></p>
 <h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>记录一下pwnable的排名，希望继续加油！！已经注册一年多了。也差不多学pwn一年多左右，希望和看到的人能够共勉！</p>
-<p><img src="/.io//image-20220303000034444.png" alt="image-20220303000034444"></p>
+<p><img src="/2022/03/02/pwnable-re-alloc-revenge/image-20220303000034444.png" alt="image-20220303000034444"></p>
 
       
     </div>

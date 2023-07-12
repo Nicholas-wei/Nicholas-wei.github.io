@@ -22,25 +22,25 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="学校数字水印课笔记——matlab使用小记(二)图像类型转换和颜色模型转换">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407085028888.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407085137810.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407085311966.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407085607394.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407085815283.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407105621922.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407105814908.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407111023832.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407111326390.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407112731389.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407112759580.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407113242114.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220407113802106.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085028888.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085137810.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085311966.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085607394.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085815283.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407105621922.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407105814908.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407111023832.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407111326390.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407112731389.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407112759580.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407113242114.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407113802106.png">
 <meta property="article:published_time" content="2022-04-07T00:47:28.000Z">
 <meta property="article:modified_time" content="2022-04-07T03:43:34.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="matlab">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220407085028888.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/07/matlab-2/image-20220407085028888.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -319,14 +319,14 @@
 <span id="more"></span>
 
 <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>matleb中，图像转换关系可以用下图表示。本次实验主要涉及的是下面有标号的几种。</p>
-<p><img src="/.io//image-20220407085028888.png" alt="image-20220407085028888"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085028888.png" alt="image-20220407085028888"></p>
 <p>一般而言，有以下几种常见的图像处理函数</p>
-<p><img src="/.io//image-20220407085137810.png" alt="image-20220407085137810"></p>
-<h2 id="灰度图像二值化方法"><a href="#灰度图像二值化方法" class="headerlink" title="灰度图像二值化方法"></a>灰度图像二值化方法</h2><p><img src="/.io//image-20220407085311966.png" alt="image-20220407085311966"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085137810.png" alt="image-20220407085137810"></p>
+<h2 id="灰度图像二值化方法"><a href="#灰度图像二值化方法" class="headerlink" title="灰度图像二值化方法"></a>灰度图像二值化方法</h2><p><img src="/2022/04/07/matlab-2/image-20220407085311966.png" alt="image-20220407085311966"></p>
 <p>从伪代码可以看出原理其实很简单。就是根据阈值设置某个像素点取值为0或者1。matlan中的im2bw中就包含一个阈值参数。这里没有做实验，直接复制了老师的图。</p>
-<p><img src="/.io//image-20220407085607394.png" alt="image-20220407085607394"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085607394.png" alt="image-20220407085607394"></p>
 <h3 id="如何确定阈值"><a href="#如何确定阈值" class="headerlink" title="如何确定阈值"></a>如何确定阈值</h3><p>根据图像全局灰度值确定。从本质上而言，根本思想就是选取的阈值要尽量能区分大部分颜色。这里选在两个阈值之间就使得结果中一半全白，一半全黑。就能够区分两者。反之就会得到全白或者全黑，无法区分两者。</p>
-<p><img src="/.io//image-20220407085815283.png" alt="image-20220407085815283"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407085815283.png" alt="image-20220407085815283"></p>
 <p>如果波峰和波谷交替出现，那么我们应该将阈值放在主要的波峰和波谷之间。</p>
 <blockquote>
 <p>利用matlab的imhist.m函数可以方便地画出一幅灰度图像的灰度直方图。但是说我缺少toolbox，结果下载页下载不了。。。只能重装，真实糟心</p>
@@ -334,31 +334,31 @@
 <p>使用下面代码绘制</p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\lena.bmp&quot;</span>);</span><br><span class="line">imhist(rgb)</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220407105621922.png" alt="image-20220407105621922"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407105621922.png" alt="image-20220407105621922"></p>
 <h1 id="不同数字图像文件格式转换"><a href="#不同数字图像文件格式转换" class="headerlink" title="不同数字图像文件格式转换"></a>不同数字图像文件格式转换</h1><h2 id="RGB和索引图象之间的转换"><a href="#RGB和索引图象之间的转换" class="headerlink" title="RGB和索引图象之间的转换"></a>RGB和索引图象之间的转换</h2><p>回顾一下索引图象和RGB图像的区别。RGB图像每一个像素点都有rgb三个分量，而索引图象每一个点是一个下标，下标代表调色板中对应颜色的位置。调色板是一些预设好的颜色组合。我们可以把RGB图像转换为n=16或者n=128的索引图象。例如bmp图像就是一种调色板图像。下面是bmp图像的文件格式。</p>
-<p><img src="/.io//image-20220407105814908.png" alt="image-20220407105814908"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407105814908.png" alt="image-20220407105814908"></p>
 <p>(看到这里想到，对于一个读取bmp图像的文件，如果fuzz改掉headsize部分，是否可能造成指针越界，造成越界访问？)</p>
 <p>常见的RGB格式图像是PNG。</p>
 <p>我们接下来尝试转换。<strong>将png图像转换为bmp图像</strong></p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\onion.png&quot;</span>);</span><br><span class="line"><span class="built_in">figure</span>(<span class="number">1</span>);</span><br><span class="line">[data,map] = rgb2ind(rgb,<span class="number">16</span>);</span><br><span class="line">image(data),colormap(map);</span><br><span class="line">title(<span class="string">&quot;matlab&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">figure</span>(<span class="number">2</span>);</span><br><span class="line">imshow(rgb);</span><br><span class="line">title(<span class="string">&quot;RGB&quot;</span>);</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220407111023832.png" alt="image-20220407111023832"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407111023832.png" alt="image-20220407111023832"></p>
 <p>可以看到图像质量发生了变化。位图参数还可以调整为128，图像清晰度会提高。</p>
 <p>转换为灰度图像即为。这里推断它采用能尽可能分辨的多图像的，上面提到的灰度图像的识别方法。</p>
-<p><img src="/.io//image-20220407111326390.png" alt="image-20220407111326390"></p>
-<h2 id="图像读写函数完成转换"><a href="#图像读写函数完成转换" class="headerlink" title="图像读写函数完成转换"></a>图像读写函数完成转换</h2><p><img src="/.io//image-20220407112731389.png" alt="image-20220407112731389"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407111326390.png" alt="image-20220407111326390"></p>
+<h2 id="图像读写函数完成转换"><a href="#图像读写函数完成转换" class="headerlink" title="图像读写函数完成转换"></a>图像读写函数完成转换</h2><p><img src="/2022/04/07/matlab-2/image-20220407112731389.png" alt="image-20220407112731389"></p>
 <p>但是文件读写的方法读取图象是有限制的。只能在相同格式文件之间转换。如果需要转换为不同的模型，需要用下面的函数。</p>
-<p><img src="/.io//image-20220407112759580.png" alt="image-20220407112759580"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407112759580.png" alt="image-20220407112759580"></p>
 <blockquote>
 <p>注意：imshow本身基于RGB模型观察图像。因此在用其他模型转换后可能导致图像变得很奇怪。例如下图</p>
 </blockquote>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 将jpg转换为rgb</span><br><span class="line">RGB=imread(<span class="string">&#x27;lenna.jpg&#x27;</span>,<span class="string">&#x27;jpg&#x27;</span>);</span><br><span class="line">HSV=<span class="built_in">rgb2hsv</span>(RGB);</span><br><span class="line">subplot(<span class="number">121</span>);imshow(RGB);title(<span class="string">&#x27;原图像&#x27;</span>);</span><br><span class="line">subplot(<span class="number">122</span>);imshow(HSV);title(<span class="string">&#x27;变换后的图像&#x27;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220407113242114.png" alt="image-20220407113242114"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407113242114.png" alt="image-20220407113242114"></p>
 <p>相同的方法，可以把图片转换为hsv格式。</p>
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rgb = imread(<span class="string">&quot;E:\score.jpg&quot;</span>);</span><br><span class="line">HSV = <span class="built_in">rgb2hsv</span>(rgb);</span><br><span class="line">subplot(<span class="number">121</span>);imshow(rgb);title(<span class="string">&#x27;original&#x27;</span>);</span><br><span class="line">subplot(<span class="number">122</span>);imshow(HSV);title(<span class="string">&#x27;changed&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220407113802106.png" alt="image-20220407113802106"></p>
+<p><img src="/2022/04/07/matlab-2/image-20220407113802106.png" alt="image-20220407113802106"></p>
 <p>matlab怎样显示hsv格式的图片?应该是无法显示的。我们能做的是先把图像变成hsv格式的，然后再把hsv图片转换回来，这样能修改图片的饱和度等。</p>
 
       

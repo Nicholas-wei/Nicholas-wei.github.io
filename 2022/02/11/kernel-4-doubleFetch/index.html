@@ -22,15 +22,15 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="内核学习(四) double_fetch。这次主要基于ctf_wiki学习。DoubleFetch相关知识点可在微软安全研究中找到。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211115806806.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211115923349.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220211150611494.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/image-20220211115806806.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/image-20220211115923349.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/image-20220211150611494.png">
 <meta property="article:published_time" content="2022-02-11T02:16:38.000Z">
 <meta property="article:modified_time" content="2022-02-11T10:19:10.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="kernel">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220211115806806.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/02/11/kernel-4-doubleFetch/image-20220211115806806.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -323,9 +323,9 @@
 <li>当command=0x6666时，输出flag对应的地址</li>
 <li>当command=0x1337时，对我们的输入做如下比较之后，逐字节比较我们输入的flag和正确的flag。如果一样就给出flag（和没有一样）</li>
 </ol>
-<p><img src="/.io//image-20220211115806806.png" alt="image-20220211115806806"></p>
+<p><img src="/2022/02/11/kernel-4-doubleFetch/image-20220211115806806.png" alt="image-20220211115806806"></p>
 <p>因此可以看出，比较的内容如下</p>
-<p><img src="/.io//image-20220211115923349.png" alt="image-20220211115923349"></p>
+<p><img src="/2022/02/11/kernel-4-doubleFetch/image-20220211115923349.png" alt="image-20220211115923349"></p>
 <p>这里注意到flag是硬编码的。远程的flag是修改过的，所以长度肯定也不同。因此我们还需要知道远程flag的长度。这个可以一个一个尝试来获取。</p>
 <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>之前的double_fetch框架提示我们：需要两次对用户输入判断才能利用这种工具。这里恰好有这种情形。可以看出，<strong>如果第一个线程的输入成功绕过位于用户空间的比对条件之后，在和flag逐字节比较之前，将我们的flag指针改为之前打印出来的内核地址</strong>，就可以在后面比较时泄露内核地址。</p>
 <p>我们exp编写的步骤为</p>
@@ -341,7 +341,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;malloc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span>        <span class="comment">/* System V */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span>    <span class="comment">/* BSD and Linux */</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">user_input</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">char</span> *flag_str;</span><br><span class="line">    <span class="type">long</span> length;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_input</span> *<span class="title">input</span> =</span> (<span class="keyword">struct</span> user_input*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> user_input));</span><br><span class="line">    <span class="type">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;/dev/baby&quot;</span>,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span>(cnt=<span class="number">0</span>;cnt&lt;<span class="number">50</span>;cnt++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;trying %d: &quot;</span>,cnt);</span><br><span class="line">        <span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line">        input-&gt;flag_str = <span class="string">&quot;aaaaa&quot;</span>;</span><br><span class="line">        input-&gt;length = cnt;</span><br><span class="line">        ret = ioctl(fd,<span class="number">0x1337</span>,input);</span><br><span class="line">        <span class="keyword">if</span>(ret == <span class="number">0x16</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;ok! the length of flag is %d\n&quot;</span>,cnt);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;return %d\n&quot;</span>,ret);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>可以看到远程的flag长度为33。</p>
-<p><img src="/.io//image-20220211150611494.png" alt="image-20220211150611494"></p>
+<p><img src="/2022/02/11/kernel-4-doubleFetch/image-20220211150611494.png" alt="image-20220211150611494"></p>
 <h2 id="double-fetch-1"><a href="#double-fetch-1" class="headerlink" title="double_fetch"></a>double_fetch</h2><p>这里需要创建两个线程（一个为原先的主线程）其中主线程不断发起<code>ioctl(fd,0x1337,&amp;input)</code>另一个线程反复修改传递的input结构体中的flag_addr数值。由于每次需要通过dmesg查看输出的flag地址比较麻烦，ctf-wiki上面采用了读取文件，利用字符串匹配寻找到最终目标地址的方法。</p>
 <p>需要注意的是子线程每次修改的，必须是和主线程一样的数据结构中的flag_buf。最好定义成全局的(虽然理论上来说，不同线程的栈也可以共享)，<strong>此外，尽量让线程少输出，因为io会大大增加开销，可能导致竞争失败</strong>，原先这里就卡了好久，结果关掉输出就对了。</p>
 <p>下面的exp主要参考ctf-wiki上面。自己敲了一遍代码，理解了一下。</p>

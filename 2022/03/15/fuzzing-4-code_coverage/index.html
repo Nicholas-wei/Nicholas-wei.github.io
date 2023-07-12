@@ -22,25 +22,25 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="有关使用LCOV完成对code coverage的覆盖检测。相关文件：LibTIFF">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315205142963.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315205234184.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315220044853.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315220359040.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315221631518.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315221443674.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220316090428606.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220316081502169.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220315234920652.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220316084227843.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220316084306191.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220316085713705.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315205142963.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315205234184.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315220044853.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315220359040.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315221631518.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315221443674.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220316090428606.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220316081502169.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315234920652.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220316084227843.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220316084306191.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220316085713705.png">
 <meta property="article:published_time" content="2022-03-15T07:21:57.000Z">
 <meta property="article:modified_time" content="2022-08-04T07:19:48.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="fuzz">
 <meta property="article:tag" content="fuzzing101">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220315205142963.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/03/15/fuzzing-4-code_coverage/image-20220315205142963.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -370,9 +370,9 @@ c = cov.coverage()
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-fprofile-arcs -ftest-coverage</span><br></pre></td></tr></table></figure>
 
 <p>就能够生成二进制程序，测试执行的代码覆盖面积。</p>
-<p><img src="/.io//image-20220315205142963.png" alt="image-20220315205142963"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315205142963.png" alt="image-20220315205142963"></p>
 <p>我们正常运行一个程序之后，使用如下代码测试代码覆盖率</p>
-<p><img src="/.io//image-20220315205234184.png" alt="image-20220315205234184"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315205234184.png" alt="image-20220315205234184"></p>
 <p>在同文件夹路径下生成的<strong>gcov文件</strong>，可以用来分析每行代码执行次数。这里截取了main函数部分。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">    <span class="number">1</span>:   <span class="number">46</span>:<span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> &#123;</span><br><span class="line">    <span class="number">1</span>:   <span class="number">47</span>:    init_hex_values();</span><br><span class="line">    -:   <span class="number">48</span>:</span><br><span class="line">    <span class="number">1</span>:   <span class="number">49</span>:    <span class="keyword">if</span> (argc &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="number">1</span>:   <span class="number">50</span>:        <span class="type">char</span> *s = argv[<span class="number">1</span>];</span><br><span class="line">    <span class="number">1</span>:   <span class="number">51</span>:        <span class="type">char</span> *t = <span class="built_in">malloc</span>(<span class="built_in">strlen</span>(s) + <span class="number">1</span>); <span class="comment">/* output is at most as long as input */</span></span><br><span class="line">    <span class="number">1</span>:   <span class="number">52</span>:        <span class="type">int</span> ret = cgi_decode(s, t);</span><br><span class="line">    <span class="number">1</span>:   <span class="number">53</span>:        <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, t);</span><br><span class="line">    <span class="number">1</span>:   <span class="number">54</span>:        <span class="keyword">return</span> ret;</span><br><span class="line">    -:   <span class="number">55</span>:    &#125;</span><br><span class="line">    -:   <span class="number">56</span>:    <span class="keyword">else</span></span><br><span class="line">    -:   <span class="number">57</span>:    &#123;</span><br><span class="line">#####:   <span class="number">58</span>:        <span class="built_in">printf</span>(<span class="string">&quot;cgi_decode: usage: cgi_decode STRING\n&quot;</span>);</span><br><span class="line">#####:   <span class="number">59</span>:        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    -:   <span class="number">60</span>:    &#125;</span><br><span class="line">    -:   <span class="number">61</span>:&#125;</span><br></pre></td></tr></table></figure>
 
@@ -404,9 +404,9 @@ c = cov.coverage()
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz -m none -i $HOME/fuzzing_tiff/tiff-4.0.4/test/images/ -o $HOME/fuzzing_tiff/out/ -s 123 -- $HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w @@</span><br></pre></td></tr></table></figure>
 
 <p>找到了巨多的错</p>
-<p><img src="/.io//image-20220315220044853.png" alt="image-20220315220044853"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315220044853.png" alt="image-20220315220044853"></p>
 <h2 id="fuzzing结果"><a href="#fuzzing结果" class="headerlink" title="fuzzing结果"></a>fuzzing结果</h2><p>随便尝试了运行一个，ASAN很清楚地给出了我们错误所在(这个工具tql)</p>
-<p><img src="/.io//image-20220315220359040.png" alt="image-20220315220359040"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315220359040.png" alt="image-20220315220359040"></p>
 <p>以下是ASAN输出的影子堆栈。不过这个输出是有特定含义的。</p>
 <ol>
 <li>8 字节的数据可读写，则 shadow memory 的值为 0</li>
@@ -414,15 +414,15 @@ c = cov.coverage()
 <li>前 k 个字节可读写，后 8 - k 个字节不可读写，则 shadow memory 的值为 k，k 的取值范围为 <code>[1, 7]</code> </li>
 </ol>
 <p>借用下面这张图，可以看得更清楚，先举一个例子，参考的是<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/382994002">这篇文章</a>，写的非常好</p>
-<p><img src="/.io//image-20220315221631518.png" alt="image-20220315221631518"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315221631518.png" alt="image-20220315221631518"></p>
 <p>f1表示stack-left，f3表示stack right。同时，中间的28bytes末尾也被标记为04，表示只有四字节可以写。(05表示5字节可写，以此类推)</p>
 <p>结合我们的输出</p>
-<p><img src="/.io//image-20220315221443674.png" alt="image-20220315221443674"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315221443674.png" alt="image-20220315221443674"></p>
 <p>可以发现越界出现在这里[01]位置，也就是我们只能写这里的一个byte。而这个地方位于fa和fa之间，应该是申请的堆空间，产生了越界写。</p>
 <h2 id="调试分析"><a href="#调试分析" class="headerlink" title="调试分析"></a>调试分析</h2><p>太麻烦了，使用了ASAN之后似乎crash都没有用了。直接gdb调试起来会退出，不知道哪位师傅知道为什么?</p>
-<p><img src="/.io//image-20220316090428606.png" alt="image-20220316090428606"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220316090428606.png" alt="image-20220316090428606"></p>
 <h2 id="使用lcov进行覆盖率分析"><a href="#使用lcov进行覆盖率分析" class="headerlink" title="使用lcov进行覆盖率分析"></a>使用lcov进行覆盖率分析</h2><p>之前介绍了c语言中的gcov工具，这里用的是lcov，两者有什么区别呢?<strong>lcov是gcov的前端工具</strong></p>
-<p><img src="/.io//image-20220316081502169.png" alt="image-20220316081502169"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220316081502169.png" alt="image-20220316081502169"></p>
 <p>一般而言，使用lcov的方法在上面也写了。就是编译程序的时候(gcc *)加上<code>-fpro-file-arcs</code>和<code>-ftest-coverage</code>。然而我们要生成configure文件，不是直接调用的gcc，而是使用makefile。那么就只能在configure的时候加上”-coverage”</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS=<span class="string">&quot;--coverage&quot;</span> LDFLAGS=<span class="string">&quot;--coverage&quot;</span> ./configure --prefix=<span class="string">&quot;$HOME/fuzzing_tiff/install/&quot;</span> --disable-shared</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
 
@@ -430,10 +430,10 @@ c = cov.coverage()
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将文件夹内所有.da文件删除</span></span><br><span class="line">lcov --zerocounters --directory ./</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">首先是初始化捕获文件夹</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-c 捕获，-i初始化，-d应用目录，-o输出文件</span></span><br><span class="line">lcov -c -i -d ./ -o init.info</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">第二步是运行生成的可执行文件</span></span><br><span class="line">./test_cover</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">第三步是收集运行文件生成的信息(必须由gcov编译)</span></span><br><span class="line">lcov -c -d ./ -o cover.info</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">第四步合并基准数据和我们测试之后获得的覆盖面数据</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-a 合并文件</span></span><br><span class="line">lcov -a init.info -a cover.info -o total.info</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">第五步可以结合genhtml生成html文件</span></span><br><span class="line">genhtml --highlight --legend -output-directory ./html-coverage/ ./total.info</span><br></pre></td></tr></table></figure>
 
 <p>我选择了前十个崩溃的样本，得到如下结果。</p>
-<p><img src="/.io//image-20220315234920652.png" alt="image-20220315234920652"></p>
-<p><img src="/.io//image-20220316084227843.png" alt="image-20220316084227843"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220315234920652.png" alt="image-20220315234920652"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220316084227843.png" alt="image-20220316084227843"></p>
 <p>甚至连源码的哪一行可以被执行到都列出来了，这个工具tql</p>
-<p><img src="/.io//image-20220316084306191.png" alt="image-20220316084306191"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220316084306191.png" alt="image-20220316084306191"></p>
 <p>使用的命令是就是以上的命令。在fuzzing101中的最后一步使用了一个<code>--no-checksum</code>，查看文档。</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">--checksum</span><br><span class="line">--no-checksum</span><br><span class="line">Specify whether to generate checksum data when writing tracefiles.</span><br><span class="line"></span><br><span class="line">Use --checksum to enable checksum generation or --no-checksum to disable it. Checksum generation is disabled by default.</span><br><span class="line"></span><br><span class="line">When checksum generation is enabled, a checksum will be generated for each source code line and stored along with the coverage data. This checksum will be used to</span><br><span class="line">prevent attempts to combine coverage data from different source code versions.</span><br><span class="line"></span><br><span class="line">If you don&#x27;t work with different source code versions, disable this option to speed up coverage data processing and to reduce the size of tracefiles.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
@@ -441,7 +441,7 @@ c = cov.coverage()
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd ../out/default/crashes/                                                  </span><br><span class="line">file_all=$(ls)</span><br><span class="line">cd ../../../tiff-4.0.4/</span><br><span class="line">for file in $file_all</span><br><span class="line">do</span><br><span class="line">    $HOME/fuzzing_tiff/install/bin/tiffinfo -D -j -c -r -s -w $HOME/            fuzzing_tiff/out/default/crashes/$file</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
 
 <p>可以看到运行poc代码中的覆盖面确实相对而言多了一点(相比于之前的)</p>
-<p><img src="/.io//image-20220316085713705.png" alt="image-20220316085713705"></p>
+<p><img src="/2022/03/15/fuzzing-4-code_coverage/image-20220316085713705.png" alt="image-20220316085713705"></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>学到了代码覆盖面的衡量标准，通过python的systrace能够编写简单的trace程序。使用gcc原生gcov和locv创建可视化代码覆盖面图表。使用afl结合ASAN输出代码漏洞(这里弥补了练习3中我至今没有跑出来的漏洞，发现ASAN工具能够直接给出问题，但是似乎不能调试)总的来说，是关于代码覆盖面如何测量、计算的一个比较全面的学习。</p>
 
       

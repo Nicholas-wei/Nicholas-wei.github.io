@@ -22,19 +22,19 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="编译器实践第三课，Representing Code 上一章节我们提到如何把代码作为字符串，识别出对应的变量，关键字，表达式，运算符等，并把它们提取出来。而这一章后面一章，将会把这些token转化为更为复杂的内容。这一章关注的是，关于这些“更为复杂的内容”的定义。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220807175346391.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220807191331259.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220808132423827.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230209174707420.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230209174727456.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220808141935572.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220808141952286.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220807175346391.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220807191331259.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220808132423827.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20230209174707420.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20230209174727456.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220808141935572.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220808141952286.png">
 <meta property="article:published_time" content="2022-08-07T09:25:23.000Z">
 <meta property="article:modified_time" content="2023-02-09T09:48:10.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="interpreter">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220807175346391.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/08/07/crafting-interpreters3/image-20220807175346391.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -314,13 +314,13 @@
 <span id="more"></span>
 
 <p>上一章我们着重关注的是<code>lexial grammar</code>也就是词法，而这一张我们将会偏重于<code>context-free grammar</code>。在scanner语法中，字母表是单个字符，而字符串(也叫token)是一个单词。现在我们认为每一个token是字母表，而字母表组成在一起，叫做<code>表达式</code>。</p>
-<p><img src="/.io//image-20220807175346391.png" alt="image-20220807175346391"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20220807175346391.png" alt="image-20220807175346391"></p>
 <p>一个正式语法的作用手机确定什么字符串时有效的，什么不是。就类似英语里面喷段一个句子的语法结构是否正确一样。(而不是单词拼写是否正确)</p>
 <h1 id="句法语法"><a href="#句法语法" class="headerlink" title="句法语法"></a>句法语法</h1><p>下面用一张图介绍语法。感觉这种构造方式和之前fuzz里面基于语法的fuzzing很类似。例如下面的一个<code>breakfast</code>。其构造方法是第一句所描述的规则。并且如果我们制定引号引起来的是<code>terminal</code>也就是可以不再扩展，我们可以通过逐级拆解每个变量。(例如breakfast拆分成<code>protein</code>，protein拆分成<code>cooked eggs</code>，而cooked拆分成<code>poached</code>等等，以此类推即可)</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">breakfast  → protein <span class="string">&quot;with&quot;</span> breakfast <span class="string">&quot;on the side&quot;</span> ;</span><br><span class="line">breakfast  → protein ;</span><br><span class="line">breakfast  → bread ;</span><br><span class="line"></span><br><span class="line">protein    → crispiness <span class="string">&quot;crispy&quot;</span> <span class="string">&quot;bacon&quot;</span> ;</span><br><span class="line">protein    → <span class="string">&quot;sausage&quot;</span> ;</span><br><span class="line">protein    → cooked <span class="string">&quot;eggs&quot;</span> ;</span><br><span class="line"></span><br><span class="line">crispiness → <span class="string">&quot;really&quot;</span> ;</span><br><span class="line">crispiness → <span class="string">&quot;really&quot;</span> crispiness ;</span><br><span class="line"></span><br><span class="line">cooked     → <span class="string">&quot;scrambled&quot;</span> ;</span><br><span class="line">cooked     → <span class="string">&quot;poached&quot;</span> ;</span><br><span class="line">cooked     → <span class="string">&quot;fried&quot;</span> ;</span><br><span class="line"></span><br><span class="line">bread      → <span class="string">&quot;toast&quot;</span> ;</span><br><span class="line">bread      → <span class="string">&quot;biscuits&quot;</span> ;</span><br><span class="line">bread      → <span class="string">&quot;English muffin&quot;</span> ;</span><br></pre></td></tr></table></figure>
 
 <p>最终得到的结果类似下图。直到我们的所有句子内容都是<code>terminal</code>就终止扩展。</p>
-<p><img src="/.io//image-20220807191331259.png" alt="image-20220807191331259"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20220807191331259.png" alt="image-20220807191331259"></p>
 <h2 id="句法语法的扩展"><a href="#句法语法的扩展" class="headerlink" title="句法语法的扩展"></a>句法语法的扩展</h2><p>可以参考以下内容。我们可以用问号(问号之前的内容至多出现一次)，星号(出现任意次)，加号(出现至少一次)，竖线(表示选择)来进一步形式化语言。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">breakfast → protein ( <span class="string">&quot;with&quot;</span> breakfast <span class="string">&quot;on the side&quot;</span> )?</span><br><span class="line">          | bread ;</span><br><span class="line"></span><br><span class="line">protein   → <span class="string">&quot;really&quot;</span>+ <span class="string">&quot;crispy&quot;</span> <span class="string">&quot;bacon&quot;</span></span><br><span class="line">          | <span class="string">&quot;sausage&quot;</span></span><br><span class="line">          | ( <span class="string">&quot;scrambled&quot;</span> | <span class="string">&quot;poached&quot;</span> | <span class="string">&quot;fried&quot;</span> ) <span class="string">&quot;eggs&quot;</span> ;</span><br><span class="line"></span><br><span class="line">bread     → <span class="string">&quot;toast&quot;</span> | <span class="string">&quot;biscuits&quot;</span> | <span class="string">&quot;English muffin&quot;</span> ;</span><br></pre></td></tr></table></figure>
 
@@ -334,16 +334,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.craftinginterpreters.lox;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Expr</span> &#123; </span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Binary</span> <span class="keyword">extends</span> <span class="title class_">Expr</span> &#123;</span><br><span class="line">    Binary(Expr left, Token operator, Expr right) &#123;</span><br><span class="line">      <span class="built_in">this</span>.left = left;</span><br><span class="line">      <span class="built_in">this</span>.operator = operator;</span><br><span class="line">      <span class="built_in">this</span>.right = right;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Expr left;</span><br><span class="line">    <span class="keyword">final</span> Token operator;</span><br><span class="line">    <span class="keyword">final</span> Expr right;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Other expressions...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>我们可以一个一个手写，但是作者给了我们一个简单的方法，用脚本自动生成。这里碰到一个问题卡了很久。。就是新建一个tool的包知乎，eclipse里面就不能直接运行代码了，必须用java运行。</p>
-<p><img src="/.io//image-20220808132423827.png" alt="image-20220808132423827"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20220808132423827.png" alt="image-20220808132423827"></p>
 <p>折磨了一个小时，还是没找到解决办法。但是没有关系，毕竟这个tool还是一个命令行工具。参考<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/36537093">链接</a>下的做法，编译得到一个新文件<code>expr.java</code>。</p>
 <p>具体的方法是先在lox/ 下面生成一个.class文件，如下</p>
-<p><img src="/.io//image-20230209174707420.png" alt="image-20230209174707420"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20230209174707420.png" alt="image-20230209174707420"></p>
 <p>之后到src/下面去生成</p>
-<p><img src="/.io//image-20230209174727456.png" alt="image-20230209174727456"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20230209174727456.png" alt="image-20230209174727456"></p>
 <p>这里我把GenerateAst移动到了lox/下面，不然总是报找不到主类的错误</p>
 <h2 id="visitor-mode"><a href="#visitor-mode" class="headerlink" title="visitor mode"></a>visitor mode</h2><p>访问者模式。作者举了一个例子，我们在设计不同类时，如果想要<code>横向</code>的添加一层，非常容易，但是如果纵向添加一层，则困难许多。</p>
-<p><img src="/.io//image-20220808141935572.png" alt="横向添加"></p>
-<p><img src="/.io//image-20220808141952286.png" alt="纵向添加"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20220808141935572.png" alt="横向添加"></p>
+<p><img src="/2022/08/07/crafting-interpreters3/image-20220808141952286.png" alt="纵向添加"></p>
 <p>因为纵向添加往往意味着对于每一个类，都要添加一个新的成员函数。而有一种解决方案被称为访问者模式。<a target="_blank" rel="noopener" href="https://refactoringguru.cn/design-patterns/visitor">这个网站写的很详细</a></p>
 <blockquote>
 <p>访问者模式建议将新行为放入一个名为<em>访问者</em>的独立类中， 而不是试图将其整合到已有类中。 现在， 需要执行操作的原始对象将作为参数被传递给访问者中的方法， 让方法能访问对象所包含的一切必要数据。</p>

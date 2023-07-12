@@ -22,33 +22,33 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="关于fuzz领域看的第二篇论文。这篇论文创新性的将数据流差距和控制流顺序也放在seed评估中(而不是传统的代码覆盖率)，并自动化的实现了从core dump和patchlog中提取数据限制的方法。提升了对于direct fuzz效率的提升。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812102243660.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812102911913.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812105618876.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812113604129.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812121743059.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812122313276.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812122724630.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812123241195.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812124503769.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812124537174.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812125102923.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812125408120.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812141139441.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812142148746.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812174548860.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812182354743.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220812192036213.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813125009029.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813130309587.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813130946883.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220813131802831.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812102243660.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812102911913.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812105618876.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812113604129.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812121743059.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812122313276.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812122724630.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812123241195.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812124503769.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812124537174.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812125102923.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812125408120.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812141139441.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812142148746.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812174548860.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812182354743.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812192036213.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813125009029.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813130309587.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813130946883.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813131802831.png">
 <meta property="article:published_time" content="2022-08-13T05:35:14.000Z">
 <meta property="article:modified_time" content="2022-08-13T05:58:40.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="fuzz">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220812102243660.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812102243660.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -332,13 +332,13 @@
 <h3 id="解决问题的前提"><a href="#解决问题的前提" class="headerlink" title="解决问题的前提"></a><strong>解决问题的前提</strong></h3><p>一般来说，grey box fuzzing在给定一些条件，比如开发者们获取了一个第三方用户的crash report之后，复现起来相对于通过代码覆盖率guided的fuzzing方式还是比较容易的。传统的DGF并没有考虑到数据流的依赖(例如栈溢出，POC生成)，也进行了关于目标位置之间相互独立的错误假设(例如UAF)。</p>
 <h2 id="三、技术原理与实现"><a href="#三、技术原理与实现" class="headerlink" title="三、技术原理与实现"></a><strong>三、技术原理与实现</strong></h2><h3 id="CGDF评估方式"><a href="#CGDF评估方式" class="headerlink" title="CGDF评估方式"></a>CGDF评估方式</h3><p>文章开发了一种以限制为导向的grey box fuzzing工具，CGDF。CGDF的目标是通过满足一系列的限制来达到最终target site。其中目标分为数据流和控制流两方面。</p>
 <p>判断某个seed是否足够满足constrains的方法，CGDF设计了一种<code>distance of the constrains</code>。和传统的DGF不同。下图中红色框是free()，蓝色框是UAF的位置。</p>
-<p><img src="/.io//image-20220812102243660.png" alt="image-20220812102243660"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812102243660.png" alt="image-20220812102243660"></p>
 <p>例如使用seedA，使用DGF计算距离时首先第一个块距离两个块距离都是3，因此使用调和平均，(1/3+1/3)^(-1)得到3/2。而如果两者不同，则选择到达目标块的最近距离，例如计算e块，e到达红色快距离是3，到达蓝色快是1，因此就计算为1，那么在e块的结果就是(1/1)^(-1)=1.以此类推。因此总的来说，使用DGF得到的距离之和是</p>
-<p><img src="/.io//image-20220812102911913.png" alt="image-20220812102911913"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812102911913.png" alt="image-20220812102911913"></p>
 <p>这样计算的好处是，如果seed能够cover更多的标准块，那么确实这个距离总和会变少。</p>
 <p>但是我们注意到对于UAF，虽然seedA的DGF距离计算最小，但是它其实并不是理想的UAF触发行为。相反，C才是。然而C的得分却并不高。这正是DGF的<code>independent site</code>所导致的。</p>
 <p>另外一个例子是和数据流有关。如果我们需要访问buf的末尾，这里使用DGF时，由于只需要迭代四次，因此会误认为seedA对应的DGF值最小。但是其实seedC对应的值才是最符合条件的。</p>
-<p><img src="/.io//image-20220812105618876.png" alt="image-20220812105618876"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812105618876.png" alt="image-20220812105618876"></p>
 <p>为了确保解决上述问题，CGDF定义了新的距离表示方式。当满足以下条件时，CGDF会给出更短的seed距离。</p>
 <ul>
 <li>这个seed满足了更多的constrains</li>
@@ -350,7 +350,7 @@
 <p>再看seedC，第一个条件已经满足，而距离第二个条件距离为1.因此两个加起来就是0+1。这样确实给出了较好的优先级顺序。</p>
 <p><strong>以越界读为例子</strong>，只考虑数据流，也就是越界读的位置和当前读到的位置之差。seedA总共是40，当前读了10，因此CGDF计算的结果是40-10=30，以此类推。</p>
 <p>我们怎么生成constrains?可以直接从core dump中提取。==但是怎么提取网上没有找到好的方法==。</p>
-<p><img src="/.io//image-20220812113604129.png" alt="image-20220812113604129"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812113604129.png" alt="image-20220812113604129"></p>
 <h3 id="生成constrains"><a href="#生成constrains" class="headerlink" title="生成constrains"></a>生成constrains</h3><ul>
 <li>变量捕获</li>
 </ul>
@@ -367,7 +367,7 @@
 <li>basic block distance</li>
 </ul>
 <p>对于两个基本块之间的距离可以表示为</p>
-<p><img src="/.io//image-20220812121743059.png" alt="image-20220812121743059"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812121743059.png" alt="image-20220812121743059"></p>
 <p>其中Bs是B1的后继，其实也就是类似路由算法的一个方程(名字忘记了)，也就是非常直观的计算基本块之间的距离。</p>
 <ul>
 <li>target site distance</li>
@@ -377,49 +377,49 @@
 <li>data condition distance</li>
 </ul>
 <p>下面这张图比较明显。其实就是我们定义了一些数据之间的差距。</p>
-<p><img src="/.io//image-20220812122313276.png" alt="image-20220812122313276"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812122313276.png" alt="image-20220812122313276"></p>
 <p>规则为：对于基本块之间的数据差距。是识别到的所有变量之间的差距之和(但是注意这里的comparison operator需要是一样的)。如果有没有识别到的，那就是无穷大。</p>
-<p><img src="/.io//image-20220812122724630.png" alt="image-20220812122724630"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812122724630.png" alt="image-20220812122724630"></p>
 <p>对于使用assert标记的数据条件，我们使用pass或者fail表示。</p>
 <p>对于多个数据条件的情况，使用如下公式</p>
-<p><img src="/.io//image-20220812123241195.png" alt="image-20220812123241195"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812123241195.png" alt="image-20220812123241195"></p>
 <p>理解：$N_{unsat}$代表所有不满足data condition的条件数量，cdata是一个4byte的数字。并且后面加上了最小的距离值，这样是突出了最近距离的数据的重要性。</p>
 <h3 id="constrains距离总和"><a href="#constrains距离总和" class="headerlink" title="constrains距离总和"></a>constrains距离总和</h3><p>简单来说，综合控制流和数据流的距离，我们把两者的和作为结果。具体来说，在到达target site之前，距离是</p>
-<p><img src="/.io//image-20220812124503769.png" alt="image-20220812124503769"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812124503769.png" alt="image-20220812124503769"></p>
 <p>也就是基本块之间的距离+数据流之间的距离。但是此时数据流之间的距离是最大的数据条件距离和所有需要满足的数据条件的数量之和。(也就是一个非常大的值，用最大的距离乘上最多的标准快)</p>
 <p>当到达target site之后，距离变为下图。此时只需要考虑数据流距离。</p>
-<p><img src="/.io//image-20220812124537174.png" alt="image-20220812124537174"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812124537174.png" alt="image-20220812124537174"></p>
 <p>到最后，变为0就可以了。</p>
 <p>但是注意constrains距离只是其中一个控制流线之下的距离总和。如果我们考虑多个控制流下的总距离，需要用以下公式。</p>
-<p><img src="/.io//image-20220812125102923.png" alt="image-20220812125102923"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812125102923.png" alt="image-20220812125102923"></p>
 <p>对于三种情况讨论</p>
 <ul>
 <li>当没有限制满足时</li>
 </ul>
-<p><img src="/.io//image-20220812125408120.png" alt="image-20220812125408120"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812125408120.png" alt="image-20220812125408120"></p>
 <p>此时$\tau$是1，这里的1很有意思，从数据流看出应该是所有需要满足的条件中最近的一个。</p>
 <ul>
 <li>当所有控制流条件满足，并且数据流未满足时，前半部分控制流的$\tau$就是N(B*)因此前半部分没有了，只是计算数据流满足</li>
 </ul>
-<p><img src="/.io//image-20220812141139441.png" alt="image-20220812141139441"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812141139441.png" alt="image-20220812141139441"></p>
 <h3 id="生成constrains-1"><a href="#生成constrains-1" class="headerlink" title="生成constrains"></a>生成constrains</h3><p>之前提到的生成约束图的方式，在这里是细节。</p>
 <p>对于使用core dump生成constraint的方式，使用模板nT（UAF，double free），或者2T+D(两个target site和一个data，例如heap overflow)，或者1T+D，例如assertion failure或者除0。如下所示</p>
-<p><img src="/.io//image-20220812142148746.png" alt="image-20220812142148746"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812142148746.png" alt="image-20220812142148746"></p>
 <p>这里的2T+D的生成方式中的assert的目的是确保access到的地址是在之前分配的地址之间。之后我们通过设置cond来驱使产生溢出。</p>
-<p><img src="/.io//image-20220812174548860.png" alt="image-20220812174548860"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812174548860.png" alt="image-20220812174548860"></p>
 <p>除此以外，生成constrains还有几个原则</p>
 <ul>
 <li>避免wrapper函数</li>
 </ul>
 <p>使得target site更加有标识性。通过检查函数名中是否包含keyword，类似alloc(),free()等</p>
 <h3 id="利用patch生成constrains"><a href="#利用patch生成constrains" class="headerlink" title="利用patch生成constrains"></a>利用patch生成constrains</h3><p>使用1T+D的模板可以很方便的生成。具体算法如下</p>
-<p><img src="/.io//image-20220812182354743.png" alt="image-20220812182354743"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812182354743.png" alt="image-20220812182354743"></p>
 <p>有以下集中生成constrais的规则</p>
 <ol>
 <li>如果引入了新的exception检查，设置<code>target site</code>到其源地址(我理解是exception所检查的地方)并用新的exception检查条件创建<code>data_cond</code>。在这里将throw或者error识别为exception check。</li>
 <li>如果任何分支语句被修改了，设置<code>target_site</code>到被改掉的条件的地方，并根据patch之前和之后互斥的数据条件修改data_cond。也就是下面的公式。个人认为这样设置因为要找到不属于两个条件之间的情况，进行fuzz。</li>
 </ol>
-<p><img src="/.io//image-20220812192036213.png" alt="image-20220812192036213"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220812192036213.png" alt="image-20220812192036213"></p>
 <ol start="3">
 <li>如果有变量被修改，设置<code>target site</code>到被修改的变量，创建<code>data_cond</code>并检验修改之前和之后的变量数值是否相同。</li>
 <li>如果上述条件都不满足，则对新增的代码设置为target_site进行修改。</li>
@@ -440,15 +440,15 @@
 </ul>
 <p>按照seed排名的指数倒数作为当前seed被选中的概率来选择seed。</p>
 <h2 id="四、实验评估"><a href="#四、实验评估" class="headerlink" title="四、实验评估"></a><strong>四、实验评估</strong></h2><h3 id="实验数据结果"><a href="#实验数据结果" class="headerlink" title="实验数据结果"></a><strong>实验数据结果</strong></h3><p>以下是从LAVA1中获取到的制造crash的时间对比。</p>
-<p><img src="/.io//image-20220813125009029.png" alt="image-20220813125009029"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813125009029.png" alt="image-20220813125009029"></p>
 <p>以上将CAFL和AFLGo做对比，发现新增data condition的CAFL到达目标地址的时间确实短了许多。</p>
 <p>接下来，寻找crash reproduction时间对比。使用了ASAN和MS。这里比较alpha GO和CAFL在多种目标下的crash reproduction时间，主要是为了验证数据流存在的意义</p>
-<p><img src="/.io//image-20220813130309587.png" alt="image-20220813130309587"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813130309587.png" alt="image-20220813130309587"></p>
 <h3 id="PoC生成"><a href="#PoC生成" class="headerlink" title="PoC生成"></a>PoC生成</h3><p>最后一个是PoC生成功能。使用git和Mercurial可以自动生成constrains</p>
-<p><img src="/.io//image-20220813130946883.png" alt="image-20220813130946883"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813130946883.png" alt="image-20220813130946883"></p>
 <p>上面主要是堆溢出漏洞，使用CAFL的nT+D可以显著加快速度。</p>
 <p>另外对于1T下的数据流对比。</p>
-<p><img src="/.io//image-20220813131802831.png" alt="image-20220813131802831"></p>
+<p><img src="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/image-20220813131802831.png" alt="image-20220813131802831"></p>
 <h2 id="现有问题"><a href="#现有问题" class="headerlink" title="现有问题"></a>现有问题</h2><ol>
 <li>论文结尾提到对于栈溢出漏洞可能需要grammar fuzzing进行补充，目前CAFL无法做到。</li>
 <li>对于例如数据未初始化漏洞等和控制流角度关系较小的漏洞，目前CAFL还无法处理。</li>

@@ -22,39 +22,39 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="Mirai属于经典的物联网僵尸网络，产生时间比较久，因此在github上有其泄露的源码。接下来内容我将按照源码进行分析。另外还有一个正在流行的僵尸网络样本Gafgyt，也将在本文后半部分分析。这也是我第一次分析恶意软件。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230203213936362.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230203215142523.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230203215541953.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230203221746035.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204085712405.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204132544791.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204130842806.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204133030448.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204134212910.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204140803941.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204142437106.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204142453246.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204145514125.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204151010647.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204151533301.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204151724631.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204152232046.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230204153308599.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205094238880.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205094737090.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205094855243.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205094954675.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205100936735.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205104352207.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205105343976.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205115757613.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20230205120803712.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230203213936362.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230203215142523.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230203215541953.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230203221746035.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204085712405.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204132544791.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204130842806.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204133030448.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204134212910.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204140803941.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204142437106.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204142453246.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204145514125.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204151010647.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204151533301.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204151724631.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204152232046.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230204153308599.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205094238880.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205094737090.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205094855243.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205094954675.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205100936735.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205104352207.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205105343976.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205115757613.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230205120803712.png">
 <meta property="article:published_time" content="2023-02-05T03:43:12.000Z">
 <meta property="article:modified_time" content="2023-02-05T04:19:24.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="botnet">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20230203213936362.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2023/02/05/mirai/image-20230203213936362.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -334,27 +334,27 @@
 
 <h1 id="Mirai分析"><a href="#Mirai分析" class="headerlink" title="Mirai分析"></a>Mirai分析</h1><p>Mirai属于经典的物联网僵尸网络，产生时间比较久，因此在github上有其<a target="_blank" rel="noopener" href="https://github.com/jgamblin/Mirai-Source-Code">泄露的源码</a>。接下来内容我将按照源码进行分析。</p>
 <p>Mirai主要由三个部分组成。其中dlr部分为不同架构下，黑客所投放的病毒实施远程下载的编译好的二进制文件。loader部分运行在黑客主机上，主要进行telnet爆破，并进行弱口令猜测攻击目标路由器或者暴露的IOT设备。bot是在loader运行成功之后，发送到远程僵尸主机上的病毒文件，其主要工作是接受黑客指令创建用户，完成DDoS攻击。</p>
-<p><img src="/.io//image-20230203213936362.png" alt="image-20230203213936362"></p>
+<p><img src="/2023/02/05/mirai/image-20230203213936362.png" alt="image-20230203213936362"></p>
 <p>接下来对这三部分做详细分析。</p>
 <h2 id="loader部分"><a href="#loader部分" class="headerlink" title="loader部分"></a>loader部分</h2><p>loader部分主要完成远程IOT设备的telnet密码爆破，权限获取，以及远程传递病毒文件。</p>
 <p>在loader的main.c中，可以看到一共调用了以下几种重要函数。</p>
-<p><img src="/.io//image-20230203215142523.png" alt="image-20230203215142523"></p>
+<p><img src="/2023/02/05/mirai/image-20230203215142523.png" alt="image-20230203215142523"></p>
 <h3 id="binary-init"><a href="#binary-init" class="headerlink" title="binary init"></a>binary init</h3><p>实际上就是把所有下载器文件读取到本地栈变量上，用一个数据结构保存下来。后续会用echo将这些下载器传给受控制的IOT设备上，用来下载真正的病毒。</p>
-<p><img src="/.io//image-20230203215541953.png" alt="image-20230203215541953"></p>
+<p><img src="/2023/02/05/mirai/image-20230203215541953.png" alt="image-20230203215541953"></p>
 <h3 id="dlr"><a href="#dlr" class="headerlink" title="dlr"></a>dlr</h3><p>dlr中没有main()只有run()函数。这个文件做的事情非常简单，连接黑客服务器并通过HTTP请求的方式获取病毒文件。黑客在这个过程中会发送0x0d0a0d0a用来表示何时开始发送正真的病毒本体。这种下载方式只有在使用wget或者tftp命令无法下载文件时才会使用。</p>
-<p><img src="/.io//image-20230203221746035.png" alt="image-20230203221746035"></p>
+<p><img src="/2023/02/05/mirai/image-20230203221746035.png" alt="image-20230203221746035"></p>
 <h3 id="server-create"><a href="#server-create" class="headerlink" title="server create"></a>server create</h3><p>生成一个<strong>具有固定IP</strong>的server，用来测试被攻击者是否能够正常使用wget或者tftp来接受远程文件。这个固定IP是<strong>100.200.100.100</strong>，当然在开源软件中可能是伪造的。源代码显示这属于一种比较经典的多线程服务器的初始化工作。有多个工作线程(CPU核数个)，然后支持的最多连接数量是1024*64个。</p>
-<p><img src="/.io//image-20230204085712405.png" alt="image-20230204085712405"></p>
+<p><img src="/2023/02/05/mirai/image-20230204085712405.png" alt="image-20230204085712405"></p>
 <p>在worker()函数中调用了handle_event()。这里是在与目标设备成功建立telnet连接之后尝试爆破密码的地方。首先服务器会判断连接状态，是否能够读取数据，然后根据连接回显的内容判断连接处于的状态。之后根据回显的提示符，输入用户名或者口令，然后根据回显结果判断是否弱口令爆破成功。这里的弱口令是黑客提供的，记录的内容是(ip:端口 用户名:密码 架构)。</p>
-<p><img src="/.io//image-20230204132544791.png" alt="image-20230204132544791"></p>
+<p><img src="/2023/02/05/mirai/image-20230204132544791.png" alt="image-20230204132544791"></p>
 <p>成功之后首先通过kill杀死所有包含init以及pid&gt;400的进程，并找到一段内存中的可读写空间，如果找到就生成一个可写文件夹。之后根据用户输入或者主机种ELF文件格式来判断目标主机架构。</p>
 <p>如果成功则用busybox通过wget，tftp或者echo下载自身(mirai病毒)。其中前两者都是从黑客服务器下载，echo则是通过黑客提供的下载器下载病毒。之后尝试运行病毒并获取其输出，验证有效性。这是server.c中handle_event线程的主要工作。</p>
-<p><img src="/.io//image-20230204130842806.png" alt="image-20230204130842806"></p>
+<p><img src="/2023/02/05/mirai/image-20230204130842806.png" alt="image-20230204130842806"></p>
 <h2 id="cnc"><a href="#cnc" class="headerlink" title="cnc"></a>cnc</h2><p>cnc下的文件主要用于接受黑客的指令。包括新建用户(估计这个是给暗网上用户使用的)，以及攻击的配置</p>
 <p>cnc文件夹下的文件用来编译生成mirai病毒。在main.go中，可以看到mirai通过在端口23以及端口101上进行tcp监听。其中api端口为101，tel端口为23。</p>
-<p><img src="/.io//image-20230204133030448.png" alt="image-20230204133030448"></p>
+<p><img src="/2023/02/05/mirai/image-20230204133030448.png" alt="image-20230204133030448"></p>
 <h3 id="tel-handler"><a href="#tel-handler" class="headerlink" title="tel handler"></a>tel handler</h3><p>23号端口的tel handler用于接受黑客指令，包括用户名、用户口令，它可以用来创建一个新的bot或者一个新的用户。分别对应NewBot以及NewAdmin函数。其中23号端口用来接受添加用户，获取僵尸主机相关参数，101号端口用来接收实际的攻击指令，包括设置攻击类型，构造payload数据包。</p>
-<p><img src="/.io//image-20230204134212910.png" alt="image-20230204134212910"></p>
+<p><img src="/2023/02/05/mirai/image-20230204134212910.png" alt="image-20230204134212910"></p>
 <p>对于NewAdmin主要控制部分在admin.go中。有以下几种命令，主要是添加一个管理僵尸主机的用户，显示bot连接状态信息，并设置攻击参数。</p>
 <table>
 <thead>
@@ -382,41 +382,41 @@
 </tbody></table>
 <p>对于NewBot，只是为一个Bot结构体初始化。设置其连接信息，名称等。</p>
 <h3 id="api-handler"><a href="#api-handler" class="headerlink" title="api handler"></a>api handler</h3><p>api handler主要接受用户对bot输入的用户名/密码，之后调用NewAttack执行用户输入的命令。</p>
-<p><img src="/.io//image-20230204140803941.png" alt="image-20230204140803941"></p>
+<p><img src="/2023/02/05/mirai/image-20230204140803941.png" alt="image-20230204140803941"></p>
 <p>在attack.go中，通过对一些参数组合进行设置，达到不同的攻击效果。这些参数用来把TCP数据包中不同部分设置为用户指定的值，修改其对应位置完成数据包payload编写。用户可以指定，也可以通过默认的方式输入。输入之后将会通过build()构建一个完整的攻击数据包。</p>
-<p><img src="/.io//image-20230204142437106.png" alt="image-20230204142437106"></p>
+<p><img src="/2023/02/05/mirai/image-20230204142437106.png" alt="image-20230204142437106"></p>
 <p>有一些现成的组合。达到不同的攻击效果。</p>
-<p><img src="/.io//image-20230204142453246.png" alt="image-20230204142453246"></p>
+<p><img src="/2023/02/05/mirai/image-20230204142453246.png" alt="image-20230204142453246"></p>
 <h2 id="Bot"><a href="#Bot" class="headerlink" title="Bot"></a>Bot</h2><p>bot部分主要是完成攻击以及发送心跳包等信息，最主要的函数是attack_init以及killer_init。</p>
 <p>bot部分首先完成一些环境的清理。包括对watchdog进程发送防止重启的信号，隐藏自身进程名、argv[0]的行为，确保自己单进程运行。</p>
-<p><img src="/.io//image-20230204145514125.png" alt="image-20230204145514125"></p>
+<p><img src="/2023/02/05/mirai/image-20230204145514125.png" alt="image-20230204145514125"></p>
 <h3 id="attack-init"><a href="#attack-init" class="headerlink" title="attack_init"></a>attack_init</h3><p>接下来的attack_init和killer_init函数中完成的是真正的攻击部分。在attack_init中，初始化了一系列攻击函数。这部分攻击函数主要是根据我们上面的输入，构造真正的数据包。</p>
-<p><img src="/.io//image-20230204151010647.png" alt="image-20230204151010647"></p>
+<p><img src="/2023/02/05/mirai/image-20230204151010647.png" alt="image-20230204151010647"></p>
 <p>下面是一个例子。进行UDP攻击的过程。首先是从之前设置的内容中获取包中ttl、协议、源地址、目的地址等信息</p>
-<p><img src="/.io//image-20230204151533301.png" alt="image-20230204151533301"></p>
+<p><img src="/2023/02/05/mirai/image-20230204151533301.png" alt="image-20230204151533301"></p>
 <p>之后组装完整的数据包，并发送。</p>
-<p><img src="/.io//image-20230204151724631.png" alt="image-20230204151724631"></p>
+<p><img src="/2023/02/05/mirai/image-20230204151724631.png" alt="image-20230204151724631"></p>
 <p>其余的数据包构造方法大致类似，这里不再赘述。</p>
 <h3 id="killer-init"><a href="#killer-init" class="headerlink" title="killer_init"></a>killer_init</h3><p>killer部分用于关闭一些进程，包括原先23号端口的telnet，22号端口的ssh，80端口的http。主要是为了维持自身的存在。</p>
-<p><img src="/.io//image-20230204152232046.png" alt="image-20230204152232046"></p>
+<p><img src="/2023/02/05/mirai/image-20230204152232046.png" alt="image-20230204152232046"></p>
 <p>在main.c的最后，bot会定时发送心跳信息，向黑客主机报告自身的存活。</p>
-<p><img src="/.io//image-20230204153308599.png" alt="image-20230204153308599"></p>
+<p><img src="/2023/02/05/mirai/image-20230204153308599.png" alt="image-20230204153308599"></p>
 <p>这次分析的是一个僵尸网络样本。原先的mirai样本因为架构过于奇怪u，无法正常分析，于是分析的市另一个ARM架构的文件。</p>
 <h2 id="Gafgyt分析"><a href="#Gafgyt分析" class="headerlink" title="Gafgyt分析"></a>Gafgyt分析</h2><p>这里给的样本应该是一个僵尸网络样本。样本架构为32位arm，ELF文件格式。</p>
 <p>首先在main()中，可以看到fork()出来一个子进程，并在子进程中进行连接。</p>
-<p><img src="/.io//image-20230205094238880.png" alt="image-20230205094238880"></p>
+<p><img src="/2023/02/05/mirai/image-20230205094238880.png" alt="image-20230205094238880"></p>
 <p>病毒会选择一个全局数组中的IP进行连接。如果没有初始设置端口，则默认链接6982端口。</p>
-<p><img src="/.io//image-20230205094737090.png" alt="image-20230205094737090"></p>
+<p><img src="/2023/02/05/mirai/image-20230205094737090.png" alt="image-20230205094737090"></p>
 <p>在样本中，数组中只有一个IP，连接到的是23号端口</p>
-<p><img src="/.io//image-20230205094855243.png" alt="image-20230205094855243"></p>
+<p><img src="/2023/02/05/mirai/image-20230205094855243.png" alt="image-20230205094855243"></p>
 <p>查询结果发现是越南的一个IP</p>
-<p><img src="/.io//image-20230205094954675.png" alt="image-20230205094954675"></p>
+<p><img src="/2023/02/05/mirai/image-20230205094954675.png" alt="image-20230205094954675"></p>
 <p>连接之后，病毒通过recvline()接受发来的命令，并做简单的修正(取最前面空格和最后面空格之间的内容作为命令)。命令开始的标记为”!”。之后病毒按照感叹号之后的内容将命令按照空格分割，保存在本地，并进入process_cmd中。</p>
-<p><img src="/.io//image-20230205100936735.png" alt="image-20230205100936735"></p>
+<p><img src="/2023/02/05/mirai/image-20230205100936735.png" alt="image-20230205100936735"></p>
 <p>在process_cmd中，可以看到一共有五种类型的攻击，分别是TCP、UDP、HTTP、VSE、STDHEX。病毒根据黑客的指令，在指令中找到上述五种字符串，以及IP地址，端口号、攻击事件、攻击次数信息，并分别fork()出子进程进行攻击。下面是TCP攻击部分。在攻击中，会采用随机IP地址的方法，自己构造IP数据包进行攻击。</p>
-<p><img src="/.io//image-20230205104352207.png" alt="image-20230205104352207"></p>
+<p><img src="/2023/02/05/mirai/image-20230205104352207.png" alt="image-20230205104352207"></p>
 <p>UDP数据包也是类似的行为。和TCP基本一致，不在说明了。接下来是HTTPSTOMP攻击。参数和上述UDP，TCP攻击时不同，是(HTTP行为，ip，端口，攻击次数，攻击时间)这里比较有意思的时他的payload，发送给/cdn-cgi/l/chk_captcha。是为了绕过cloud flare的captcha检查的。在这里，user_agent时一个随机内容，防止被过滤。</p>
-<p><img src="/.io//image-20230205105343976.png" alt="image-20230205105343976"></p>
+<p><img src="/2023/02/05/mirai/image-20230205105343976.png" alt="image-20230205105343976"></p>
 <p>HTTPpayload如下所示</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">char</span> http_payload[] =</span><br><span class="line">&#123;</span><br><span class="line">  <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, </span><br><span class="line">  <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, </span><br><span class="line">  <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, </span><br><span class="line">  <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, </span><br><span class="line">  <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, </span><br><span class="line">  <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, </span><br><span class="line">  <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, <span class="number">0x8F</span>, </span><br><span class="line">  <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0x9C</span>, </span><br><span class="line">  <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x84</span>, <span class="number">0x8B</span>, <span class="number">0x87</span>, <span class="number">0x8F</span>, <span class="number">0x99</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, </span><br><span class="line">  <span class="number">0x9C</span>, <span class="number">0x8F</span>, <span class="number">0x98</span>, <span class="number">0xEA</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -426,9 +426,9 @@
 <p>对于VSE攻击，发送了一串很有意思的payload。VSE攻击是针对VSE服务器的一种请求，它被用来去攻击一些游戏中心。它的作用是不停的像游戏中心发送连接请求，导致其中断服务。下面的payload是用于针对此类服务器的。这一段payload能够引起DrDoS攻击，也即分布式反射性拒绝服务攻击，会导致许多受害者及其在不知情的情况下参与到DDoS攻击当中。</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">TSource Engine Query + </span><br><span class="line">/x54/x53/x6f/x75/x72/x63/x65/x20/x45/x6e/x67/x69/x6e/x65/x20/x51/</span><br><span class="line">x75/x65/x72/x79 rfdknjms</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.io//image-20230205115757613.png" alt="image-20230205115757613"></p>
+<p><img src="/2023/02/05/mirai/image-20230205115757613.png" alt="image-20230205115757613"></p>
 <p>最后一个攻击在样本中的字符串为”STDHEX”。他的内容仅仅是发送一串固定payload。经过网上搜索，这是一串没有意义的payload，不过可以根据此payload搜索到很接近本样本的<a target="_blank" rel="noopener" href="https://github.com/USBBios/Mortem-qBot-Botnet-Src/blob/main/bot.c">开源代码</a></p>
-<p><img src="/.io//image-20230205120803712.png" alt="image-20230205120803712"></p>
+<p><img src="/2023/02/05/mirai/image-20230205120803712.png" alt="image-20230205120803712"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本样本的功能比较单一，是远控样本，能够接受攻击者发来的命令，通过fork出子进程，进行HTTP、TCP、UDP、VSE以及发送固定无意义内容的攻击。其中攻击者可以指定攻击的目的IP，目的端口，攻击时间，数据包大小等信息。</p>
 <p>C2回连信息存在于样本中。IP为<code>103.195.237.238</code>。域名来自越南胡志明市。样本不存在横向扩展功能，不存在持久化功能。也不存在反调试、反沙箱的手段。</p>
 

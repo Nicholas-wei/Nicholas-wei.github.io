@@ -22,25 +22,25 @@
 <meta property="og:site_name" content="welc0me">
 <meta property="og:description" content="xctf的一血机器人播报，内含源码。">
 <meta property="og:locale">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401215407780.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401215626646.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401215752532.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401220007265.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401220227350.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401220333083.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401220827552.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401231447090.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401131038584.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401221639322.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401221149760.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401221850416.png">
-<meta property="og:image" content="https://nicholas-wei.github.io/.io//image-20220401221958874.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401215407780.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401215626646.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401215752532.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401220007265.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401220227350.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401220333083.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401220827552.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401231447090.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401131038584.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401221639322.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401221149760.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401221850416.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401221958874.png">
 <meta property="article:published_time" content="2022-04-01T04:56:49.000Z">
 <meta property="article:modified_time" content="2022-04-01T15:15:20.000Z">
 <meta property="article:author" content="nich0las">
 <meta property="article:tag" content="fb-bot">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://nicholas-wei.github.io/.io//image-20220401215407780.png">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2022/04/01/fb-bot-discord/image-20220401215407780.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -319,17 +319,17 @@
 <span id="more"></span>
 
 <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="初始化bot"><a href="#初始化bot" class="headerlink" title="初始化bot"></a>初始化bot</h2><p>首先需要创建一个机器人，在<a target="_blank" rel="noopener" href="https://discord.com/developers/applications">这个网站</a>注册一个账号，之后在应用这里注册一个机器人</p>
-<p><img src="/.io//image-20220401215407780.png" alt="image-20220401215407780"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401215407780.png" alt="image-20220401215407780"></p>
 <p>我这里命名为bot_test。点开之后，点击左边的bot，点击add_bot</p>
-<p><img src="/.io//image-20220401215626646.png" alt="image-20220401215626646"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401215626646.png" alt="image-20220401215626646"></p>
 <p>点击生成一个token。如下图。这个token是<strong>在本地控制机器人的唯一方式</strong>。因此千万不能泄露。</p>
-<p><img src="/.io//image-20220401215752532.png" alt="image-20220401215752532"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401215752532.png" alt="image-20220401215752532"></p>
 <p>之后点击左边的OAUTH2。选择下面的选项。这里的选项是bot的权限。按照自己的需要添加就行。</p>
-<p><img src="/.io//image-20220401220007265.png" alt="image-20220401220007265"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401220007265.png" alt="image-20220401220007265"></p>
 <p>比如作为一个fb-bot可能只要选择这些就可以了。接着我们点这里的copy。吧URL复制到浏览器里面并点击。</p>
-<p><img src="/.io//image-20220401220227350.png" alt="image-20220401220227350"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401220227350.png" alt="image-20220401220227350"></p>
 <p>可以看到它让我们选择一个服务器。这个服务器就是我们作为管理员所在的服务器。</p>
-<p><img src="/.io//image-20220401220333083.png" alt="image-20220401220333083"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401220333083.png" alt="image-20220401220333083"></p>
 <h2 id="本地构建bot环境"><a href="#本地构建bot环境" class="headerlink" title="本地构建bot环境"></a>本地构建bot环境</h2><p>这里需要介绍一些discord的API。以及一些需要安装的库。最好把下面这些都装了</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> aiohttp.client <span class="keyword">import</span> request</span><br><span class="line"><span class="keyword">import</span> discord</span><br><span class="line"><span class="keyword">from</span> aiohttp_socks <span class="keyword">import</span> ProxyConnector </span><br><span class="line"><span class="keyword">from</span> discord.ext <span class="keyword">import</span> tasks, commands</span><br><span class="line"><span class="keyword">from</span> discord.ext.commands <span class="keyword">import</span> Bot</span><br><span class="line"><span class="keyword">from</span> discord <span class="keyword">import</span> utils</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> sessions</span><br><span class="line"><span class="keyword">import</span> json</span><br></pre></td></tr></table></figure>
 
@@ -337,34 +337,34 @@
 <ol>
 <li>打开clash</li>
 </ol>
-<p><img src="/.io//image-20220401220827552.png" alt="image-20220401220827552"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401220827552.png" alt="image-20220401220827552"></p>
 <ol start="2">
 <li>进入windows Internet属性这里，修改如下所示的<strong>套接字</strong>部分。这里要保持安全这里写空，不然不知道为什么xctf的SSL验证无法通过(真是糟心…)</li>
 </ol>
-<p><img src="/.io//image-20220401231447090.png" alt="image-20220401231447090"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401231447090.png" alt="image-20220401231447090"></p>
 <p>之后就可以了。注意不能把上面两步倒过来，因为clash打开的时候会默认重置上面我们添加的内容。</p>
 <h1 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> aiohttp.client <span class="keyword">import</span> request</span><br><span class="line"><span class="keyword">import</span> discord</span><br><span class="line"><span class="keyword">from</span> aiohttp_socks <span class="keyword">import</span> ProxyConnector </span><br><span class="line"><span class="keyword">from</span> discord.ext <span class="keyword">import</span> tasks, commands</span><br><span class="line"><span class="keyword">from</span> discord.ext.commands <span class="keyword">import</span> Bot</span><br><span class="line"><span class="keyword">from</span> discord <span class="keyword">import</span> utils</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> sessions</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意bot必须通过这个协议，不知道为什么。按照上面的做就行了。</span></span><br><span class="line">bot = Bot(<span class="string">&quot;!&quot;</span>, connector =ProxyConnector.from_url(<span class="string">&#x27;socks5://127.0.0.1:7890&#x27;</span>))</span><br><span class="line">TOKEN = <span class="string">&quot;上面基础知识拿到的token&quot;</span></span><br><span class="line"><span class="comment"># 下面这五个怎么拿到会在代码后面写</span></span><br><span class="line">MY_GUILD=<span class="number">959118584083279952</span></span><br><span class="line">MY_CHANNEL=<span class="number">959118584083279954</span></span><br><span class="line">XCTF_GUILD=<span class="number">941157903128223805</span></span><br><span class="line">XCTF_TEST_CHANNEL=<span class="number">941200329968603187</span></span><br><span class="line">XCTF_REAL_CHANNEL=<span class="number">941198787580412005</span> <span class="comment"># announcement</span></span><br><span class="line"><span class="meta">@bot.event</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">on_ready</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;We have logged in as &#123;0.user&#125;&#x27;</span>.<span class="built_in">format</span>(bot))</span><br><span class="line">    <span class="keyword">await</span> bot.get_channel(XCTF_TEST_CHANNEL).send(<span class="string">&quot;Bot is online&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyCog</span>(commands.Cog):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, bot, index</span>):</span><br><span class="line">        self.index = index</span><br><span class="line">        self.bot = bot</span><br><span class="line">        self.first_blood.start()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">cog_unload</span>(<span class="params">self</span>):</span><br><span class="line">        self.first_blood.cancel()</span><br><span class="line"><span class="comment"># 下面的seconds是每隔多久时间访问xctf来更新一血列表</span></span><br><span class="line"><span class="meta">    @tasks.loop(<span class="params">seconds=<span class="number">60</span></span>)</span></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">first_blood</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">await</span> self.bot.wait_until_ready()</span><br><span class="line">        <span class="comment"># print(&quot;check1&quot;)</span></span><br><span class="line">        <span class="comment"># 这里的ID是读取json返回数据中比当前参数输入id更大的所有消息，以及notice。但是要确保收到一血消息，检查is_task字段即可。</span></span><br><span class="line">        <span class="built_in">print</span>(self.index)</span><br><span class="line">        guild = self.bot.get_guild(XCTF_GUILD)</span><br><span class="line">        <span class="comment"># 注意下面的evt要根据不同的比赛修改</span></span><br><span class="line">        res = requests.get(<span class="string">&#x27;https://adworld.xctf.org.cn/api/evts/notices&#x27;</span>, params=&#123;<span class="string">&#x27;evt&#x27;</span>: <span class="number">171</span>, <span class="string">&#x27;id&#x27;</span>: self.index&#125;, cookies=&#123;<span class="string">&#x27;session&#x27;</span>: <span class="string">&#x27;访问上述网页看到的session&#x27;</span>&#125;)</span><br><span class="line">        res.encoding = <span class="string">&#x27;Unicode&#x27;</span></span><br><span class="line">        result_text = res.text</span><br><span class="line">        <span class="comment"># 将text转换为json并分析</span></span><br><span class="line">        json_data = json.loads(result_text)</span><br><span class="line">        <span class="comment"># print(json_data)</span></span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> json_data:</span><br><span class="line">            <span class="comment"># 这个json_data怎么选的下面会写</span></span><br><span class="line">            <span class="keyword">if</span> (item[<span class="string">&#x27;is_task&#x27;</span>] == <span class="number">1</span>):</span><br><span class="line">                <span class="comment"># name = &#x27;first-blood&#x27;</span></span><br><span class="line">                name = <span class="string">&#x27;main-chat&#x27;</span></span><br><span class="line">                <span class="keyword">if</span>(item[<span class="string">&#x27;id&#x27;</span>] &gt; self.index):</span><br><span class="line">                    self.index = item[<span class="string">&#x27;id&#x27;</span>]</span><br><span class="line">                    <span class="comment"># name这里写要发送到的channel的名字。</span></span><br><span class="line">                <span class="keyword">await</span> utils.get(guild.text_channels,name=name).send(item[<span class="string">&#x27;notice&#x27;</span>])</span><br><span class="line">            <span class="comment"># else:</span></span><br><span class="line">            <span class="comment">#     name = &#x27;announcement&#x27;</span></span><br><span class="line">            <span class="comment">#     await utils.get(guild.text_channels,name=name).send(item[&#x27;notice&#x27;])</span></span><br><span class="line">            <span class="built_in">print</span>(item)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @commands.command()</span></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">stop</span>(<span class="params">self, ctx</span>):</span><br><span class="line">        <span class="keyword">if</span> ctx.channel.name == <span class="string">&#x27;main-chat&#x27;</span>: <span class="comment"># 能够控制bot的命令只有发在main-chat里面才反应</span></span><br><span class="line">            <span class="keyword">await</span> ctx.send(<span class="string">&#x27;Bye!&#x27;</span>)</span><br><span class="line">            <span class="keyword">await</span> bot.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">bot.add_cog(MyCog(bot, <span class="built_in">int</span>(<span class="built_in">input</span>(<span class="string">&#x27;index: &#x27;</span>))))</span><br><span class="line"></span><br><span class="line">bot.run(TOKEN)</span><br></pre></td></tr></table></figure>
 
 <ol>
 <li>如何找到server guild可以参考下文。<br><a target="_blank" rel="noopener" href="https://poshbot.readthedocs.io/en/latest/guides/backends/setup-discord-backend/#find-your-guild-id-server-id">https://poshbot.readthedocs.io/en/latest/guides/backends/setup-discord-backend/#find-your-guild-id-server-id</a></li>
 </ol>
-<p><img src="/.io//image-20220401131038584.png" alt="image-20220401131038584"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401131038584.png" alt="image-20220401131038584"></p>
 <ol start="2">
 <li>如何找到channel？连接的最后一个反斜杠后面的就是</li>
 </ol>
-<p><img src="/.io//image-20220401221639322.png" alt="image-20220401221639322"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401221639322.png" alt="image-20220401221639322"></p>
 <ol start="3">
 <li>为什么json这样写，可以打开一个上面代码第44行的网站看一眼就知道了。</li>
 </ol>
-<p><img src="/.io//image-20220401221149760.png" alt="image-20220401221149760"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401221149760.png" alt="image-20220401221149760"></p>
 <p>可以看到xctf发出的信息都是这种格式。注意is_task字段，这个区分了是announcement还是一血播报。我们只要根据这个，然后提取出notice就可以了。另外注意每次请求的URL里面的id是<strong>返回内容中最小的id</strong>。举个例子上面可以看到消息id最大是2271.那么如果请求id=2200就会显示2200到2271的所有消息。所以每一次请求完，要记录一下最新的ID，防止重复播报一血。这一点在代码56行体现。</p>
 <ol start="4">
 <li>session怎么看?</li>
 </ol>
 <p>我安装了火狐插件<code>EditThisCookie</code>。可以直接在这里看到。</p>
-<p><img src="/.io//image-20220401221850416.png" alt="image-20220401221850416"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401221850416.png" alt="image-20220401221850416"></p>
 <p>发个命令测试，都是没问题的</p>
-<p><img src="/.io//image-20220401221958874.png" alt="image-20220401221958874"></p>
+<p><img src="/2022/04/01/fb-bot-discord/image-20220401221958874.png" alt="image-20220401221958874"></p>
 <p>上述bot只是实现了最简单的一血播报。想不到还有什么好玩的命令了。</p>
 
       
