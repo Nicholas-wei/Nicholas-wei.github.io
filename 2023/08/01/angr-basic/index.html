@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="学习https:&#x2F;&#x2F;docs.angr.io&#x2F; 中cure concepts的学习笔记和一些思考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angr-basic">
+<meta property="og:url" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="学习https:&#x2F;&#x2F;docs.angr.io&#x2F; 中cure concepts的学习笔记和一些思考">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802114515776.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802114708883.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802114705175.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802114941840.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802115213341.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802115636936.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802115808785.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802115847445.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801134051884.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801134411503.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801134958928.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801135007433.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801135154222.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801140114101.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801140318629.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801150132640.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801150313209.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230801150406295.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802120614747.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802123216589.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802123940509.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802135304163.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802135840129.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802135939986.png">
+<meta property="article:published_time" content="2023-08-01T05:24:29.000Z">
+<meta property="article:modified_time" content="2023-08-02T07:37:17.037Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="angr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2023/08/01/angr-basic/image-20230802114515776.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>angr-basic | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/angr/" rel="tag">angr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/router/" rel="tag">router</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-angr-basic" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2023/08/01/angr-basic/" class="article-date">
+      <time datetime="2023-08-01T05:24:29.000Z" itemprop="datePublished">2023-08-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      angr-basic
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/reverse/">reverse</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/angr/" rel="tag">angr</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>学习<a target="_blank" rel="noopener" href="https://docs.angr.io/">https://docs.angr.io/</a> 中cure concepts的学习笔记和一些思考</p>
+<span id="more"></span>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这次想学习angr的主要目的是想要做一些data-flow analysis，因为想到了一个关于iot漏洞检测的一个比较有意思的idea，想要自己先试验一下。</p>
+<p>docs.angr.io提供了一些关于core concept的解释，希望可以通过将这些core concept应用在这个mips binary的数据流分析上。</p>
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><h3 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h3><p>加载二进制文件过程中，可以通过一些API判断加载的起始地址和最终地址，并判断这个二进制文件是有可执行栈还是PIE。</p>
+<h3 id="factory"><a href="#factory" class="headerlink" title="factory"></a>factory</h3><p>这个不知道怎么翻译了…,可能指的是模块。angr有很多模块，例如blocks，可以提供基本块的解析，并且解析出指令内容，指令地址，指令数量。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802114515776.png" alt="image-20230802114515776"></p>
+<h3 id="state"><a href="#state" class="headerlink" title="state"></a>state</h3><p>此外，angr在加载完文件之后只是一个”被初始化的image”，在模拟执行的过程中，需要一些state。因此angr内部还包括模拟的程序状态，<code>SimState</code>。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802114708883.png" alt="image-20230802114708883"></p>
+<p><img src="/2023/08/01/angr-basic/image-20230802114705175.png" alt="image-20230802114705175"></p>
+<p>在state中，所有数字都是用bitvec表示的，这一点在后面也会提到。除此以外，程序还需要有内存，这就是<code>mem</code>。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802114941840.png" alt="image-20230802114941840"></p>
+<p>对于<code>mem</code>的数据，使用<code>resolved</code>可以将其变为<code>bitvec</code>，使用<code>type</code>可以将其解释称不同的类型。(原来angr也有state，一直以为只有类似unicorn的模拟执行工具才会有)</p>
+<p>然而有的时候当我们查看运行中程序的内存时，会发现显示的并不是一个数值，而是一个符号。因此这也被称为<strong>符号执行</strong>。下面的rdi寄存器储存的，就是一个符号。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802115213341.png" alt="image-20230802115213341"></p>
+<h3 id="simulation-manager"><a href="#simulation-manager" class="headerlink" title="simulation manager"></a>simulation manager</h3><p>上述的state只是表示了一个<strong>具体时刻的</strong>程序状态，如果想要真正运行起来，完成完整的模拟，还有一个重要的概念是<strong>Simulation Managers</strong>。下面是建立一个<code>simulation</code>的具体方式，一个simulation可以接受一个或者一个list的states。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802115636936.png" alt="image-20230802115636936"></p>
+<p>使用<code>step()</code>方法完成一次符号执行</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802115808785.png" alt="image-20230802115808785"></p>
+<p>接下来看寄存器、内存就可以发现部分内容发生了变化</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802115847445.png" alt="image-20230802115847445"></p>
+<p>最后，<code>angr</code>的相关API文档都在<a target="_blank" rel="noopener" href="https://docs.angr.io/en/latest/api.html#module-angr.analyses">API Reference - angr documentation</a>中，可以方便查阅</p>
+<h2 id="加载二进制文件"><a href="#加载二进制文件" class="headerlink" title="加载二进制文件"></a>加载二进制文件</h2><p>angr中，负责加载二进制的部分叫做<code>CLE</code>(全称是CLE Loads Everything)，它负责将binary以及其相关的链接库加载到angr中进行分析。</p>
+<p>使用<code>loader.all_projects</code>可以得到所有被CLE加载的内容</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801134051884.png" alt="image-20230801134051884"></p>
+<p>还可以通过<code>main_object</code>和<code>shared_object</code>找到关于主函数和一些共享库的映射。这里由于架构问题，导致没有成功解析出共享库。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801134411503.png" alt="image-20230801134411503"></p>
+<p>通过指定每一个object，可以确定一些object特殊相关的性质。然而，在mips32架构下，似乎angr无法解析PLT。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801134958928.png" alt="image-20230801134958928"></p>
+<p><img src="/2023/08/01/angr-basic/image-20230801135007433.png" alt="image-20230801135007433"></p>
+<p>通过寻找symbols的方式可以找到memset的符号位置，但是这个地址应该不是binary中的。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801135154222.png" alt="image-20230801135154222"></p>
+<blockquote>
+<p>疑问：那么SaTC是怎么找到一些sink函数的，可能需要看他们的代码</p>
+</blockquote>
+<h3 id="加载选项"><a href="#加载选项" class="headerlink" title="加载选项"></a>加载选项</h3><p>在使用默认加载方式之外，还可以指定一些加载选项，有以下几种</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801140114101.png" alt="image-20230801140114101"></p>
+<p>主要是backend比较难理解，这个指的是对于不同文件类型选择的不同加载方式。例如ELF、PE、mach-o格式的文件。例如image文件可能不包含文件类型信息，需要手动指定。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801140318629.png" alt="image-20230801140318629"></p>
+<h3 id="function-hook"><a href="#function-hook" class="headerlink" title="function hook"></a>function hook</h3><p>由于调用libc比较麻烦，并且angr是基于python的，直接call c语言函数牵涉到链接、重定位等。因此angr用python重写了很多<a target="_blank" rel="noopener" href="https://github.com/angr/angr/tree/master/angr/procedures">库函数</a>，并用他们来代替原先c库函数，成为<code>generic stub</code>。这些函数执行完成将返回一个<code>symbolic value</code>。但是只有部分函数可以被替代。一些比较复杂额例如malloc依然是无法替代的。</p>
+<p>这一函数替代技术也被称为<code>hook</code>。angr在符号执行时，每一步都会检查当前地址是否被hook过，如果是，将会执行hook过后的地址的指令。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用SIM_procedures，获取其中的object</span></span><br><span class="line">stub_func = angr.SIM_PROCEDURES[<span class="string">&#x27;stubs&#x27;</span>][<span class="string">&#x27;ReturnUnconstrained&#x27;</span>]</span><br><span class="line"><span class="comment"># 设置0x10000地址对应的hook函数为stub_func</span></span><br><span class="line">proj.hook(<span class="number">0x10000</span>, stub_func())  <span class="comment"># hook with an instance of the class</span></span><br><span class="line"><span class="comment"># 检查是否hook过</span></span><br><span class="line">proj.is_hooked(<span class="number">0x10000</span>)</span><br><span class="line">&gt;&gt; <span class="literal">True</span></span><br><span class="line"><span class="comment">## 自定义函数进行hook</span></span><br><span class="line"><span class="meta">@proj.hook(<span class="params"><span class="number">0x20000</span>, length=<span class="number">5</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_hook</span>(<span class="params">state</span>):</span><br><span class="line">    state.regs.rax = <span class="number">1</span></span><br><span class="line">    </span><br><span class="line">proj.is_hooked(<span class="number">0x20000</span>)</span><br><span class="line">&gt;&gt; <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>除此以外，还可以hook一些symbols对应的函数。这将我们hook一些危险api的使用变成现实。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proj.hook_symbol(name, hook)</span><br></pre></td></tr></table></figure>
+
+<h2 id="符号执行、约束求解"><a href="#符号执行、约束求解" class="headerlink" title="符号执行、约束求解"></a>符号执行、约束求解</h2><h3 id="底层"><a href="#底层" class="headerlink" title="底层"></a>底层</h3><p>在angr底层，采用符号表示一个输入，那么符号是什么？他就是<code>BitVec</code>。BitVec表示不同比特大小的一段内存空间。对于BitVec的操作并不会直接计算，而是转化为抽象参数树，并以表达式的形式参与运算</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">x = state.solver.BVS(<span class="string">&quot;x&quot;</span>, <span class="number">64</span>)</span><br><span class="line">y = state.solver.BVS(<span class="string">&quot;y&quot;</span>, <span class="number">64</span>)</span><br><span class="line">tree = (x + <span class="number">1</span>) / (y + <span class="number">2</span>)</span><br><span class="line">&gt;&gt; &lt;BV64 (x_9_64 + <span class="number">0x1</span>) / (y_10_64 + <span class="number">0x2</span>)&gt;</span><br><span class="line"><span class="comment"># 输出operand，直接输出表示输出顶层的</span></span><br><span class="line"><span class="built_in">print</span>(tree.op)</span><br><span class="line">&gt;&gt; <span class="string">&#x27;__floordiv__&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(tree.args)</span><br><span class="line">&gt;&gt; (&lt;BV64 x_9_64 + <span class="number">0x1</span>&gt;, &lt;BV64 y_10_64 + <span class="number">0x2</span>&gt;)</span><br><span class="line"><span class="comment"># 输出子层的operand</span></span><br><span class="line"><span class="built_in">print</span>(tree.args[<span class="number">0</span>].op)</span><br><span class="line">&gt;&gt; <span class="string">&#x27;__add__&#x27;</span></span><br><span class="line"><span class="comment"># 输出计算表达式的中间参数</span></span><br><span class="line"><span class="built_in">print</span>(tree.args[<span class="number">0</span>].args[<span class="number">1</span>].args)</span><br><span class="line">&gt;&gt; (<span class="number">1</span>, <span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注意计算操作符下，生成的结果仍然是bitVec(上述输出的BV64符号)，但是比较操作符下，结果将变成<code>boolean</code>类型的。注意这里的比较默认是<code>unsigned</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x + y == one_hundred + <span class="number">5</span></span><br><span class="line">&gt;&gt; &lt;Bool (x_9_64 + y_10_64) == <span class="number">0x69</span>&gt;</span><br><span class="line"><span class="comment">## 有符号比较</span></span><br><span class="line">one_hundred.SGT(-<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="约束求解"><a href="#约束求解" class="headerlink" title="约束求解"></a>约束求解</h3><p>这里和z3比较像，通过加入一些限制条件，计算出在此条件下可以得到结果的输入。下面就是一个简单的解方程。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801150132640.png" alt="image-20230801150132640"></p>
+<p>通过检查state.satisfiable()可以砍断state是否可解</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801150313209.png" alt="image-20230801150313209"></p>
+<p>注意到上述只采用<code>eval</code>作为求解方式，我们也可以使用别的，如下。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230801150406295.png" alt="image-20230801150406295"></p>
+<h2 id="模拟运行的内存-、寄存器"><a href="#模拟运行的内存-、寄存器" class="headerlink" title="模拟运行的内存 、寄存器"></a>模拟运行的内存 、寄存器</h2><p>angr提供了非常方便的内存操作，如下。<code>resolved</code>表示获取某个内存或者寄存器中的数值。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802120614747.png" alt="image-20230802120614747"></p>
+<p>angr再碰到分支语句时，会产生两种不同的state，并且用符号来表示每一种state的限制。下面是一个例子，源代码如下，是一个含有后门的验证函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">authenticate</span><span class="params">(<span class="type">char</span> *username, <span class="type">char</span> *password)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> stored_pw[<span class="number">9</span>];</span><br><span class="line">	stored_pw[<span class="number">8</span>] = <span class="number">0</span>;</span><br><span class="line">	<span class="type">int</span> pwfile;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// evil back d00r</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">strcmp</span>(password, sneaky) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	pwfile = open(username, O_RDONLY);</span><br><span class="line">	read(pwfile, stored_pw, <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">strcmp</span>(password, stored_pw) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应的，我们可以查看在不同分支语句下(这里就是strcmp语句所在的if会产生两个分支)，然后查看其中的内存。单步运行直到产生分支语句，之后使用<code>eval</code>或者<code>dump</code>可以获得到达每个分支的约束条件</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802123216589.png" alt="image-20230802123216589"></p>
+<p><img src="/2023/08/01/angr-basic/image-20230802123940509.png" alt="image-20230802123940509"></p>
+<h3 id="不同的states"><a href="#不同的states" class="headerlink" title="不同的states"></a>不同的states</h3><p>在上面的例子中，我们使用<code>entry_state</code>来创建了一个指向二进制程序入口点的<code>state</code>。此外，还有以下几种不同的states。</p>
+<ul>
+<li>.blank_state()，创建一个大多数数据都没有被初始化的state，这个时候所有访问数据都会返回<code>uninitialized</code>。(不清楚是干什么用的)</li>
+<li>.entry_state()，建立一个可以运行binary的entry point的state</li>
+<li>.full_init_state()，首先完成一系列初始化工作，例如加载动态链接库等，之后再指向<code>entry</code>。</li>
+<li>.call_state()，建立一个准备好执行指定函数的状态(这个可能很有用，可以单独测试函数)</li>
+</ul>
+<p>为了初始化上述state，可以执行以下参数</p>
+<ul>
+<li>地址，不多说了</li>
+<li><code>argc,argv</code>，也就是命令行参数，可以通过env的一个list传递给上述states。</li>
+<li>参数，在调用<code>call_state</code>时，使用<code>.call_state(addr, arg1, arg2, ...)</code>。addr是指被调用函数的地址，如果要传入指针，需要用到例如<code>angr.PointerWrapper(&quot;point to me!&quot;)</code>。</li>
+</ul>
+<h3 id="state-option"><a href="#state-option" class="headerlink" title="state option"></a>state option</h3><p>对于不同状态的处理，angr提供了一些有用的option。<a target="_blank" rel="noopener" href="https://docs.angr.io/en/latest/appendix/options.html#options">List of State Options - angr documentation</a>例如</p>
+<ul>
+<li>LAZY_SOLVES, 直到执行完全之后才检查是否满足可解的约束</li>
+<li>ABSTRACT_SOLVER， 允许简化过程中分离约束</li>
+</ul>
+<p>此外，有一些options sets，里面包含了很多功能类似的options。例如</p>
+<ul>
+<li>simplification: 在运算过程中使用z3的优化</li>
+<li>refs, 疾苦angr的mem，reg等内容的记录</li>
+</ul>
+<p>使用如下命令开启或者关闭options。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This change to the settings will be propagated to all successor states created from this state after this line.</span></span><br><span class="line">s.options.add(angr.options.LAZY_SOLVES)</span><br><span class="line"><span class="comment"># Create a new state with lazy solves enabled</span></span><br><span class="line">s = proj.factory.entry_state(add_options=&#123;angr.options.LAZY_SOLVES&#125;)</span><br><span class="line"><span class="comment"># Create a new state without simplification options enabled</span></span><br><span class="line">s = proj.factory.entry_state(remove_options=angr.options.simplification)</span><br></pre></td></tr></table></figure>
+
+<h3 id="state-plugins"><a href="#state-plugins" class="headerlink" title="state plugins"></a>state plugins</h3><p>之前讲到的mem,regs,solvers等，都是state plugins的一部分。此外，还有history和callstack插件，可以用来查看函数调用的特征。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.angr.io/en/latest/core-concepts/states.html#state-plugins">Machine State - memory, registers, and so on - angr documentation</a></p>
+<p>state也支持merging，将两个状态合并并不会发生覆盖，而是使变量变为<em>既A又B</em>的状态</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># merge will return a tuple. the first element is the merged state</span></span><br><span class="line"><span class="comment"># the second element is a symbolic variable describing a state flag</span></span><br><span class="line"><span class="comment"># the third element is a boolean describing whether any merging was done</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>(s_merged, m, anything_merged) = s1.merge(s2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># this is now an expression that can resolve to &quot;AAAA&quot; *or* &quot;BBBB&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>aaaa_or_bbbb = s_merged.mem[<span class="number">0x1000</span>].uint32_t</span><br></pre></td></tr></table></figure>
+
+<h2 id="sumulation-managers"><a href="#sumulation-managers" class="headerlink" title="sumulation managers"></a>sumulation managers</h2><p>在模拟运行过程中，由<code>simulation manager</code>管理各个状态。如下所示(懒得翻译了==)这里的stash就是一些满足特定状态的state的集合。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802135304163.png" alt="image-20230802135304163"></p>
+<p>这里也提到一个<code>explore</code>大法。通过explore，并指定find=addr时，可以找到所有能够到达某地址的执行流程，放入<code>found</code> stash中，也可以指定<code>avoid</code>参数，那么也会有一个avoid stash。</p>
+<p><img src="/2023/08/01/angr-basic/image-20230802135840129.png" alt="image-20230802135840129"></p>
+<p><img src="/2023/08/01/angr-basic/image-20230802135939986.png" alt="image-20230802135939986"></p>
+<p>我们也可以通过插件的方式指定simulation manager的行为。使用<code>simgr.use_technique(tech)</code>来指定tech，从而实现定制化模拟执行方式(?)，一些可选项例如DFS，内存监视(防止剩余内存过少),spiller用来在active内存过多的时候放弃一些，防止占用过大等。<a target="_blank" rel="noopener" href="https://docs.angr.io/en/latest/core-concepts/pathgroups.html#exploration-techniques">Simulation Managers - angr documentation</a></p>
+<h3 id="模拟和插桩"><a href="#模拟和插桩" class="headerlink" title="模拟和插桩"></a>模拟和插桩</h3><h3 id="successor的属性"><a href="#successor的属性" class="headerlink" title="successor的属性"></a>successor的属性</h3><p>在模拟运行中，我们可以设置一系列断点和监视点。在模拟过程中，successor有一些属性，例如<code>unsat_successors</code>表示这个后继block不能满足他的前置约束条件，<code>flat_successors</code>表示由于符号化指针的出现，需要堆此successor进行一个up to 256的可能结果计算。</p>
+<h3 id="断点"><a href="#断点" class="headerlink" title="断点"></a>断点</h3><p>在angr中，可以很方便的对寄存器、内存读写、系统调用等进行插桩，如下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This will break before a memory write if 0x1000 is a possible value of its target expression</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, mem_write_address=<span class="number">0x1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This will break before a memory write if 0x1000 is the *only* value of its target expression</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, mem_write_address=<span class="number">0x1000</span>, mem_write_address_unique=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This will break after instruction 0x8000, but only 0x1000 is a possible value of the last expression that was read from memory</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.inspect.b(<span class="string">&#x27;instruction&#x27;</span>, when=angr.BP_AFTER, instruction=<span class="number">0x8000</span>, mem_read_expr=<span class="number">0x1000</span>)</span><br></pre></td></tr></table></figure>
+
+<p>例如我们想去分析所有websgetvar()函数，一般而言对于arm，mips来说是直接对寄存器指向的地址写入，那么可以先识别接受输入的api(或许这就是signature的作用！)，之后设置观察点来debug。我们还可以设置条件断点，下面是条件断点的一个例子，他判断当前状态的寄存器rax是否是AAAA，不过应该指的是内存中的rax指向的位置。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># this is a complex condition that could do anything! In this case, it makes sure that RAX is 0x41414141 and</span></span><br><span class="line"><span class="comment"># that the basic block starting at 0x8004 was executed sometime in this path&#x27;s history</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">def</span> <span class="title function_">cond</span>(<span class="params">state</span>):</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">return</span> state.<span class="built_in">eval</span>(state.regs.rax, cast_to=<span class="built_in">str</span>) == <span class="string">&#x27;AAAA&#x27;</span> <span class="keyword">and</span> <span class="number">0x8004</span> <span class="keyword">in</span> state.inspect.backtrace</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, condition=cond)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>这里主要是如何用angr写自己的分析框架。这一部分放到单独一篇来写！<a target="_blank" rel="noopener" href="https://docs.angr.io/en/latest/extending-angr/analysis_writing.html#writing-analyses">Writing Analyses - angr documentation</a></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>阅读完angr core，了解到angr<strong>本质上是一个模拟器</strong>，是一个静态的模拟器，给我的感觉类似于一个支持多架构翻译的虚拟机，并且在得到虚拟机的指令内容之后，可以利用符号的方式模拟执行(simulate)，并在分支位置设置新的状态(state)。每一个状态就是程序执行到某一个汇编位置时的观察点，代表了某一时刻程序的状态。</p>
+<p>在此基础上，angr设置了断点、约束求解、函数hook等等方便我们对观察点位置的程序进行分析的工具。我的目的是backward taint analysis，目前看来angr没有提供很好的接口，需要后续自己尝试</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2023/08/01/angr-basic/">angr-basic</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2023-08-01, 13:24:29</p>
+        <p><span>最后更新:</span>2023-08-02, 15:37:17</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2023/08/01/angr-basic/" title="angr-basic">https://nicholas-wei.github.io/2023/08/01/angr-basic/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2023/08/01/angr-basic/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2023/07/28/netgear-WNDR4500v2-buffer-overflow/">
+                    netgear-WNDR4500v2-buffer_overflow
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.1.1.</span> <span class="toc-text">加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#factory"><span class="toc-number">1.1.2.</span> <span class="toc-text">factory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#state"><span class="toc-number">1.1.3.</span> <span class="toc-text">state</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#simulation-manager"><span class="toc-number">1.1.4.</span> <span class="toc-text">simulation manager</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.</span> <span class="toc-text">加载二进制文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E9%80%89%E9%A1%B9"><span class="toc-number">1.2.1.</span> <span class="toc-text">加载选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#function-hook"><span class="toc-number">1.2.2.</span> <span class="toc-text">function hook</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E3%80%81%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3"><span class="toc-number">1.3.</span> <span class="toc-text">符号执行、约束求解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%B1%82"><span class="toc-number">1.3.1.</span> <span class="toc-text">底层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3"><span class="toc-number">1.3.2.</span> <span class="toc-text">约束求解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%8B%9F%E8%BF%90%E8%A1%8C%E7%9A%84%E5%86%85%E5%AD%98-%E3%80%81%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">1.4.</span> <span class="toc-text">模拟运行的内存 、寄存器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%9A%84states"><span class="toc-number">1.4.1.</span> <span class="toc-text">不同的states</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#state-option"><span class="toc-number">1.4.2.</span> <span class="toc-text">state option</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#state-plugins"><span class="toc-number">1.4.3.</span> <span class="toc-text">state plugins</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sumulation-managers"><span class="toc-number">1.5.</span> <span class="toc-text">sumulation managers</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%8B%9F%E5%92%8C%E6%8F%92%E6%A1%A9"><span class="toc-number">1.5.1.</span> <span class="toc-text">模拟和插桩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#successor%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-number">1.5.2.</span> <span class="toc-text">successor的属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%AD%E7%82%B9"><span class="toc-number">1.5.3.</span> <span class="toc-text">断点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">1.6.</span> <span class="toc-text">Analysis</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"angr-basic　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2023/07/28/netgear-WNDR4500v2-buffer-overflow/" title="下一篇: netgear-WNDR4500v2-buffer_overflow">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/08/01/angr-basic/">angr-basic</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/07/28/netgear-WNDR4500v2-buffer-overflow/">netgear-WNDR4500v2-buffer_overflow</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
