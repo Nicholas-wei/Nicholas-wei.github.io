@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Emtaint_paper_reading</title>
+      <link href="/2023/08/11/Emtaint-paper-reading/"/>
+      <url>/2023/08/11/Emtaint-paper-reading/</url>
+      
+        <content type="html"><![CDATA[<p>Emtaint是来自中科大的一篇关于iot二进制安全分析的一篇论文，发表于ISSTA2023。文中提出了一种船新(也不完船新)的针对binary的变量污点分析\alias判断的策略。同时Emtaint说明了在iot binary中，处理inderect call的重要性。本文也复现了<a href="https://github.com/kuc001/EmTaint">论文给出的工具</a></p><span id="more"></span><h2 id="前人工作的问题"><a href="#前人工作的问题" class="headerlink" title="前人工作的问题"></a>前人工作的问题</h2><p>前人关于taint analysis做的相关研究以及存在的问题</p><ul><li>Karonte</li></ul><p>由于Karonte中对指针p传播之后的alias q打上不同的tag，导致若两个指针解引用到不同地址，将会消除两者的依赖关系，造成很高的false negative。</p><blockquote><p>但是我个人认为Karonte提出想要解决的问题并不是taint analysis准确性问题，而是cross binary的BDG(binary dependency graph)。这个tag的想法也是借鉴之前别的文章的。</p></blockquote><ul><li>基于VSA(value set analysis)的工作</li></ul><p>在VSA中，一个新生成的指针默认可以指向任何位置，造成很高的false positive</p><ul><li>inderect call的处理</li></ul><p>现有工作无法处理binary中的inderect call。什么是inderect call呢，以下是一个例子</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811113513718.png" alt="image-20230811113513718"></p><p>在indirect call中，将函数地址放在某个寄存器中，经过计算之后最终通过<code>call 寄存器</code>的形式完成调用。direct call和一般函数调用是类似的。在mips,riscv架构中，类似jmp $ra这样的形式非常常见，于是将会存在很多的indirect call。而以往基于CFG或CG的binary分析方法没法解决这种问题。</p><h2 id="创新点"><a href="#创新点" class="headerlink" title="创新点"></a>创新点</h2><p>Emtaint提出一种基于binary的SSE技术(structured symbolic execution)。由于原先的符号执行技术只能将算术操作考虑在内(可能是因为底层依赖于z3等约束求解库)，而不能考虑memory中的load和store。SSE可以将其考虑在内。并且用一套算法很方便的得到某个变量/寄存器的alias。</p><p>除此以外，Emtaint不需要从binary的入口处开始执行，而是可以从任意位置(例如常见的sink: recv(). websgetvar()开始执行)</p><h2 id="SSE-based-taint-analysis"><a href="#SSE-based-taint-analysis" class="headerlink" title="SSE-based taint analysis"></a>SSE-based taint analysis</h2><p>用下图说明。Emtaint过程中同时引入了forware checking和backward chhecking，从而确保变量之间的alias关系被充分挖掘了</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811120340192.png" alt="image-20230811120340192"></p><p>•如上图，如果想分析R1指针和什么alias。最终得到的下半部分是和R1alias的内容。</p><p>•如第三句，直接替换为[R3+0X8]</p><p>•之后发现R3存在于第二句，向上寻找，用第三句的框架中把R3替换成STORE(R2)(因为要得到所有第三句的alias)</p><p>•之后发现R2存在于第一句，继续向上分析…</p><p>•之后发现第四句中有R6，替换store(R6)因为第四句就是load</p><p>•直到第五句变成R0，发现alias为第五句中的R0</p><p>下图是Emtaint做内容替换基于的规则表</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811120625200.png" alt="image-20230811120625200"></p><h2 id="用处"><a href="#用处" class="headerlink" title="用处"></a>用处</h2><p>我的理解是，上述算法可以是一种更加精确的内存中的taint analysis方法，他可以有以下用途</p><ul><li><p>在basic block内部，用上面方法找到指定变量的alias</p></li><li><p>在function call中，对每一个callee所做的对参数、返回值访问的内存位置做summary(也是taint analysis)，找到modification 和reference。创建function summary。</p></li></ul><p>对于indirect call</p><ul><li>如果call附近有立即数，可能是取某个基地址加减之后jr $ra这样的形式，使用SSE分析可以解决真正call地址的问题</li></ul><p>然而Emtaint只能解决下面这类inderect call问题。对于上面用rip作为及地址加上一定距离调用函数还是无法做到的。</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811121416640.png" alt="image-20230811121416640"></p><h2 id="vul-detection"><a href="#vul-detection" class="headerlink" title="vul detection"></a>vul detection</h2><p>目前Emtaint主要关注data-copy、system()类型的数据复制或者命令执行相关api的taint analysis。在传播污点数据时和平常工具一样，会记录下constraint信息，并在sink位置时查看是否存在比栈buffer小的限制等。</p><h2 id="evaluation"><a href="#evaluation" class="headerlink" title="evaluation"></a>evaluation</h2><p>首先作者测试了inderect call在binary中的重要性，可以发现加上I-call resolution之后，发现的alert多出了奖金三倍</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811124637527.png" alt="image-20230811124637527"></p><p>之后作者将此工具和SaTC，Emtaint对比，结果如下所示。无论在时间上还是TP的比例上都高出一截。</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811124729226.png" alt="image-20230811124729226"></p><p>另外，可以看到TP的比例也非常高</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811125545908.png" alt="image-20230811125545908"></p><h1 id="本地实验"><a href="#本地实验" class="headerlink" title="本地实验"></a>本地实验</h1><p>按照官网给出的教程，我本地对此工具进行了实验。不过中途遇到了非常多的报错。首先是IDA版本，原先的ida script时6.8~7.3的IDA，在7.3之后需要大量更换旧API。之后运行脚本也会出错</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811130219538.png" alt="image-20230811130219538"></p><p>在<code>generate_cfg.py</code>这里添加上错误检验之后</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811130415600.png" alt="image-20230811130415600"></p><p>虽然能够运行成功，但是可以看到找到的inderect call和vulnerbility都非常少</p><p><img src="/2023/08/11/Emtaint-paper-reading/image-20230811130537837.png" alt="image-20230811130537837"></p><p>所以就不想分析源码了，或者等后面有时间改一改mips的ida插件，多分析一些别的。但是实际上这个binary里面像是strncpy,sprintf这些api都是存在的，不知道为什么这个工具无法解析。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> paper </category>
+          
+          <category> tools </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> iot </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>angr-basic</title>
       <link href="/2023/08/01/angr-basic/"/>
       <url>/2023/08/01/angr-basic/</url>
@@ -13,7 +40,7 @@
       
       <categories>
           
-          <category> reverse </category>
+          <category> rev </category>
           
       </categories>
       
