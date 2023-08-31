@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="阅读并调试satc工具的代码，看看能不能做一些改进！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="satc_source">
+<meta property="og:url" content="https://nicholas-wei.github.io/2023/08/18/satc-source/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="阅读并调试satc工具的代码，看看能不能做一些改进！">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230818142111007.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230818143812334.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230818152539744.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230820124659840.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230820125539569.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230820182123585.png">
+<meta property="article:published_time" content="2023-08-18T05:44:27.000Z">
+<meta property="article:modified_time" content="2023-08-31T07:56:47.377Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="iot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2023/08/18/satc-source/image-20230818142111007.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>satc_source | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/angr/" rel="tag">angr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iot/" rel="tag">iot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/router/" rel="tag">router</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-satc-source" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2023/08/18/satc-source/" class="article-date">
+      <time datetime="2023-08-18T05:44:27.000Z" itemprop="datePublished">2023-08-18</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      satc_source
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/paper/">paper</a><a class="article-category-link" href="/categories/paper/tools/">tools</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iot/" rel="tag">iot</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>阅读并调试satc工具的代码，看看能不能做一些改进！</p>
+<span id="more"></span>
+
+<p>测试输入，注意在satc的docker中设置vscode的python版本是2021年发布的，不然会无法调试python2。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//launch.json</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="comment">// Use IntelliSense to learn about possible attributes.</span></span><br><span class="line">    <span class="comment">// Hover to view descriptions of existing attributes.</span></span><br><span class="line">    <span class="comment">// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span></span><br><span class="line">    <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0.2.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;configurations&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    </span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Python: Current File&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;python&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;request&quot;</span><span class="punctuation">:</span> <span class="string">&quot;launch&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;program&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;file&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;-d&quot;</span><span class="punctuation">,</span> <span class="string">&quot;/dataset/_RAXE500-V1.0.12.96_2.0.45.chk.extracted&quot;</span><span class="punctuation">,</span> <span class="string">&quot;-o&quot;</span><span class="punctuation">,</span> <span class="string">&quot;./out2.txt&quot;</span><span class="punctuation">,</span> <span class="string">&quot;--ghidra_script=ref2sink_cmdi&quot;</span><span class="punctuation">,</span> <span class="string">&quot;--ghidra_script=ref2sink_bof&quot;</span><span class="punctuation">,</span> <span class="string">&quot;-b&quot;</span><span class="punctuation">,</span> <span class="string">&quot;httpd&quot;</span><span class="punctuation">,</span> <span class="string">&quot;--taint_check&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;console&quot;</span><span class="punctuation">:</span> <span class="string">&quot;integratedTerminal&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;justMyCode&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;env&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;PYTHONPATH&quot;</span><span class="punctuation">:</span><span class="string">&quot;/home/satc/.virtualenvs/SaTC/lib/python2.7/site-packages/&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h2><p>在satc.py入口，程序解析输入参数。一共有四种脚本用来对binary进行测试</p>
+<ul>
+<li>ref2share</li>
+<li>share2sink</li>
+</ul>
+<p>以上两个脚本用于测试跨binary的信息传递中是否存在漏洞</p>
+<ul>
+<li>ref2sink_cmdi</li>
+<li>ref2sink_bof</li>
+</ul>
+<p>以上两个脚本测试单个binary中是否存在cmdi或者bof漏洞</p>
+<h2 id="front-analysis"><a href="#front-analysis" class="headerlink" title="front analysis"></a>front analysis</h2><p>入口之后进入前端解析。这一部分主要做以下事情</p>
+<ol>
+<li>扫描固件中所有前端文件，包含五个内容asp,html,js,php,xml。根据文件格式并用正则表达式提取关键字或者提取函数如下所示为输出</li>
+</ol>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2023-08-18 05:54:20,292-root-logger.py-[line:112]-INFO : Find Keyword : allowedValueList PATH: /dataset/_RAXE500-V1.0.12.96_2.0.45.chk.extracted/squashfs-root/www/Public_UPNP_WANEtherLinkCfg.xml</span><br><span class="line">2023-08-18 05:54:20,293-root-logger.py-[line:112]-INFO : Find Keyword : allowedValue PATH: /dataset/_RAXE500-V1.0.12.96_2.0.45.chk.extracted/squashfs-root/www/Public_UPNP_WANEtherLinkCfg.xml</span><br><span class="line">2023-08-18 05:54:20,293-root-logger.py-[line:112]-INFO : Find Keyword : allowedValue PATH: /dataset/_RAXE500-V1.0.12.96_2.0.45.chk.extracted/squashfs-root/www/Public_UPNP_WANEtherLinkCfg.xml</span><br></pre></td></tr></table></figure>
+
+<p>具体而言提取的方式是正则匹配，下面是html的例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_keyword</span>(<span class="params">self, html</span>):</span><br><span class="line">    html_content = html.decode(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    name_list = re.findall(<span class="string">r&#x27;name=&quot;(.*?)&quot;&#x27;</span>, html_content)</span><br><span class="line">    id_list = re.findall(<span class="string">r&#x27;id=&quot;(.*?)&quot;&#x27;</span>, html_content)</span><br><span class="line">    results = <span class="built_in">set</span>(name_list) | <span class="built_in">set</span>(id_list)</span><br><span class="line">    <span class="keyword">for</span> res <span class="keyword">in</span> results:</span><br><span class="line">        self._get_keyword(res, check=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_function</span>(<span class="params">self, html</span>):</span><br><span class="line">    html_content = html.decode(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    path_list = re.findall(<span class="string">r&#x27;action=&quot;(.*?)&quot;&#x27;</span>, html_content)</span><br><span class="line">    <span class="keyword">for</span> path <span class="keyword">in</span> path_list:</span><br><span class="line">        self._get_function(path, check=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_js_src</span>(<span class="params">self, html</span>):</span><br><span class="line">    html_content = html.decode(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;ignore&#x27;</span>)</span><br><span class="line">    src_list = re.findall(<span class="string">r&#x27;&lt;script src=&quot;(.*?)&quot;&gt;&lt;/script&gt;&#x27;</span>, html_content)</span><br><span class="line">    <span class="keyword">for</span> src <span class="keyword">in</span> src_list:</span><br><span class="line">        res = src.find(<span class="string">&quot;?&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> res &gt; <span class="number">0</span>:</span><br><span class="line">            src = src[:res]</span><br><span class="line">        src_file = src.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">1</span>]</span><br><span class="line">        js_obj = self.jsfile_citations.get(src_file, JSFile(src))</span><br><span class="line">        js_obj.add_depend(self.fpath)</span><br><span class="line">        self.jsfile_citations.update(&#123;src_file: js_obj&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在这之后，将提取到的keyword和function保存在<code>self.analysise_obj</code>中。这里的function也包含了POST到具体哪个cgi的cgi名称</p>
+<ol start="2">
+<li>在<code>get_analysise_result</code>中将上述信息提取，筛选掉keyword在不同文件中出现次数超过一定数量的文件，将他们记作removed，也许是为了效率的考量。其实这里是可能存在一些问题的，不知道为什么remove了</li>
+</ol>
+<p><img src="/2023/08/18/satc-source/image-20230818142111007.png" alt="image-20230818142111007"></p>
+<p>remove部分代码如下，这里的<code>PARA_MAX_FRONT</code>默认为10</p>
+<p><img src="/2023/08/18/satc-source/image-20230818143812334.png" alt="image-20230818143812334"></p>
+<ol start="3">
+<li>进入backanalysis阶段，检查指定的binary(或者是整个固件)中引用的js文件。并用strings提取出二进制中的字符串</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_string</span>(<span class="params">self</span>):</span><br><span class="line">    res = execute(<span class="string">&quot;strings &#x27;&#123;&#125;&#x27;&quot;</span>.<span class="built_in">format</span>(self.binaryfile))</span><br><span class="line">    self.bin_strings = <span class="built_in">set</span>(res.split(<span class="string">&quot;\n&quot;</span>))</span><br><span class="line">    b_total.add(<span class="built_in">len</span>(self.bin_strings))</span><br><span class="line">    <span class="keyword">return</span> self.bin_strings</span><br></pre></td></tr></table></figure>
+
+<p>之后根据之前提取到的所有前端文件中的函数、关键字信息，在指定二进制文件中寻找是否存在对应字符串、函数名等信息.将(有意义函数名、有意义字符串)一起作为一个元组，append在<code>elf_result</code>之后。</p>
+<p>之后将结果记录下，并且组合上获取到keyword或者function name的源文件名称是什么。将上述获取到的内容作为结果保存。</p>
+<h2 id="ghidra-analysis"><a href="#ghidra-analysis" class="headerlink" title="ghidra analysis"></a>ghidra analysis</h2><p>在ghidra analysis中，引用了本地指定的ghidra脚本。这里我选择ref2sink_cmdi和ref2sink_bof做分析。从结果上来看ghidra是用来根据key word生成什么函数包含了这个keyword，以及这个函数的调用链是什么，以及启发式的搜索到指定函数位置附近的可能可以接受参数的函数。先来看输出结果</p>
+<p><img src="/2023/08/18/satc-source/image-20230818152539744.png" alt="image-20230818152539744"></p>
+<h3 id="ref2sink-cmdi"><a href="#ref2sink-cmdi" class="headerlink" title="ref2sink_cmdi"></a>ref2sink_cmdi</h3><p>以下函数是数据流追踪的核心内容，当给定<code>target</code>之后(这个target是一个字符串)，找到这个target在程序位置，再根据此位置找到包含此字符串的函数。之后在<code>findSinkPath</code>中找到此函数如何到达目标sink函数的路径，代码中用的是dfs方法，这是比较耗时的。而如果找不到单层的包含此地址的函数，就再进行一层寻找，也就是用到这一条指令的再上面一层函数。这样的原因可能是因为有一些地址不被解析在函数中(我也不清楚)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">searchParam</span>(<span class="params">target, refstart=<span class="literal">None</span>, refend=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;start searching &quot;%s&quot; ...&#x27;</span> % target</span><br><span class="line">    curAddr = currentProgram.minAddress</span><br><span class="line">    end = currentProgram.maxAddress</span><br><span class="line">    haveWayToSink = <span class="literal">False</span></span><br><span class="line">    checkedRefAddr = <span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">while</span> curAddr &lt; end:</span><br><span class="line">        curAddr = find(curAddr, target)</span><br><span class="line">        <span class="keyword">if</span> curAddr <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> getByte(curAddr.add(<span class="built_in">len</span>(target))) != <span class="number">0</span>:</span><br><span class="line">            curAddr = curAddr.add(<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">for</span> ref <span class="keyword">in</span> getReferencesTo(curAddr):</span><br><span class="line">            <span class="keyword">if</span> refstart <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> refstart &gt; ref.fromAddress:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> refend <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> refend &lt; ref.fromAddress:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> target <span class="keyword">not</span> <span class="keyword">in</span> newParam:</span><br><span class="line">                referenced.add(target)</span><br><span class="line">            caller = getFunctionContaining(ref.fromAddress)</span><br><span class="line">            <span class="keyword">if</span> caller <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">if</span> DEBUG:</span><br><span class="line">                    <span class="built_in">print</span> <span class="string">&#x27;Reference From&#x27;</span>, a2h(ref.fromAddress), <span class="string">&#x27;(%s)&#x27;</span> % caller,</span><br><span class="line">                    <span class="built_in">print</span> <span class="string">&#x27;To&#x27;</span>, a2h(curAddr), <span class="string">&#x27;(&quot;%s&quot;)&#x27;</span> % target</span><br><span class="line">                <span class="keyword">if</span> ref.fromAddress <span class="keyword">in</span> checkedRefAddr:</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                haveWayToSink = findSinkPath(ref.fromAddress, curAddr, target) <span class="keyword">or</span> haveWayToSink</span><br><span class="line">                checkedRefAddr.add(ref.fromAddress)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">for</span> ref2 <span class="keyword">in</span> getReferencesTo(ref.fromAddress):</span><br><span class="line">                    caller = getFunctionContaining(ref2.fromAddress)</span><br><span class="line">                    <span class="keyword">if</span> caller <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                        <span class="keyword">if</span> DEBUG:</span><br><span class="line">                            <span class="built_in">print</span> <span class="string">&#x27;Ignore&#x27;</span>, getSymbolAt(ref2.fromAddress), <span class="string">&#x27;at&#x27;</span>, a2h(ref2.fromAddress)</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="keyword">if</span> DEBUG:</span><br><span class="line">                        <span class="built_in">print</span> <span class="string">&#x27;Reference From&#x27;</span>, a2h(ref2.fromAddress), <span class="string">&#x27;(%s)&#x27;</span> % caller,</span><br><span class="line">                        <span class="built_in">print</span> <span class="string">&#x27;To&#x27;</span>, a2h(ref.fromAddress), <span class="string">&#x27;(%s)&#x27;</span> % getSymbolAt(ref.fromAddress),</span><br><span class="line">                        <span class="built_in">print</span> <span class="string">&#x27;To&#x27;</span>, a2h(curAddr), <span class="string">&#x27;(&quot;%s&quot;)&#x27;</span> % target</span><br><span class="line">                    <span class="keyword">if</span> ref2.fromAddress <span class="keyword">in</span> checkedRefAddr:</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    haveWayToSink = findSinkPath(ref2.fromAddress, curAddr, target) <span class="keyword">or</span> haveWayToSink</span><br><span class="line">                    checkedRefAddr.add(ref2.fromAddress)</span><br><span class="line"></span><br><span class="line">        curAddr = curAddr.add(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;finish searching &quot;%s&quot;&#x27;</span> % target</span><br><span class="line">    <span class="keyword">return</span> haveWayToSink</span><br></pre></td></tr></table></figure>
+
+<p>findSinkPath中，首先调用<code>search</code>寻找所有被call的函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">    startFunc = getFunctionContaining(refaddr)</span><br><span class="line">    <span class="keyword">assert</span> startFunc <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    pending.append(startFunc)</span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">len</span>(pending):</span><br><span class="line">        search(pending.pop())</span><br><span class="line"></span><br><span class="line">    vulnerable = dfs(startFunc, [], refaddr)</span><br><span class="line">    <span class="keyword">if</span> vulnerable:</span><br><span class="line">        searchStrArg(startFunc)</span><br><span class="line">    <span class="keyword">return</span> vulnerable</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下面是search函数,将此函数中每一个callee放入list中。直到没有call函数为止</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">search</span>(<span class="params">func, start=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="keyword">if</span> func <span class="keyword">in</span> callMap:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        callMap[func] = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        start = start <span class="keyword">or</span> func.entryPoint</span><br><span class="line">        end = func.body.maxAddress</span><br><span class="line"></span><br><span class="line">        inst = getInstructionAt(start)</span><br><span class="line">        <span class="keyword">while</span> inst <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> inst.address &lt; end:</span><br><span class="line">            callee = getCallee(inst)</span><br><span class="line">            <span class="keyword">if</span> callee <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                callMap[func][inst.address] = callee</span><br><span class="line">                <span class="keyword">if</span> callee <span class="keyword">not</span> <span class="keyword">in</span> callMap:</span><br><span class="line">                    pending.append(callee)</span><br><span class="line">            inst = inst.<span class="built_in">next</span>    </span><br></pre></td></tr></table></figure>
+
+<p>之后调用dfs,它从refaddr(有字符串的位置)开始搜索，直到调用的函数中存在sink，也就是system类的函数，否则检查callee是否是<code>needCheckConstantStr</code>的一员，这里检查了字符串是否可能被拼接以及是否是常量字符串。</p>
+<p>在cmdi检测中,needCheckFormat中的sprintf并没有出现在sink中，也没有出现在bof检测中。这是它的一个问题</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">sinks = [<span class="string">&#x27;system&#x27;</span>, <span class="string">&#x27;___system&#x27;</span>, <span class="string">&#x27;bstar_system&#x27;</span>, <span class="string">&#x27;popen&#x27;</span>,</span><br><span class="line">         <span class="string">&#x27;doSystemCmd&#x27;</span>, <span class="string">&#x27;doShell&#x27;</span>, <span class="string">&#x27;twsystem&#x27;</span>, <span class="string">&#x27;CsteSystem&#x27;</span>, <span class="string">&#x27;cgi_deal_popen&#x27;</span>,</span><br><span class="line">         <span class="string">&#x27;ExeCmd&#x27;</span>, <span class="string">&#x27;ExecShell&#x27;</span>, <span class="string">&#x27;exec_shell_popen&#x27;</span>, <span class="string">&#x27;exec_shell_popen_str&#x27;</span></span><br><span class="line">         ]</span><br><span class="line">needCheckConstantStr = &#123;</span><br><span class="line">    <span class="string">&#x27;system&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;fwrite&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;___system&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;bstar_system&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;popen&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;execve&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;strcpy&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;strcat&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;strncpy&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;memcpy&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;twsystem&#x27;</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line">needCheckFormat = &#123;</span><br><span class="line">    <span class="string">&#x27;sprintf&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;doSystemCmd&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;doShell&#x27;</span>: <span class="number">0</span></span><br><span class="line">&#125; </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">func, path, start=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;path: list of (addr of call, callee, callDigestFunc)&#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="comment"># 在cmdi检测中,needCheckFormat中的sprintf并没有出现在sink中</span></span><br><span class="line">        <span class="keyword">if</span> func.name <span class="keyword">in</span> sinks <span class="keyword">and</span> <span class="built_in">len</span>(path):</span><br><span class="line">            <span class="keyword">if</span> func.name <span class="keyword">in</span> needCheckConstantStr <span class="keyword">and</span> checkConstantStr(path[-<span class="number">1</span>][<span class="number">0</span>], needCheckConstantStr[func.name]):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            <span class="keyword">if</span> func.name <span class="keyword">in</span> needCheckFormat <span class="keyword">and</span> checkSafeFormat(path[-<span class="number">1</span>][<span class="number">0</span>], needCheckFormat[func.name]):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            printpath(path)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        callDigestFunc = <span class="literal">False</span></span><br><span class="line">        vulnerable = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">for</span> addr, callee <span class="keyword">in</span> <span class="built_in">sorted</span>(callMap[func].items()):</span><br><span class="line">            <span class="keyword">if</span> start <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> addr &lt; start:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> callDigestFunc <span class="keyword">and</span> callee.name <span class="keyword">in</span> digest:</span><br><span class="line">                <span class="keyword">if</span> callee.name <span class="keyword">in</span> needCheckConstantStr <span class="keyword">and</span> checkConstantStr(addr, needCheckConstantStr[callee.name]):</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="keyword">elif</span> callee.name <span class="keyword">in</span> needCheckFormat <span class="keyword">and</span> checkSafeFormat(addr, needCheckFormat[callee.name]):</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    callDigestFunc = <span class="literal">True</span></span><br><span class="line">            <span class="keyword">if</span> callee <span class="keyword">in</span> [x[<span class="number">1</span>] <span class="keyword">for</span> x <span class="keyword">in</span> path] + [startFunc] <span class="keyword">or</span> callee <span class="keyword">in</span> safeFuncs:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            vulnerable = dfs(callee, path + [(addr, callee, callDigestFunc)]) <span class="keyword">or</span> vulnerable</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> vulnerable <span class="keyword">and</span> func != startFunc:</span><br><span class="line">            safeFuncs.add(func)</span><br><span class="line">        <span class="keyword">return</span> vulnerable</span><br></pre></td></tr></table></figure>
+
+<p>而具体检查参数在于在arm,mips中，字符串参数传递是通过寄存器实现的，下面应该是用了一个符号执行来判断当程序从函数起始位置开始执行到指定位置时，对应寄存器中是否是常量字符串</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">getCallingArgs</span>(<span class="params">addr, pos</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="number">0</span> &lt;= pos &lt;= <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    arch = <span class="built_in">str</span>(currentProgram.language.processor)</span><br><span class="line">    <span class="keyword">if</span> arch == <span class="string">&#x27;ARM&#x27;</span>:</span><br><span class="line">        reg = currentProgram.getRegister(<span class="string">&#x27;r%d&#x27;</span> % pos)</span><br><span class="line">    <span class="keyword">elif</span> arch == <span class="string">&#x27;MIPS&#x27;</span>:</span><br><span class="line">        nextInst = getInstructionAt(addr).<span class="built_in">next</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(nextInst.pcode):  <span class="comment"># not NOP</span></span><br><span class="line">            addr = addr.add(<span class="number">8</span>)</span><br><span class="line">        reg = currentProgram.getRegister(<span class="string">&#x27;a%d&#x27;</span> % pos)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">return</span> getRegister(addr, reg)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getRegister</span>(<span class="params">addr, reg</span>):</span><br><span class="line">    <span class="keyword">if</span> analyzer <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        getAnalyzer()</span><br><span class="line"></span><br><span class="line">    func = getFunctionContaining(addr)</span><br><span class="line">    <span class="keyword">if</span> func <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> func <span class="keyword">in</span> syms:</span><br><span class="line">        symEval = syms[func]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        symEval = SymbolicPropogator(currentProgram)</span><br><span class="line">        symEval.setParamRefCheck(<span class="literal">True</span>)</span><br><span class="line">        symEval.setReturnRefCheck(<span class="literal">True</span>)</span><br><span class="line">        symEval.setStoredRefCheck(<span class="literal">True</span>)</span><br><span class="line">        analyzer.flowConstants(currentProgram, func.entryPoint, func.body, symEval, monitor)</span><br><span class="line">        syms[func] = symEval</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> symEval.getRegisterValue(addr, reg)</span><br></pre></td></tr></table></figure>
+
+<p>又或者，检查上述needCheckFormat中，函数是否安全，如果代码中将包含四个以上%s，判定为不安全。如果是四个以内，但是检查下来再某个位置上字符串并不是一个常量时，判断为不安全</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">checkConstantStr</span>(<span class="params">addr, argpos=<span class="number">0</span></span>):</span><br><span class="line">    <span class="comment"># empty string is not considered as constant, for it may be uninitialized global variable</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">bool</span>(getStrArg(addr, argpos))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">checkSafeFormat</span>(<span class="params">addr, offset=<span class="number">0</span></span>):</span><br><span class="line">    data = getStrArg(addr, offset)</span><br><span class="line">    <span class="keyword">if</span> data <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    fmtIndex = offset</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data) - <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">if</span> data[i] == <span class="string">&#x27;%&#x27;</span> <span class="keyword">and</span> data[i + <span class="number">1</span>] != <span class="string">&#x27;%&#x27;</span>:</span><br><span class="line">            fmtIndex += <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> data[i + <span class="number">1</span>] == <span class="string">&#x27;s&#x27;</span>:</span><br><span class="line">                <span class="keyword">if</span> fmtIndex &gt; <span class="number">3</span>:</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> checkConstantStr(addr, fmtIndex):</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>之后返回haveWayToSink的字符串个数，也就是能从这个字符串到达sink的个数</p>
+<h3 id="ref2sink-bof"><a href="#ref2sink-bof" class="headerlink" title="ref2sink_bof"></a>ref2sink_bof</h3><p>ref2sink_bof和ref2sink_cmdi基本是一模一样的，可以看到就是sink改了一下，变成了堆strcpy作为sink的check。</p>
+<p><img src="/2023/08/18/satc-source/image-20230820124659840.png" alt="image-20230820124659840"></p>
+<h3 id="生成结果"><a href="#生成结果" class="headerlink" title="生成结果"></a>生成结果</h3><p>在ghidra_extract_result文件夹中对应binary名下将生成$binary_ref2sink_cmdi.result</p>
+<p><img src="/2023/08/18/satc-source/image-20230820125539569.png" alt="image-20230820125539569"></p>
+<p>文件中每一行是(字符串，引用函数，引用地址）以及完整的sink路径</p>
+<h2 id="taint-analysis"><a href="#taint-analysis" class="headerlink" title="taint analysis"></a>taint analysis</h2><p>当检测到命令行参数中存在<code>--taint-analysis</code>之后，进入<code>satc.py</code>中的污点分析阶段。首先会读取上一步生成的结果(httpd_ref2sink_cmdi.result)，进入<code>taint_stain_analysis</code>函数。</p>
+<h3 id="ref2sink-cmdi-1"><a href="#ref2sink-cmdi-1" class="headerlink" title="ref2sink_cmdi"></a>ref2sink_cmdi</h3><p>首先提取httpd_ref2sink_cmdi.result信息，因为之前并不是格式化处理好的数据，首先通过<code>conv_Ghidra_output</code>将数据格式化，并加上<code>-alter2</code>的后缀。具体的识别过程是匹配十六进制数字，提取call trace的地址，构成call trace的文本形式。</p>
+<p><img src="/2023/08/18/satc-source/image-20230820182123585.png" alt="image-20230820182123585"></p>
+<p>之后建立angr工程，并生成cfg。</p>
+<blockquote>
+<p>proj = angr.Project(binary, auto_load_libs=False, use_sim_procedures=True)</p>
+</blockquote>
+<p>这里<code>use_sim_procedures</code>意思是re-hook external functions with SimProcedures，也就是用内置函数来代替外部函数，从而减少符号的使用量。</p>
+<p>读取了上述function trace之后，进入taint.py中的main，传入function addr,taint addr，进入<code>bugFinder</code>。首先初始化一些信息，主要是binary相关的，接着进入<code>_vuln_analysis</code>。</p>
+<p>首先初始化<code>coreTaint</code>,生成的log文件存放在/tmp/coretaint.out中。在注释中的描述是</p>
+<blockquote>
+<p>  Perform a symbolic-execution-based taint analysis on a given binary to find whether</p>
+<p>  it exists a tainted path between a source and a sink.</p>
+</blockquote>
+<h3 id="coretaint"><a href="#coretaint" class="headerlink" title="coretaint"></a>coretaint</h3><p>设置了log文件之后，文件通过<code>_get_function_summaries</code>找到angr project中的一些特定函数类型。这个function summary来源于<code>Karonte</code>这篇文章</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_get_function_summaries</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Set and returns a dictionary of function summaries</span></span><br><span class="line"><span class="string">    :return: function summaries</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    p = self._current_p</span><br><span class="line"></span><br><span class="line">    mem_cpy_summ = get_memcpy_like(p)</span><br><span class="line">    size_of_summ = get_sizeof_like(p)</span><br><span class="line">    heap_alloc_summ = get_heap_alloc(p)</span><br><span class="line">    env_summ = get_env(p)</span><br><span class="line">    memcmp_like_unsized = get_memcmp_like_unsized(p)</span><br><span class="line">    memcmp_like_sized = get_memcmp_like_sized(p)</span><br><span class="line">    atoi_like = get_atoi(p)</span><br><span class="line">    nvram_summ = get_nvram(p)</span><br><span class="line">    cJSON_get_summ = get_cJSON(p)</span><br><span class="line"></span><br><span class="line">    summaries = mem_cpy_summ</span><br><span class="line">    summaries.update(size_of_summ)</span><br><span class="line">    summaries.update(heap_alloc_summ)</span><br><span class="line">    summaries.update(env_summ)</span><br><span class="line">    summaries.update(memcmp_like_unsized)</span><br><span class="line">    summaries.update(memcmp_like_sized)</span><br><span class="line">    summaries.update(atoi_like)</span><br><span class="line">    summaries.update(nvram_summ)</span><br><span class="line">    summaries.update(cJSON_get_summ)</span><br><span class="line">    <span class="keyword">return</span> summaries</span><br></pre></td></tr></table></figure>
+
+<p>以<code>get_memcpy_like</code>为例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_memcpy_like</span>(<span class="params">p</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Gets and summarizes memcpy like functions within a Linux binary</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    :param p: angr project</span></span><br><span class="line"><span class="string">    :return: function summaries</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># <span class="doctag">TODO:</span> add sprintf</span></span><br><span class="line">    summarized_f = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    addrs = get_dyn_sym_addrs(p, [<span class="string">&#x27;sprintf&#x27;</span>])</span><br><span class="line">    <span class="keyword">for</span> f <span class="keyword">in</span> addrs:</span><br><span class="line">	summarized_f[f] = summary_functions.sprintf</span><br><span class="line">    </span><br><span class="line">    addrs = get_dyn_sym_addrs(p, [<span class="string">&#x27;snprintf&#x27;</span>])</span><br><span class="line">    <span class="keyword">for</span> f <span class="keyword">in</span> addrs:</span><br><span class="line">	summarized_f[f] = summary_functions.snprintf</span><br><span class="line"></span><br><span class="line">    addrs = get_dyn_sym_addrs(p, [<span class="string">&#x27;strcpy&#x27;</span>,<span class="string">&#x27;stristr&#x27;</span>])</span><br><span class="line">    <span class="built_in">print</span> addrs</span><br><span class="line">    <span class="keyword">for</span> f <span class="keyword">in</span> addrs:</span><br><span class="line">        summarized_f[f] = summary_functions.memcpy_unsized</span><br><span class="line"></span><br><span class="line">    addrs = get_dyn_sym_addrs(p, [<span class="string">&#x27;strncpy&#x27;</span>, <span class="string">&#x27;memcpy&#x27;</span>])</span><br><span class="line">    <span class="keyword">for</span> f <span class="keyword">in</span> addrs:</span><br><span class="line">        summarized_f[f] = summary_functions.memcpy_sized</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> summarized_f</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这部分操作把angr project中sprintf,snprintf等字符串拷贝相关函数用一个函数指针代替。以<code>memcpy</code>为例，如下。这应该是原先函数的代替，用python完成了重写，并且加上了taint与否的标签(还不是特别明白，等调试到再看)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">memcpy_unsized</span>(<span class="params">_core, call_site_path, plt_path</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    memcpy-like unsize (e.g., strcpy) function summary</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    :param _core: core taint engine</span></span><br><span class="line"><span class="string">    :param call_site_path: call site angr path</span></span><br><span class="line"><span class="string">    :param plt_path:  path to the plt (i.e., call_site.step())</span></span><br><span class="line"><span class="string">    :return: None</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    p = _core.p</span><br><span class="line"></span><br><span class="line">    <span class="comment"># FIXME do taint untaint!</span></span><br><span class="line">    plt_path_cp = plt_path.copy(copy_states=<span class="literal">True</span>)</span><br><span class="line">    plt_state_cp = plt_path_cp.active[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    src = <span class="built_in">getattr</span>(plt_state_cp.regs, arg_reg_name(p, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> _core.is_tainted(src, path=plt_path_cp) <span class="keyword">or</span> _core.is_tainted(_core.safe_load(plt_path_cp, src), path=plt_path_cp):</span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> make the actual copy so that taint dependency will be respected</span></span><br><span class="line">        t = _core.get_sym_val(name=_core.taint_buf, bits=_core.taint_buf_size).<span class="built_in">reversed</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        plt_path_cp.step()</span><br><span class="line">        <span class="keyword">assert</span> _core.p.is_hooked(plt_path_cp.active[<span class="number">0</span>].addr), <span class="string">&quot;memcpy_unsized: Summary function relies on angr&#x27;s &quot;</span> \</span><br><span class="line">                                                              <span class="string">&quot;sim procedure, add option use_sim_procedures to the &quot;</span> \</span><br><span class="line">                                                              <span class="string">&quot;loader&quot;</span></span><br><span class="line">        plt_path.step().step()</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> plt_path.active:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&quot;size of function has no active successors, not walking this path...&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    dst = <span class="built_in">getattr</span>(plt_path.active[<span class="number">0</span>].regs, arg_reg_name(p, <span class="number">0</span>))</span><br><span class="line">    plt_path.active[<span class="number">0</span>].memory.store(dst, t)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># restore the register values to return the call</span></span><br><span class="line">    _restore_caller_regs(_core, call_site_path, plt_path)</span><br></pre></td></tr></table></figure>
+
+<p>接下来设置<code>sink_addr</code>。这一步在后面coretaint中要用到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_find_sink_addresses</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Sets the sink addresses in the current binary&#x27;s project</span></span><br><span class="line"><span class="string">    :return: None</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    p = self._current_p</span><br><span class="line">    <span class="comment"># SINK_FUNCS = [(&#x27;strcpy&#x27;, sinks.strcpy), (&#x27;sprintf&#x27;, sinks.sprintf), (&#x27;fwrite&#x27;, sinks.fwrite), (&#x27;memcpy&#x27;, sinks.memcpy),(&#x27;system&#x27;, sinks.system),(&#x27;___system&#x27;, sinks.system),(&#x27;bstar_system&#x27;, sinks.system),(&#x27;popen&#x27;,sinks.system),(&#x27;execve&#x27;,sinks.execve),(&quot;doSystemCmd&quot;,sinks.doSystemCmd),(&quot;twsystem&quot;, sinks.system),(&#x27;CsteSystem&#x27;, sinks.system)]</span></span><br><span class="line"></span><br><span class="line">    self._sink_addrs = [(get_dyn_sym_addr(p, func[<span class="number">0</span>]), func[<span class="number">1</span>]) <span class="keyword">for</span> func <span class="keyword">in</span> SINK_FUNCS]</span><br><span class="line">    self._sink_addrs += [(m, sinks.memcpy) <span class="keyword">for</span> m <span class="keyword">in</span> find_memcpy_like(p)]</span><br></pre></td></tr></table></figure>
+
+<p>接下来终于是coretaint了，运行污点测试engine。在设置一部分内容之后进入self.flat_explore，接着再进入self._flat_explore。这看起来是比较核心的函数。这一部分接受的<code>sinks_info</code>和<code>sources_info</code>最终将变为传入<code>check_func</code>的参数，也就是<code>_check_sink</code>函数。这个函数接受一个state作为输入，<strong>判断当前state中是否有可以被taint或者untaint的内容</strong>，之后选择state.step()的返回结果作为下一步执行的内容，同时<strong>检查当前state经过的basic block中是否有sink</strong>(<code>_is_sink_and_tainted</code>)，并且使用了taint data(这个检验方式是对于每一个调用sink函数的位置，使用重写的sink函数进行参数检查)。后面的taint analysis的部分应该是基于开源的taint engine修改的，应该只是修改了这一个检验函数。</p>
+<p>而flat_explore本身应该和污点分析无关，是一种探索方式。下面写一下<code>_check_sink</code>的简化版源代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">def</span> <span class="title function_">_check_sink</span>(<span class="params">self, current_path, guards_info, *_, **__</span>):</span><br><span class="line">     <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">     Checks whether the taint propagation analysis lead to a sink, and performs the necessary actions</span></span><br><span class="line"><span class="string">     :param current_path: angr current path</span></span><br><span class="line"><span class="string">     :param guards_info:  guards (ITE) information</span></span><br><span class="line"><span class="string">     :return: None</span></span><br><span class="line"><span class="string">     &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">     <span class="keyword">try</span>:</span><br><span class="line">         current_state = current_path.active[<span class="number">0</span>]</span><br><span class="line">         current_addr = current_state.addr</span><br><span class="line">         cfg = self._current_cfg</span><br><span class="line"></span><br><span class="line">         self._visited_bb += <span class="number">1</span></span><br><span class="line">         </span><br><span class="line"><span class="comment"># 下一步要探索的位置</span></span><br><span class="line">         next_path = current_path.copy(copy_states=<span class="literal">True</span>).step()</span><br><span class="line">         info = self._current_role_info</span><br><span class="line">         <span class="comment"># 有一些不必要的污点变量可以删除，例如比较中的变量</span></span><br><span class="line">         bounded, var = self._is_any_taint_var_bounded(guards_info)</span><br><span class="line">         <span class="keyword">if</span> bounded:</span><br><span class="line">             self._ct.do_recursive_untaint(var, current_path)</span><br><span class="line"></span><br><span class="line">         <span class="comment"># If the taint is not applied yet, apply it</span></span><br><span class="line">         <span class="keyword">if</span> <span class="keyword">not</span> self._ct.taint_applied <span class="keyword">and</span> current_addr == info[RoleInfo.CALLER_BB]:</span><br><span class="line">             next_state = next_path.active[<span class="number">0</span>]</span><br><span class="line">             self._apply_taint(current_addr, current_path, next_state, taint_key=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 一般eg_souce_addr为空，可能是测试时用的example source addr?</span></span><br><span class="line">         <span class="keyword">try</span>:</span><br><span class="line">             <span class="keyword">if</span> <span class="built_in">len</span>(next_path.active) <span class="keyword">and</span> self._config[<span class="string">&#x27;eg_souce_addr&#x27;</span>]:</span><br><span class="line">                 <span class="keyword">if</span> next_path.active[<span class="number">0</span>].addr == <span class="built_in">int</span>(self._config[<span class="string">&#x27;eg_souce_addr&#x27;</span>], <span class="number">16</span>):</span><br><span class="line">                     next_state = next_path.active[<span class="number">0</span>]</span><br><span class="line">                     self._apply_taint(current_addr, current_path, next_state, taint_key=<span class="literal">True</span>)</span><br><span class="line">         <span class="keyword">except</span> TimeOutException <span class="keyword">as</span> to:</span><br><span class="line">             <span class="keyword">raise</span> to</span><br><span class="line">         <span class="keyword">except</span>:</span><br><span class="line">             <span class="keyword">pass</span></span><br><span class="line"><span class="comment"># 检查途径的basic blocks中是否有sinks，并且这些sinks检查自己对应的变量位置是否有tainted的变量，有就产生一个alert</span></span><br><span class="line">         <span class="keyword">if</span> self._is_sink_and_tainted(current_path):</span><br><span class="line">             delta_t = time.time() - self._analysis_starting_time</span><br><span class="line">             self._raised_alert = <span class="literal">True</span></span><br><span class="line">             name_bin = self._ct.p.loader.main_object.binary</span><br><span class="line">             self._report_alert_fun(<span class="string">&#x27;sink&#x27;</span>, name_bin, current_path, current_addr,</span><br><span class="line">                                    self._current_role_info[RoleInfo.DATAKEY],</span><br><span class="line">                                    pl_name=self._current_cpf_name, report_time=delta_t)</span><br><span class="line"></span><br><span class="line">         <span class="comment"># tainted call address and tainted parameters</span></span><br><span class="line">         bl = self._current_p.factory.block(current_addr)</span><br><span class="line">         <span class="comment"># 如果当前block中末尾是call，在不同的架构中也可能是jmp</span></span><br><span class="line">         <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">len</span>(next_path.active) <span class="keyword">and</span> <span class="built_in">len</span>(next_path.unconstrained) <span class="keyword">and</span> bl.vex.jumpkind == <span class="string">&#x27;Ijk_Call&#x27;</span>:</span><br><span class="line">             cap = bl.capstone.insns[-<span class="number">1</span>]</span><br><span class="line">             vb = bl.vex</span><br><span class="line">             reg_jump = cap.insn.op_str</span><br><span class="line">             val_jump_reg = <span class="built_in">getattr</span>(next_path.unconstrained[<span class="number">0</span>].regs, reg_jump)</span><br><span class="line">             <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(vb.<span class="built_in">next</span>, <span class="string">&#x27;tmp&#x27;</span>):</span><br><span class="line">                 <span class="keyword">return</span></span><br><span class="line">             val_jump_tmp = next_path.unconstrained[<span class="number">0</span>].scratch.temps[vb.<span class="built_in">next</span>.tmp]</span><br><span class="line">	</span><br><span class="line">             <span class="keyword">if</span> <span class="keyword">not</span> self.is_tainted_by_us(val_jump_reg) <span class="keyword">and</span> <span class="keyword">not</span> self.is_tainted_by_us(val_jump_tmp):</span><br><span class="line">                 <span class="comment"># 检查val_jump_reg是否指向tainted_data</span></span><br><span class="line">                 <span class="keyword">if</span> self._ct.is_or_points_to_tainted_data(val_jump_reg, next_path, unconstrained=<span class="literal">True</span>):</span><br><span class="line">                     nargs = get_arity(self._current_p, current_path.active[<span class="number">0</span>].addr)</span><br><span class="line">                     <span class="comment"># 找到jump的时候不同架构下用来传参的参数寄存器名字</span></span><br><span class="line">                     <span class="keyword">for</span> ord_reg <span class="keyword">in</span> ordered_argument_regs[self._current_p.arch.name][:nargs]:</span><br><span class="line">                         reg_name = self._current_p.arch.register_names[ord_reg]</span><br><span class="line">                         <span class="keyword">if</span> reg_name == reg_jump:</span><br><span class="line">                             <span class="keyword">continue</span></span><br><span class="line">				<span class="comment"># 判断call的时候参数寄存器是否包含或者指向taint data，如果是就默认是alert</span></span><br><span class="line">                         reg_val = <span class="built_in">getattr</span>(next_path.unconstrained[<span class="number">0</span>].regs, reg_name)</span><br><span class="line">                         <span class="keyword">if</span> self._ct.is_or_points_to_tainted_data(reg_val, next_path,</span><br><span class="line">                                                                  unconstrained=<span class="literal">True</span>) <span class="keyword">and</span> self.is_address(reg_val):</span><br><span class="line">                             delta_t = time.time() - self._analysis_starting_time</span><br><span class="line">                             self._raised_alert = <span class="literal">True</span></span><br><span class="line">                             name_bin = self._ct.p.loader.main_object.binary</span><br><span class="line">                             self._report_alert_fun(<span class="string">&#x27;sink&#x27;</span>, name_bin, current_path, current_addr,</span><br><span class="line">                                                    self._current_role_info[RoleInfo.DATAKEY],</span><br><span class="line">                                                    pl_name=self._current_cpf_name, report_time=delta_t)</span><br><span class="line"></span><br><span class="line">                     next_state = next_path.unconstrained[<span class="number">0</span>]</span><br><span class="line">                     hash_val = self.bv_to_hash(val_jump_tmp)</span><br><span class="line">                     self._taint_names_applied.append(hash_val)</span><br><span class="line">                     hash_val = self.bv_to_hash(val_jump_reg)</span><br><span class="line">                     self._taint_names_applied.append(hash_val)</span><br><span class="line">                     <span class="comment"># 将next_state对应的函数中各个参数taint</span></span><br><span class="line">                     self._apply_taint(current_addr, current_path, next_state)</span><br><span class="line">                     </span><br><span class="line">                             <span class="comment">### _apply_taint如下所示</span></span><br><span class="line">                             <span class="keyword">def</span> <span class="title function_">_apply_taint</span>(<span class="params">self, addr, current_path, next_state, taint_key=<span class="literal">False</span></span>):</span><br><span class="line">                                 <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                                 Applies the taint to the role function call</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">                                 :param addr: address of the role function</span></span><br><span class="line"><span class="string">                                 :param current_path: current angr&#x27;s path</span></span><br><span class="line"><span class="string">                                 :param next_state: state at the entry of the function</span></span><br><span class="line"><span class="string">                                 :return:</span></span><br><span class="line"><span class="string">                                 &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">                                 <span class="keyword">def</span> <span class="title function_">is_arg_key</span>(<span class="params">arg</span>):</span><br><span class="line">                                     <span class="keyword">return</span> <span class="built_in">hasattr</span>(arg, <span class="string">&#x27;args&#x27;</span>) <span class="keyword">and</span> <span class="built_in">type</span>(arg.args[<span class="number">0</span>]) <span class="keyword">in</span> (<span class="built_in">int</span>, long) <span class="keyword">and</span> arg.args[<span class="number">0</span>] == self._current_seed_addr</span><br><span class="line"></span><br><span class="line">                                 p = self._current_p</span><br><span class="line">                                 ins_args = get_ord_arguments_call(p, addr)</span><br><span class="line">                                 <span class="keyword">if</span> <span class="keyword">not</span> ins_args:</span><br><span class="line">                                     ins_args = get_any_arguments_call(p, addr)</span><br><span class="line"></span><br><span class="line">                                 <span class="keyword">if</span> <span class="keyword">not</span> are_parameters_in_registers(p):</span><br><span class="line">                                     <span class="keyword">raise</span> Exception(<span class="string">&quot;Parameters not in registers: Implement me&quot;</span>)</span><br><span class="line"></span><br><span class="line">                                 <span class="keyword">for</span> stmt <span class="keyword">in</span> ins_args:</span><br><span class="line">                                     reg_off = stmt.offset</span><br><span class="line">                                     reg_name = p.arch.register_names[reg_off]</span><br><span class="line">                                     val_arg = <span class="built_in">getattr</span>(next_state.regs, reg_name)</span><br><span class="line">                                     size = <span class="literal">None</span></span><br><span class="line">                                     <span class="keyword">if</span> is_arg_key(val_arg):</span><br><span class="line">                                         <span class="keyword">if</span> <span class="keyword">not</span> taint_key:</span><br><span class="line">                                             <span class="keyword">continue</span></span><br><span class="line">                                         n_bytes = p.loader.memory.read_bytes(val_arg.args[<span class="number">0</span>], STR_LEN)</span><br><span class="line">                                         size = <span class="built_in">len</span>(get_mem_string(n_bytes)) * <span class="number">8</span></span><br><span class="line">                                     <span class="keyword">if</span> val_arg.concrete <span class="keyword">and</span> val_arg.args[<span class="number">0</span>] &lt; p.loader.main_object.min_addr:</span><br><span class="line">                                         <span class="keyword">continue</span></span><br><span class="line">                                     log.info(<span class="string">&#x27;taint applied to %s:%s&#x27;</span> % (reg_name, <span class="built_in">str</span>(val_arg)))</span><br><span class="line">                                     self._ct.apply_taint(current_path, val_arg, reg_name, size)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">         <span class="comment"># eventually if we are in a loop guarded by a tainted variable</span></span><br><span class="line">         next_active = next_path.active</span><br><span class="line">         <span class="keyword">if</span> <span class="built_in">len</span>(next_active) &gt; <span class="number">1</span>: <span class="comment"># 大于1说明可能是判断语句，也可能是循环导致</span></span><br><span class="line">             history_addrs = [t <span class="keyword">for</span> t <span class="keyword">in</span> current_state.history.bbl_addrs]</span><br><span class="line">             seen_addr = [a.addr <span class="keyword">for</span> a <span class="keyword">in</span> next_active <span class="keyword">if</span> a.addr <span class="keyword">in</span> history_addrs] <span class="comment"># 寻找当前地址是否出现在history 地址中</span></span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> <span class="built_in">len</span>(seen_addr) == <span class="number">0</span>:</span><br><span class="line">                 <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">             back_jumps = [a <span class="keyword">for</span> a <span class="keyword">in</span> seen_addr <span class="keyword">if</span> a &lt; current_addr]</span><br><span class="line">             <span class="keyword">if</span> <span class="built_in">len</span>(back_jumps) == <span class="number">0</span>:</span><br><span class="line">                 <span class="keyword">return</span></span><br><span class="line">	<span class="comment"># 所有跳回中选择其中第一个</span></span><br><span class="line">             bj = back_jumps[<span class="number">0</span>]</span><br><span class="line">             node_s = cfg.get_any_node(bj)</span><br><span class="line">             node_f = cfg.get_any_node(current_addr)</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> <span class="keyword">not</span> node_s <span class="keyword">or</span> <span class="keyword">not</span> node_f:</span><br><span class="line">                 <span class="keyword">return</span></span><br><span class="line">	<span class="comment"># 获取第一个跳回中basic block地址和当前basic block地址</span></span><br><span class="line">             fun_s = node_s.function_address</span><br><span class="line">             fun_f = node_f.function_address</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> fun_s != fun_f:</span><br><span class="line">                 <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">             idx_s = history_addrs.index(bj)</span><br><span class="line">             <span class="comment"># 从第一次出现当前地址往后开始找，确保所有跳回地址都是相同的，从而确保是跳回</span></span><br><span class="line">             <span class="keyword">for</span> a <span class="keyword">in</span> history_addrs[idx_s:]:</span><br><span class="line">                 n = cfg.get_any_node(a)</span><br><span class="line">                 <span class="keyword">if</span> <span class="keyword">not</span> n:</span><br><span class="line">                     <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">                 <span class="keyword">if</span> n.function_address != fun_s:</span><br><span class="line">                     <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">             <span class="comment"># if we have a back-jump satisfiying all the conditions</span></span><br><span class="line">             cond_guard = [g <span class="keyword">for</span> g <span class="keyword">in</span> next_active[<span class="number">0</span>].guards][-<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> <span class="built_in">hasattr</span>(cond_guard, <span class="string">&#x27;args&#x27;</span>) <span class="keyword">and</span> <span class="built_in">len</span>(cond_guard.args) == <span class="number">2</span> <span class="keyword">and</span> \</span><br><span class="line">                     self._ct.taint_buf <span class="keyword">in</span> <span class="built_in">str</span>(cond_guard.args[<span class="number">0</span>]) <span class="keyword">and</span> \</span><br><span class="line">                     self._ct.taint_buf <span class="keyword">in</span> <span class="built_in">str</span>(cond_guard.args[<span class="number">1</span>]):</span><br><span class="line">                 delta_t = time.time() - self._analysis_starting_time</span><br><span class="line">                 self._raised_alert = <span class="literal">True</span></span><br><span class="line">                 name_bin = self._ct.p.loader.main_object.binary</span><br><span class="line">                 <span class="comment"># alert一个loop循环</span></span><br><span class="line">                 self._report_alert_fun(<span class="string">&#x27;loop&#x27;</span>, name_bin, current_path, current_addr, cond_guard,</span><br><span class="line">                                        pl_name=self._current_cpf_name, report_time=delta_t)</span><br><span class="line">     <span class="keyword">except</span> TimeOutException <span class="keyword">as</span> to:</span><br><span class="line">         <span class="keyword">raise</span> to</span><br><span class="line">     <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">         log.error(<span class="string">&quot;Something went terribly wrong: %s&quot;</span> % <span class="built_in">str</span>(e))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当对于explore过程中每个basic block都应用上述算法之后，就可以汇报出来是否存在到达sink函数，到达时是否有污点信息了。在这之后，结束了<code>_vuln_analysis</code>阶段。这部分应该是直接复用了KARONTE的代码，使用的BDG。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    self._ct.run(s, (), (), summarized_f=summarized_f, force_thumb=<span class="literal">False</span>, check_func=self._check_sink,</span><br><span class="line">                 init_bss=<span class="literal">False</span>)</span><br><span class="line"><span class="keyword">except</span> TimeOutException:</span><br><span class="line">    log.warning(<span class="string">&quot;Hard timeout triggered&quot;</span>)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    log.error(<span class="string">&quot;Something went terribly wrong: %s&quot;</span> % <span class="built_in">str</span>(e))</span><br><span class="line"></span><br><span class="line">self._ct.unset_alarm()</span><br><span class="line"></span><br><span class="line"><span class="comment"># stats</span></span><br><span class="line">self._stats[bdg_node.<span class="built_in">bin</span>][<span class="string">&#x27;to&#x27;</span>] += <span class="number">1</span> <span class="keyword">if</span> self._ct.triggered_to() <span class="keyword">else</span> <span class="number">0</span></span><br><span class="line">self._stats[bdg_node.<span class="built_in">bin</span>][<span class="string">&#x27;visited_bb&#x27;</span>] += self._visited_bb</span><br><span class="line">self._stats[bdg_node.<span class="built_in">bin</span>][<span class="string">&#x27;n_paths&#x27;</span>] += self._ct.n_paths</span><br><span class="line">self._stats[bdg_node.<span class="built_in">bin</span>][<span class="string">&#x27;ana_time&#x27;</span>] += (time.time() - ana_start_time)</span><br><span class="line">self._stats[bdg_node.<span class="built_in">bin</span>][<span class="string">&#x27;n_runs&#x27;</span>] += <span class="number">1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接下来回退到bugFinder里面，这里调用了<code>_vuln_analysis</code>。后面则是仍然和KARONTE类似，在BDG中的child binary进行搜索。仍然是调用此函数，不再赘述了。</p>
+<h2 id="问题-amp-amp-思考"><a href="#问题-amp-amp-思考" class="headerlink" title="问题&amp;&amp;思考"></a>问题&amp;&amp;思考</h2><p>在看代码的时候发现一个问题，一开始ghidra找到的所有path中，包含taint的部分虽然被提取出来了，但是使用的时候比较粗糙，只是在apply_taint中使用，用处是检验被call的函数是不是之前taint路径上的，如果能利用之前taint trace的内容对binary进行剪枝，可能可以加快处理时间，这部分或许可以参考beacon文章。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2023/08/18/satc-source/">satc_source</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2023-08-18, 13:44:27</p>
+        <p><span>最后更新:</span>2023-08-31, 15:56:47</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2023/08/18/satc-source/" title="satc_source">https://nicholas-wei.github.io/2023/08/18/satc-source/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2023/08/18/satc-source/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2023/08/11/Emtaint-paper-reading/">
+                    Emtaint_paper_reading
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3"><span class="toc-number">1.</span> <span class="toc-text">入口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#front-analysis"><span class="toc-number">2.</span> <span class="toc-text">front analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ghidra-analysis"><span class="toc-number">3.</span> <span class="toc-text">ghidra analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ref2sink-cmdi"><span class="toc-number">3.1.</span> <span class="toc-text">ref2sink_cmdi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ref2sink-bof"><span class="toc-number">3.2.</span> <span class="toc-text">ref2sink_bof</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E7%BB%93%E6%9E%9C"><span class="toc-number">3.3.</span> <span class="toc-text">生成结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#taint-analysis"><span class="toc-number">4.</span> <span class="toc-text">taint analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ref2sink-cmdi-1"><span class="toc-number">4.1.</span> <span class="toc-text">ref2sink_cmdi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#coretaint"><span class="toc-number">4.2.</span> <span class="toc-text">coretaint</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-amp-amp-%E6%80%9D%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">问题&amp;&amp;思考</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"satc_source　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2023/08/11/Emtaint-paper-reading/" title="下一篇: Emtaint_paper_reading">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/08/18/satc-source/">satc_source</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/08/11/Emtaint-paper-reading/">Emtaint_paper_reading</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/08/01/angr-basic/">angr-basic</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/07/28/netgear-WNDR4500v2-buffer-overflow/">netgear-WNDR4500v2-buffer_overflow</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2023 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
