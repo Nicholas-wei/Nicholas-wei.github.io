@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="nich0las" />
+
+
+
+<meta name="description" content="总结一下关于AFL++ qemuafl fuzzing模式的实现方法，以供后面查阅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qemuafl_analysis">
+<meta property="og:url" content="https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/index.html">
+<meta property="og:site_name" content="welc0me">
+<meta property="og:description" content="总结一下关于AFL++ qemuafl fuzzing模式的实现方法，以供后面查阅">
+<meta property="og:locale">
+<meta property="og:image" content="https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/image-20240225114310692.png">
+<meta property="og:image" content="https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/image-20240225115108994.png">
+<meta property="article:published_time" content="2024-02-24T12:06:47.000Z">
+<meta property="article:modified_time" content="2024-02-25T04:44:18.188Z">
+<meta property="article:author" content="nich0las">
+<meta property="article:tag" content="fuzz">
+<meta property="article:tag" content="qemu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/image-20240225114310692.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="welc0me" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>qemuafl_analysis | welc0me</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FSOP/" rel="tag">FSOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO-FILE/" rel="tag">IO_FILE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VM/" rel="tag">VM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/angr/" rel="tag">angr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bash-jail/" rel="tag">bash_jail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/botnet/" rel="tag">botnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directed-fuzz/" rel="tag">directed_fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/" rel="tag">dp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/exit-hook/" rel="tag">exit_hook</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fb-bot/" rel="tag">fb-bot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fmtstr/" rel="tag">fmtstr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzzing101/" rel="tag">fuzzing101</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hardware/" rel="tag">hardware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ics-pa/" rel="tag">ics-pa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int-overflow/" rel="tag">int_overflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interpreter/" rel="tag">interpreter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iot/" rel="tag">iot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/" rel="tag">kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm/" rel="tag">llvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/matlab/" rel="tag">matlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maze/" rel="tag">maze</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/meltdown/" rel="tag">meltdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwnable-tw/" rel="tag">pwnable.tw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyjail/" rel="tag">pyjail</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/qemu/" rel="tag">qemu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/race-condition/" rel="tag">race_condition</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ransomeware/" rel="tag">ransomeware</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/software-security/" rel="tag">software-security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stack/" rel="tag">stack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tree/" rel="tag">tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wasm/" rel="tag">wasm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wechat/" rel="tag">wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">勤能补拙是良训</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-qemuafl-analysis" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2024/02/24/qemuafl-analysis/" class="article-date">
+      <time datetime="2024-02-24T12:06:47.000Z" itemprop="datePublished">2024-02-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      qemuafl_analysis
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/fuzz/">fuzz</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/qemu/" rel="tag">qemu</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>总结一下关于AFL++ qemuafl fuzzing模式的实现方法，以供后面查阅</p>
+<span id="more"></span>
+
+<p>网上关于AFL分析的文章多之又多，但是关于AFL++的qemu mode分析没有找到。虽说AFL也有qemu mode，但是AFL++和AFL的qemu mode实现方式完全不同。本文想详细分析一下AFL++的qemu mode fuzzing。</p>
+<h2 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h2><p>想要使用AFL++ qemu mode，需要在命令行中指定<code>-Q</code>参数。类似下面一行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz -Q -i input/ -o output -- $(target) @@ </span><br></pre></td></tr></table></figure>
+
+<p>对应了afl-fuzz.c中下面部分</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置 afl-&gt;fsrv.qemu_mode = 1 作为标志</span></span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;Q&#x27;</span>:                                                <span class="comment">/* QEMU mode */</span></span><br><span class="line">        <span class="keyword">if</span> (afl-&gt;fsrv.qemu_mode) &#123; FATAL(<span class="string">&quot;Multiple -Q options not supported&quot;</span>); &#125;</span><br><span class="line">        afl-&gt;fsrv.qemu_mode = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (!mem_limit_given) &#123; afl-&gt;fsrv.mem_limit = MEM_LIMIT_QEMU; &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>关注<code>qemu_mode</code>变量走向，下面部分获取命令行中的其余参数。其中<code>get_qemu_argv</code>在<code>afl-common.c</code>中定义。该函数返回的<code>use_argv</code>参数为使用<code>afl-qemu-trace</code>替换之后的目标程序参数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (afl-&gt;fsrv.qemu_mode) &#123;</span><br><span class="line">    <span class="comment">// afl还能针对wine模式进行fuzzing! </span></span><br><span class="line">    <span class="keyword">if</span> (afl-&gt;use_wine) &#123;</span><br><span class="line">		...</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="comment">// 读取输入的命令行参数</span></span><br><span class="line">      use_argv = get_qemu_argv(argv[<span class="number">0</span>], &amp;afl-&gt;fsrv.target_path, argc - optind,</span><br><span class="line">                               argv + optind);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*下面是get_qemu_argv()的截取</span></span><br><span class="line"><span class="comment"># 和上面重写参数类似，不过这里返回的是new_argv，是greenhouse改掉了这一部分</span></span><br><span class="line"><span class="comment">  char *qemu_path = find_afl_binary(own_loc, &quot;afl-qemu-trace&quot;);</span></span><br><span class="line"><span class="comment">  new_argv[0] = qemu_path;</span></span><br><span class="line"><span class="comment">  new_argv[1] = &quot;-hackbind&quot;;</span></span><br><span class="line"><span class="comment">  new_argv[2] = &quot;-hackproc&quot;;</span></span><br><span class="line"><span class="comment">  new_argv[3] = &quot;-hookhack&quot;;</span></span><br><span class="line"><span class="comment">  new_argv[4] = &quot;-execve&quot;;</span></span><br><span class="line"><span class="comment">  new_argv[5] = execve_arg;</span></span><br><span class="line"><span class="comment">  new_argv[6] = &quot;--&quot;;</span></span><br><span class="line"><span class="comment">  new_argv[7] = *target_path_p;</span></span><br><span class="line"><span class="comment">  memcpy(&amp;new_argv[8], &amp;argv[1], (int)(sizeof(char *)) * (argc - 1))</span></span><br><span class="line"><span class="comment">  */</span></span><br></pre></td></tr></table></figure>
+
+<p>下面是一种use_argv的输出结果。下面的afl-qemu-trace即为aflqemu编译成的修改版qemu。这样修改是因为afl实际上的fuzz对象是afl-qemu-trace，需要将本身命令行中的目标二进制修改，让其作为qemu的参数。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">输入</span></span><br><span class="line">afl-fuzz -Q -i ./input -o ./output -- ./httpd -w /www @@</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">转化得到的new_argv</span></span><br><span class="line">afl-qemu-trace -- ./httpd -w /www @@</span><br></pre></td></tr></table></figure>
+
+<p>在这之后，设置了一系列afl的属性</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (afl-&gt;non_instrumented_mode || afl-&gt;fsrv.qemu_mode ||</span><br><span class="line">      afl-&gt;fsrv.frida_mode || afl-&gt;fsrv.cs_mode || afl-&gt;unicorn_mode) &#123;</span><br><span class="line"></span><br><span class="line">   # MAP_SIZE是共享内存大小</span><br><span class="line">	map_size = afl-&gt;fsrv.real_map_size = afl-&gt;fsrv.map_size = MAP_SIZE;</span><br><span class="line">	# virgin_bits在afl-fuzz.h中定义，表示在<span class="built_in">map</span>中还没有被fuzz触碰到的bit</span><br><span class="line">    afl-&gt;virgin_bits = ck_realloc(afl-&gt;virgin_bits, map_size);</span><br><span class="line">	</span><br><span class="line">	# virgin_tmouts在afl-fuzz.h中定义，表示还没有在time out中看到的bits</span><br><span class="line">    afl-&gt;virgin_tmout = ck_realloc(afl-&gt;virgin_tmout, map_size);</span><br><span class="line"></span><br><span class="line">	# virgin_crash在afl-fuzz.h中定义，表示还没有在crash中看到的bits</span><br><span class="line">    afl-&gt;virgin_crash = ck_realloc(afl-&gt;virgin_crash, map_size);</span><br><span class="line"></span><br><span class="line">	# var_bytes: 指看起来似乎是变量的byte</span><br><span class="line">    afl-&gt;var_bytes = ck_realloc(afl-&gt;var_bytes, map_size);</span><br><span class="line">	...</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来是创建共享内存。afl需要在共享内存中监视目标进程fuzzing的覆盖率。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// use_argv即之前get_qemu_argv返回值</span></span><br><span class="line">afl-&gt;argv = use_argv;</span><br><span class="line"><span class="comment">// trace_bits： SHM with instrumentation bitmap。定义在include/forkserver.h</span></span><br><span class="line">afl-&gt;fsrv.trace_bits =</span><br><span class="line">      afl_shm_init(&amp;afl-&gt;shm, afl-&gt;fsrv.map_size, afl-&gt;non_instrumented_mode);</span><br></pre></td></tr></table></figure>
+
+<p>这里调用<code>afl_shm_init</code>从而创建共享内存，这个函数在<code>src/afl-sharedmem.c</code>中定义。这是一个很长的函数。为了了解共享内存的实现细节，需要了解这部分如何生成。</p>
+<h2 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h2><p>负责共享内存初始化的函数是<code>afl_shm_init</code>。在这个函数中，当使用USEMMAP宏的时候，将会不使用共享内存而是使用映射一段文件的方式来作为共享内存。在默认情况下(Linux系统中)，这部分内容不会开启。所以默认情况下，是使用shmat和shmget的组合来申请共享内存。</p>
+<p>这两种方法有什么差异呢？</p>
+<ul>
+<li>从性能上而言：shmat是在物理内存中开辟一段空间，mmap是在磁盘上开辟空间。但是如果机器上存在设备<code>/dev/shm</code>则两者性能差别不大。<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/21311080/linux-shared-memory-shmget-vs-mmap">参考</a></li>
+<li>从管理上而言，使用mmap则相当于产生一个文件，需要注意别的进程是否可能修改这个文件，以及释放空间等操作。shmat不需要关注此类问题。</li>
+</ul>
+<p>以下是使用mmap申请内存的部分。申请的默认大小MAP_SIZE为65536，也就是64KB</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">u8 *<span class="title function_">afl_shm_init</span><span class="params">(<span class="type">sharedmem_t</span> *shm, <span class="type">size_t</span> map_size,</span></span><br><span class="line"><span class="params">                 <span class="type">unsigned</span> <span class="type">char</span> non_instrumented_mode)</span> &#123;</span><br><span class="line"></span><br><span class="line">  shm-&gt;map_size = <span class="number">0</span>;</span><br><span class="line">  shm-&gt;<span class="built_in">map</span> = <span class="literal">NULL</span>;</span><br><span class="line">  shm-&gt;cmp_map = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ###### 注意，默认情况下不使用这个宏  ######</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> USEMMAP</span></span><br><span class="line"></span><br><span class="line">  shm-&gt;g_shm_fd = <span class="number">-1</span>;</span><br><span class="line">  shm-&gt;cmplog_g_shm_fd = <span class="number">-1</span>;</span><br><span class="line">  <span class="type">const</span> <span class="type">int</span> shmflags = O_RDWR | O_EXCL;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* ======</span></span><br><span class="line"><span class="comment">  generate random file name for multi instance</span></span><br><span class="line"><span class="comment">  thanks to f*cking glibc we can not use tmpnam securely, it generates a</span></span><br><span class="line"><span class="comment">  security warning that cannot be suppressed</span></span><br><span class="line"><span class="comment">  so we do this worse workaround */</span></span><br><span class="line">  <span class="comment">// 生成路径文件(&quot;一切皆文件！&quot;)</span></span><br><span class="line">  <span class="built_in">snprintf</span>(shm-&gt;g_shm_file_path, L_tmpnam, <span class="string">&quot;/afl_%d_%ld&quot;</span>, getpid(), random());</span><br><span class="line"></span><br><span class="line">  <span class="meta">#<span class="keyword">ifdef</span> SHM_LARGEPAGE_ALLOC_DEFAULT</span></span><br><span class="line">  <span class="comment">// 下面是一种针对特大页面的优化，调整页面大小从而能够加快内存读写速度，让更多内粗驻留在tlb中</span></span><br><span class="line">  <span class="comment">// https://man.freebsd.org/cgi/man.cgi?query=shm_open&amp;sektion=2&amp;n=1</span></span><br><span class="line">  <span class="type">static</span> <span class="type">size_t</span> sizes[<span class="number">4</span>] = &#123;(<span class="type">size_t</span>)<span class="number">-1</span>&#125;;</span><br><span class="line">  <span class="type">static</span> <span class="type">int</span>    psizes = <span class="number">0</span>;</span><br><span class="line">  <span class="type">int</span>           i;</span><br><span class="line">  <span class="keyword">if</span> (sizes[<span class="number">0</span>] == (<span class="type">size_t</span>)<span class="number">-1</span>) &#123; psizes = getpagesizes(sizes, <span class="number">4</span>); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* very unlikely to fail even if the arch supports only two sizes */</span></span><br><span class="line">  <span class="keyword">if</span> (likely(psizes &gt; <span class="number">0</span>)) &#123;</span><br><span class="line">	...</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// ######### 默认创建共享内存方式 #########</span></span><br><span class="line">  <span class="comment">// 使用shm_open并通过ftruncate控制共享内存大小</span></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;g_shm_fd == <span class="number">-1</span>) &#123;</span><br><span class="line">    <span class="comment">// shm-&gt;g_shm_fd指向共享内存</span></span><br><span class="line">      shm-&gt;g_shm_fd =</span><br><span class="line">        shm_open(shm-&gt;g_shm_file_path, shmflags | O_CREAT, DEFAULT_PERMISSION);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;g_shm_fd == <span class="number">-1</span>) &#123; PFATAL(<span class="string">&quot;shm_open() failed&quot;</span>); &#125;</span><br><span class="line">  <span class="keyword">if</span> (ftruncate(shm-&gt;g_shm_fd, map_size)) &#123;</span><br><span class="line">    PFATAL(<span class="string">&quot;setup_shm(): ftruncate() failed&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="comment">// ######### 将上述内存映射到afl-fuzz地址空间中 #########</span></span><br><span class="line">  <span class="comment">// 将shm-&gt;g_shm_fd对应的共享内存映射到地址空间，得到的shm-&gt;map就是进程中的共享内存</span></span><br><span class="line">    shm-&gt;<span class="built_in">map</span> =</span><br><span class="line">      mmap(<span class="number">0</span>, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm-&gt;g_shm_fd, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;<span class="built_in">map</span> == MAP_FAILED) &#123;</span><br><span class="line"></span><br><span class="line">    close(shm-&gt;g_shm_fd);</span><br><span class="line">    shm-&gt;g_shm_fd = <span class="number">-1</span>;</span><br><span class="line">    shm_unlink(shm-&gt;g_shm_file_path);</span><br><span class="line">    shm-&gt;g_shm_file_path[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    PFATAL(<span class="string">&quot;mmap() failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* If somebody is asking us to fuzz instrumented binaries in non-instrumented</span></span><br><span class="line"><span class="comment">     mode, we don&#x27;t want them to detect instrumentation, since we won&#x27;t be</span></span><br><span class="line"><span class="comment">     sending fork server commands. This should be replaced with better</span></span><br><span class="line"><span class="comment">     auto-detection later on, perhaps? */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 设置环境变量SHM_ENV_VAR，方便afl-qemu-trace读取共享内存</span></span><br><span class="line">  <span class="keyword">if</span> (!non_instrumented_mode) setenv(SHM_ENV_VAR, shm-&gt;g_shm_file_path, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;<span class="built_in">map</span> == (<span class="type">void</span> *)<span class="number">-1</span> || !shm-&gt;<span class="built_in">map</span>) PFATAL(<span class="string">&quot;mmap() failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;cmplog_mode) &#123;</span><br><span class="line">    ##<span class="meta"># cmplog部分不关注</span></span><br><span class="line">  &#125;</span><br><span class="line">  ... </span><br><span class="line">  <span class="keyword">return</span> shm-&gt;<span class="built_in">map</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以下是使用shmat申请内存的部分。方法是一致的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">else</span> <span class="comment">// NOT USEMMAP</span></span></span><br><span class="line">  u8 *shm_str;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// for qemu+unicorn we have to increase by 8 to account for potential</span></span><br><span class="line">  <span class="comment">// compcov map overwrite</span></span><br><span class="line">  <span class="comment">// 使用shmget映射内存</span></span><br><span class="line">  shm-&gt;shm_id =</span><br><span class="line">      shmget(IPC_PRIVATE, map_size == MAP_SIZE ? map_size + <span class="number">8</span> : map_size,</span><br><span class="line">             IPC_CREAT | IPC_EXCL | DEFAULT_PERMISSION);</span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;shm_id &lt; <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">    PFATAL(<span class="string">&quot;shmget() failed, try running afl-system-config&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// cplog mode是afl参数中加上-c得到的，一般不加</span></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;cmplog_mode) &#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// non_instrumented_mode是afl参数中加上-n得到的，一般不加，因此non_instrumented_mode=0</span></span><br><span class="line">  <span class="keyword">if</span> (!non_instrumented_mode) &#123;</span><br><span class="line">      ...</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面的IPC_RMID表示该部分共享内存不能被别的进程可见，所以当前进程推出之后会被立刻清除</span></span><br><span class="line">  shm-&gt;<span class="built_in">map</span> = shmat(shm-&gt;shm_id, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;<span class="built_in">map</span> == (<span class="type">void</span> *)<span class="number">-1</span> || !shm-&gt;<span class="built_in">map</span>) &#123;</span><br><span class="line">    shmctl(shm-&gt;shm_id, IPC_RMID, <span class="literal">NULL</span>);  <span class="comment">// do not leak shmem</span></span><br><span class="line">    <span class="keyword">if</span> (shm-&gt;cmplog_mode) &#123;</span><br><span class="line">      shmctl(shm-&gt;cmplog_shm_id, IPC_RMID, <span class="literal">NULL</span>);  <span class="comment">// do not leak shmem</span></span><br><span class="line">    &#125;</span><br><span class="line">    PFATAL(<span class="string">&quot;shmat() failed&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 堆cmplog mode时一样的处理，避免内存泄漏</span></span><br><span class="line">  <span class="keyword">if</span> (shm-&gt;cmplog_mode) &#123;</span><br><span class="line">    shm-&gt;cmp_map = shmat(shm-&gt;cmplog_shm_id, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (shm-&gt;cmp_map == (<span class="type">void</span> *)<span class="number">-1</span> || !shm-&gt;cmp_map) &#123;</span><br><span class="line">      shmctl(shm-&gt;shm_id, IPC_RMID, <span class="literal">NULL</span>);  <span class="comment">// do not leak shmem</span></span><br><span class="line">      shmctl(shm-&gt;cmplog_shm_id, IPC_RMID, <span class="literal">NULL</span>);  <span class="comment">// do not leak shmem</span></span><br><span class="line">      PFATAL(<span class="string">&quot;shmat() failed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>在申请共享内存的过程中，总共做的是：</p>
+<ol>
+<li>设置了<code>shm-&gt;map</code>作为本地的共享内存指针</li>
+<li>设置了环境变量SHM_ENV_VAR.</li>
+</ol>
+<h2 id="forkserver"><a href="#forkserver" class="headerlink" title="forkserver"></a>forkserver</h2><p>设置完共享内存之后，就可以将此地址交给forkserver，并由其分配给目标待测程序。这部分的核心在于<code>afl_fsrv_start</code>函数，其位于<code>src/afl-forkserver.c</code>。</p>
+<p>这里有两个名称：afl-forkserver和afl-fauxserver。前者是一般情况下使用的，后者afl-fauxserver在非插桩状态下使用，也就是dumb模式，直接运行二进制文件，完全的黑盒测试。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-&gt;fsrv.use_fauxsrv = afl-&gt;non_instrumented_mode == <span class="number">1</span> || afl-&gt;no_forkserver;</span><br></pre></td></tr></table></figure>
+
+<p>forkserver是从afl-fuzz中fork出来的一个进程。这个进程单独用来产生待测程序。为什么要这么设计？因为一般情况下，直接执行二进制文件需要经过加载、链接等过程，较为耗时。而直接使用fork()方式产生新的进程，结合linux中COW的特点，速度将会显著提升。下面为其中的部分代码，位于<code>src/afl-forkserver.c</code>。需要注意在末尾，fork server实际上将被替换成目标待测进程。后面来详细说明为什么。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">fsrv-&gt;fsrv_pid = fork();</span><br><span class="line">  <span class="keyword">if</span> (fsrv-&gt;fsrv_pid &lt; <span class="number">0</span>) &#123; PFATAL(<span class="string">&quot;fork() failed&quot;</span>); &#125;</span><br><span class="line">  <span class="keyword">if</span> (!fsrv-&gt;fsrv_pid) &#123;</span><br><span class="line">      <span class="comment">// 子进程作为fork server</span></span><br><span class="line">      ...</span><br><span class="line">    <span class="comment">/* Set up control and status pipes, close the unneeded original fds. */</span></span><br><span class="line">    <span class="comment">// 设置控制管道和状态管道。这部分用来作为fork server和afl之间的消息传递通道</span></span><br><span class="line">    <span class="keyword">if</span> (dup2(ctl_pipe[<span class="number">0</span>], FORKSRV_FD) &lt; <span class="number">0</span>) &#123; PFATAL(<span class="string">&quot;dup2() failed&quot;</span>); &#125; <span class="comment">// control</span></span><br><span class="line">    <span class="keyword">if</span> (dup2(st_pipe[<span class="number">1</span>], FORKSRV_FD + <span class="number">1</span>) &lt; <span class="number">0</span>) &#123; PFATAL(<span class="string">&quot;dup2() failed&quot;</span>); &#125; <span class="comment">// status</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭不需要的管道</span></span><br><span class="line">      </span><br><span class="line">    close(ctl_pipe[<span class="number">0</span>]);</span><br><span class="line">    close(ctl_pipe[<span class="number">1</span>]);</span><br><span class="line">    close(st_pipe[<span class="number">0</span>]);</span><br><span class="line">    close(st_pipe[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">    close(fsrv-&gt;out_dir_fd);</span><br><span class="line">    close(fsrv-&gt;dev_null_fd);</span><br><span class="line">    close(fsrv-&gt;dev_urandom_fd);</span><br><span class="line">      </span><br><span class="line">   <span class="comment">// 设置一系列环境变量</span></span><br><span class="line">   <span class="comment">// 例如MSAN的配置信息等，省略不写了</span></span><br><span class="line">      </span><br><span class="line">   <span class="comment">// 产生子进程。注意是调用了一个函数指针，</span></span><br><span class="line">   fsrv-&gt;init_child_func(fsrv, argv);</span><br><span class="line">      </span><br><span class="line"><span class="comment">// 默认情况下，init_child_func指向以下函数。这里截取关键部分</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">fsrv_exec_child</span><span class="params">(<span class="type">afl_forkserver_t</span> *fsrv, <span class="type">char</span> **argv)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (fsrv-&gt;qemu_mode || fsrv-&gt;cs_mode) &#123;</span><br><span class="line">    setenv(<span class="string">&quot;AFL_DISABLE_LLVM_INSTRUMENTATION&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// forkserver直接被替换成fsrv-&gt;target_path，也就是afl-qemu-trace</span></span><br><span class="line">  execv(fsrv-&gt;target_path, argv);</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
+
+<h2 id="qemuafl"><a href="#qemuafl" class="headerlink" title="qemuafl"></a>qemuafl</h2><p>使用execve执行目标进程之后，终于到了本文想要分析的核心位置，qemuafl具体的实现方式。</p>
+<p>在qemu的translator_loop中，有以下代码(accel/tcg/translator.c)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (db-&gt;pc_next == afl_entry_point) &#123;</span><br><span class="line">            afl_setup(); <span class="comment">// 初始化AFL</span></span><br><span class="line">            gen_helper_afl_entry_routine(cpu_env); <span class="comment">// 设置forkserver相关内容</span></span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>而这里afl_entry_point是qemu内置的加载器在加载目标binary中，插入到目标binary .start部分的。也就是一进入qemu，就能执行afl_setup()</p>
+<h3 id="afl-setup"><a href="#afl-setup" class="headerlink" title="afl_setup"></a>afl_setup</h3><p>afl_setup函数。包含了一系列初始化过程。</p>
+<ul>
+<li>读取并设置共享内存</li>
+<li>读取一系列环境变量，包括AFL_INST_LIBS、AFL_CODE_START、AFL_CODE_END、AFL_QEMU_INST_RANGES，AFL_QEMU_EXCLUDE_RANGES，AFL_DEBUG，AFL_QEMU_COMPCOV，AFL_COMPCOV_LEVEL，AFL_QEMU_SNAPSHOT<br>在这之后，是gen_helper_afl_entry_routine，他是由HELPER(afl_entry_routine)产生的(tcg-runtime.c)。它会调用afl_forkserver函数，定义在<code>tcg_runtime.c</code>中</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">HELPER</span><span class="params">(afl_entry_routine)</span><span class="params">(CPUArchState *env)</span> &#123;</span><br><span class="line">  afl_forkserver(env_cpu(env));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="afl-forkserver"><a href="#afl-forkserver" class="headerlink" title="afl_forkserver"></a>afl_forkserver</h3><p>之前提到，afl中的forkserver模块虽然从afl-fuzz中被独立出来了，但是随后调用execve执行了qemu。那么forkserver在哪里呢？答案就是在qemuafl中，新增了这部分的代码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">afl_forkserver</span><span class="params">(CPUState *cpu)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// forkserver</span></span><br><span class="line"></span><br><span class="line">  <span class="type">pid_t</span> child_pid;</span><br><span class="line">  <span class="type">int</span>   t_fd[<span class="number">2</span>];</span><br><span class="line">  u8    child_stopped = <span class="number">0</span>;</span><br><span class="line">  u32   was_killed;</span><br><span class="line">  <span class="type">int</span>   status = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 从afl_setup中获取一些状态信息</span></span><br><span class="line">  <span class="keyword">if</span> (MAP_SIZE &lt;= FS_OPT_MAX_MAPSIZE)</span><br><span class="line">    status |= (FS_OPT_SET_MAPSIZE(MAP_SIZE) | FS_OPT_MAPSIZE);</span><br><span class="line">  <span class="keyword">if</span> (lkm_snapshot) status |= FS_OPT_SNAPSHOT;</span><br><span class="line">  <span class="keyword">if</span> (sharedmem_fuzzing != <span class="number">0</span>) status |= FS_OPT_SHDMEM_FUZZ;</span><br><span class="line">  <span class="keyword">if</span> (status) status |= (FS_OPT_ENABLED | FS_OPT_NEWCMPLOG);</span><br><span class="line">  <span class="keyword">if</span> (getenv(<span class="string">&quot;AFL_DEBUG&quot;</span>))</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Debug: Sending status %08x\n&quot;</span>, status);</span><br><span class="line">  <span class="built_in">memcpy</span>(tmp, &amp;status, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Tell the parent that we&#x27;re alive. If the parent doesn&#x27;t want</span></span><br><span class="line"><span class="comment">     to talk, assume that we&#x27;re not running in forkserver mode. */</span></span><br><span class="line"><span class="comment">// 还记得刚才的控制管道吗?由于execve和fork都会继承文件描述符，因此之前FORKSRV_FD + 1依然存在</span></span><br><span class="line">  <span class="keyword">if</span> (write(FORKSRV_FD + <span class="number">1</span>, tmp, <span class="number">4</span>) != <span class="number">4</span>) <span class="keyword">return</span>;</span><br><span class="line">  afl_forksrv_pid = getpid();</span><br><span class="line">  <span class="type">int</span> first_run = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* All right, let&#x27;s await orders... */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Whoops, parent dead? */</span></span><br><span class="line">	<span class="comment">// 等待afl-fuzz发来开始fuzzing的指令</span></span><br><span class="line">    <span class="keyword">if</span> (read(FORKSRV_FD, &amp;was_killed, <span class="number">4</span>) != <span class="number">4</span>) <span class="built_in">exit</span>(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* If we stopped the child in persistent mode, but there was a race</span></span><br><span class="line"><span class="comment">       condition and afl-fuzz already issued SIGKILL, write off the old</span></span><br><span class="line"><span class="comment">       process. */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (child_stopped &amp;&amp; was_killed) &#123;</span><br><span class="line"></span><br><span class="line">      child_stopped = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (waitpid(child_pid, &amp;status, <span class="number">0</span>) &lt; <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!child_stopped) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Establish a channel with child to grab translation commands. We&#x27;ll</span></span><br><span class="line"><span class="comment">       read from t_fd[0], child will write to TSL_FD. */</span></span><br><span class="line">	  <span class="comment">// 产生t_fd管道，用于和子进程之间通信</span></span><br><span class="line">      <span class="keyword">if</span> (pipe(t_fd) || dup2(t_fd[<span class="number">1</span>], TSL_FD) &lt; <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">3</span>);</span><br><span class="line">      close(t_fd[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 这里看出：事实上当前的qemuafl担当了forkserver的角色，在while(1)循环中不断产生fork的子进程</span></span><br><span class="line">      child_pid = fork();</span><br><span class="line">      <span class="keyword">if</span> (child_pid &lt; <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!child_pid) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Child process. Close descriptors and run free. */</span></span><br><span class="line">		<span class="comment">// 子进程，关闭不需要的描述符，并返回接着执行目标程序</span></span><br><span class="line">        afl_fork_child = <span class="number">1</span>;</span><br><span class="line">        close(FORKSRV_FD);</span><br><span class="line">        close(FORKSRV_FD + <span class="number">1</span>);</span><br><span class="line">        close(t_fd[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Parent. */</span></span><br><span class="line"></span><br><span class="line">      close(TSL_FD);</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Special handling for persistent mode: if the child is alive but</span></span><br><span class="line"><span class="comment">         currently stopped, simply restart it with SIGCONT. */</span></span><br><span class="line"></span><br><span class="line">      kill(child_pid, SIGCONT);</span><br><span class="line">      child_stopped = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 父进程的剩余逻辑 */</span></span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 向afl-fuzz写入子进程pid</span></span><br><span class="line">    <span class="keyword">if</span> (write(FORKSRV_FD + <span class="number">1</span>, &amp;child_pid, <span class="number">4</span>) != <span class="number">4</span>) <span class="built_in">exit</span>(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Collect translation requests until child dies and closes the pipe. */</span></span><br><span class="line">	<span class="comment">// 等待子进程翻译指令。</span></span><br><span class="line">    <span class="comment">// 这是针对qemu模式下的一种优化。因为每一个新fork出来的进程都需要翻译很多指令，这里forkserver还担任一个cache的功能，也就是子进程未翻译的指令需要先从forkserver的翻译cache中寻找，如果找到了就直接使用。</span></span><br><span class="line">    afl_wait_tsl(cpu, t_fd[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Get and relay exit status to parent. */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (waitpid(child_pid, &amp;status, is_persistent ? WUNTRACED : <span class="number">0</span>) &lt; <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* In persistent mode, the child stops itself with SIGSTOP to indicate</span></span><br><span class="line"><span class="comment">       a successful run. In this case, we want to wake it up without forking</span></span><br><span class="line"><span class="comment">       again. */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (WIFSTOPPED(status))</span><br><span class="line">      child_stopped = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (unlikely(first_run &amp;&amp; is_persistent)) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[AFL] ERROR: no persistent iteration executed\n&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">12</span>);  <span class="comment">// Persistent is wrong</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    first_run = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (write(FORKSRV_FD + <span class="number">1</span>, &amp;status, <span class="number">4</span>) != <span class="number">4</span>) <span class="built_in">exit</span>(<span class="number">7</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和上述代码交互的forkserver代码在<code>src/afl-forkserver.c</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Execute target application, monitoring for timeouts. Return status</span></span><br><span class="line"><span class="comment">   information. The called program will update afl-&gt;fsrv-&gt;trace_bits. */</span></span><br><span class="line"></span><br><span class="line"><span class="type">fsrv_run_result_t</span> __attribute__((hot))</span><br><span class="line">afl_fsrv_run_target(<span class="type">afl_forkserver_t</span> *fsrv, u32 timeout,</span><br><span class="line">                    <span class="keyword">volatile</span> u8 *stop_soon_p) &#123;</span><br><span class="line"></span><br><span class="line">  s32 res;</span><br><span class="line">  u32 exec_ms;</span><br><span class="line">  <span class="comment">// fsrv-&gt;last_run_timed_out有0或者1两个值，当上一个样例超时时，设置为1</span></span><br><span class="line">  u32 write_value = fsrv-&gt;last_run_timed_out;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __linux__</span></span><br><span class="line">  <span class="keyword">if</span> (fsrv-&gt;nyx_mode) &#123;</span><br><span class="line"><span class="comment">// 不关注nyx_mode，跳过</span></span><br><span class="line">    <span class="keyword">return</span> FSRV_RUN_OK;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  <span class="comment">/* After this memset, fsrv-&gt;trace_bits[] are effectively volatile, so we</span></span><br><span class="line"><span class="comment">     must prevent any earlier operations from venturing into that</span></span><br><span class="line"><span class="comment">     territory. */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 每一次afl_fsrv_run_target时，都会清空trace_bits</span></span><br><span class="line">  <span class="built_in">memset</span>(fsrv-&gt;trace_bits, <span class="number">0</span>, fsrv-&gt;map_size);</span><br><span class="line">  MEM_BARRIER();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* we have the fork server (or faux server) up and running</span></span><br><span class="line"><span class="comment">  First, tell it if the previous run timed out. */</span></span><br><span class="line">  <span class="comment">// 向fork server写入write_value(fsrv-&gt;last_run_timed_out)</span></span><br><span class="line">  <span class="comment">// 对应了之前代码中 read(FORKSRV_FD, &amp;was_killed, 4)</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ((res = write(fsrv-&gt;fsrv_ctl_fd, &amp;write_value, <span class="number">4</span>)) != <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (*stop_soon_p) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line">    RPFATAL(res, <span class="string">&quot;Unable to request new process from fork server (OOM?)&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fsrv-&gt;last_run_timed_out = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 读取forkserver发来的产生的子进程pid</span></span><br><span class="line">  <span class="comment">// forkserver实际不控制子进程终止，afl-fuzz控制</span></span><br><span class="line">  <span class="keyword">if</span> ((res = read(fsrv-&gt;fsrv_st_fd, &amp;fsrv-&gt;child_pid, <span class="number">4</span>)) != <span class="number">4</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (*stop_soon_p) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line">    RPFATAL(res, <span class="string">&quot;Unable to request new process from fork server (OOM?)&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> AFL_PERSISTENT_RECORD</span></span><br><span class="line">  <span class="comment">// AFL_PERSISTENT_RECORD是指在PERSISTENT MODE下，可能无法直接通过一个样例复现漏洞，也许经过了多个样例才能CRASH。AFL_PERSISTENT_RECORD指定需要记录的CRASH之前的样本数量这边不详细写出</span></span><br><span class="line">  <span class="keyword">if</span> (unlikely(fsrv-&gt;persistent_record))</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  <span class="comment">// AFL_PERSISTENT_RECORD</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 小于0 的情况就是目标child已经被kill了，不存在了</span></span><br><span class="line"><span class="comment">// 这种情况出现的唯一可能是fork失败</span></span><br><span class="line">  <span class="keyword">if</span> (fsrv-&gt;child_pid &lt;= <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (*stop_soon_p) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((fsrv-&gt;child_pid &amp; FS_OPT_ERROR) &amp;&amp;</span><br><span class="line">        FS_OPT_GET_ERROR(fsrv-&gt;child_pid) == FS_ERROR_SHM_OPEN)</span><br><span class="line">      FATAL(</span><br><span class="line">          <span class="string">&quot;Target reported shared memory access failed (perhaps increase &quot;</span></span><br><span class="line">          <span class="string">&quot;shared memory available).&quot;</span>);</span><br><span class="line"></span><br><span class="line">    FATAL(<span class="string">&quot;Fork server is misbehaving (OOM?)&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取执行时间?</span></span><br><span class="line">  exec_ms = read_s32_timed(fsrv-&gt;fsrv_st_fd, &amp;fsrv-&gt;child_status, timeout,</span><br><span class="line">                           stop_soon_p);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (exec_ms &gt; timeout) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 子进程执行超时</span></span><br><span class="line">    <span class="comment">/* If there was no response from forkserver after timeout seconds,</span></span><br><span class="line"><span class="comment">    we kill the child. The forkserver should inform us afterwards */</span></span><br><span class="line"></span><br><span class="line">    s32 tmp_pid = fsrv-&gt;child_pid;</span><br><span class="line">    <span class="keyword">if</span> (tmp_pid &gt; <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">      kill(tmp_pid, fsrv-&gt;child_kill_signal);</span><br><span class="line">      fsrv-&gt;child_pid = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fsrv-&gt;last_run_timed_out = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (read(fsrv-&gt;fsrv_st_fd, &amp;fsrv-&gt;child_status, <span class="number">4</span>) &lt; <span class="number">4</span>) &#123; exec_ms = <span class="number">0</span>; &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!exec_ms) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (*stop_soon_p) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line">    RPFATAL(res, <span class="string">&quot;Unable to communicate with fork server&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 检查目标进程是否终止，当子进程停止时返回true，否则false</span></span><br><span class="line">  <span class="keyword">if</span> (!WIFSTOPPED(fsrv-&gt;child_status)) &#123; fsrv-&gt;child_pid = <span class="number">-1</span>; &#125;</span><br><span class="line"></span><br><span class="line">  fsrv-&gt;total_execs++;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Any subsequent operations on fsrv-&gt;trace_bits must not be moved by the</span></span><br><span class="line"><span class="comment">     compiler below this point. Past this location, fsrv-&gt;trace_bits[]</span></span><br><span class="line"><span class="comment">     behave very normally and do not have to be treated as volatile. */</span></span><br><span class="line"></span><br><span class="line">  MEM_BARRIER();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Report outcome to caller. */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Was the run unsuccessful? */</span></span><br><span class="line">  <span class="keyword">if</span> (unlikely(*(u32 *)fsrv-&gt;trace_bits == EXEC_FAIL_SIG)) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> FSRV_RUN_ERROR;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Did we timeout? */</span></span><br><span class="line">  <span class="keyword">if</span> (unlikely(fsrv-&gt;last_run_timed_out)) &#123;</span><br><span class="line"></span><br><span class="line">    fsrv-&gt;last_kill_signal = fsrv-&gt;child_kill_signal;</span><br><span class="line">    <span class="keyword">return</span> FSRV_RUN_TMOUT;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Did we crash?</span></span><br><span class="line"><span class="comment">  In a normal case, (abort) WIFSIGNALED(child_status) will be set.</span></span><br><span class="line"><span class="comment">  MSAN in uses_asan mode uses a special exit code as it doesn&#x27;t support</span></span><br><span class="line"><span class="comment">  abort_on_error. On top, a user may specify a custom AFL_CRASH_EXITCODE.</span></span><br><span class="line"><span class="comment">  Handle all three cases here. */</span></span><br><span class="line">  <span class="comment">// 判断子进程是否crash</span></span><br><span class="line">  <span class="comment">// 是通过WIFSIGNALED()根据子进程pid获取子进程的退出状态做到的</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (unlikely(</span><br><span class="line">          <span class="comment">/* A normal crash/abort */</span></span><br><span class="line">          (WIFSIGNALED(fsrv-&gt;child_status)) ||</span><br><span class="line">          <span class="comment">/* special handling for msan and lsan */</span></span><br><span class="line">          (fsrv-&gt;uses_asan &amp;&amp;</span><br><span class="line">           (WEXITSTATUS(fsrv-&gt;child_status) == MSAN_ERROR ||</span><br><span class="line">            WEXITSTATUS(fsrv-&gt;child_status) == LSAN_ERROR)) ||</span><br><span class="line">          <span class="comment">/* the custom crash_exitcode was returned by the target */</span></span><br><span class="line">          (fsrv-&gt;uses_crash_exitcode &amp;&amp;</span><br><span class="line">           WEXITSTATUS(fsrv-&gt;child_status) == fsrv-&gt;crash_exitcode))) &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* For a proper crash, set last_kill_signal to WTERMSIG, else set it to 0 */</span></span><br><span class="line">    fsrv-&gt;last_kill_signal =</span><br><span class="line">        WIFSIGNALED(fsrv-&gt;child_status) ? WTERMSIG(fsrv-&gt;child_status) : <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> FSRV_RUN_CRASH;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* success :) */</span></span><br><span class="line">  <span class="keyword">return</span> FSRV_RUN_OK;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写入共享内存"><a href="#写入共享内存" class="headerlink" title="写入共享内存"></a>写入共享内存</h3><p>被fork出的程序在哪里被写入共享内存？以下是最核心的一段宏</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#if (defined(__x86_64__) || defined(__i386__)) &amp;&amp; defined(AFL_QEMU_NOT_ZERO)</span><br><span class="line">  #define INC_AFL_AREA(loc)           \</span><br><span class="line">    asm volatile(                     \</span><br><span class="line">        &quot;addb $1, (%0, %1, 1)\n&quot;      \</span><br><span class="line">        &quot;adcb $0, (%0, %1, 1)\n&quot;      \</span><br><span class="line">        : /* no out */                \</span><br><span class="line">        : &quot;r&quot;(afl_area_ptr), &quot;r&quot;(loc) \</span><br><span class="line">        : &quot;memory&quot;, &quot;eax&quot;)</span><br><span class="line">#else</span><br><span class="line">  #define INC_AFL_AREA(loc) afl_area_ptr[loc]++</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>这里引用了afl_area_ptr，并使用内联汇编的方式向其写入内容。事实上就是下面else部分的含义，即数组内存偏移位置++。这个宏在translate-all.c中被用到。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">HELPER</span><span class="params">(afl_maybe_log)</span><span class="params">(target_ulong cur_loc)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">register</span> <span class="type">uintptr_t</span> afl_idx = cur_loc ^ afl_prev_loc; <span class="comment">// &lt;---- AFL 计算共享内存中偏移的方式</span></span><br><span class="line"></span><br><span class="line">  INC_AFL_AREA(afl_idx); <span class="comment">// 《---- 这里使用了这个宏，写入共享内存</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// afl_prev_loc = ((cur_loc &amp; (MAP_SIZE - 1) &gt;&gt; 1)) |</span></span><br><span class="line">  <span class="comment">//                ((cur_loc &amp; 1) &lt;&lt; ((int)ceil(log2(MAP_SIZE)) -1));</span></span><br><span class="line">  afl_prev_loc = cur_loc &gt;&gt; <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而gen_helper_afl_maybe_log位于<code>translate-all.c</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Generates TCG code for AFL&#x27;s tracing instrumentation. */</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">afl_gen_trace</span><span class="params">(target_ulong cur_loc)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Optimize for cur_loc &gt; afl_end_code, which is the most likely case on</span></span><br><span class="line"><span class="comment">     Linux systems. */</span></span><br><span class="line"></span><br><span class="line">  cur_block_is_good = afl_must_instrument(cur_loc); <span class="comment">// 检查是不是宏定义中AFL_CODE_START和AFL_CODE_END指定的地址范围</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!cur_block_is_good)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Looks like QEMU always maps to fixed locations, so ASLR is not a</span></span><br><span class="line"><span class="comment">     concern. Phew. But instruction addresses may be aligned. Let&#x27;s mangle</span></span><br><span class="line"><span class="comment">     the value to get something quasi-uniform. */</span></span><br><span class="line"></span><br><span class="line">  cur_loc = (<span class="type">uintptr_t</span>)(afl_hash_ip((<span class="type">uint64_t</span>)cur_loc));</span><br><span class="line">  cur_loc &amp;= (MAP_SIZE - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Implement probabilistic instrumentation by looking at scrambled block</span></span><br><span class="line"><span class="comment">     address. This keeps the instrumented locations stable across runs. */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (cur_loc &gt;= afl_inst_rms) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  TCGv cur_loc_v = tcg_const_tl(cur_loc);</span><br><span class="line">  gen_helper_afl_maybe_log(cur_loc_v); <span class="comment">// &lt;------ 生成写入trace_map的内联汇编</span></span><br><span class="line">  tcg_temp_free(cur_loc_v);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后的最后，afl_gen_trace的调用位于tb_gen_code，也就是qemu本身翻译代码的部分。从而将qemu与AFL结合起来了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">TranslationBlock *<span class="title function_">tb_gen_code</span><span class="params">(CPUState *cpu,</span></span><br><span class="line"><span class="params">                              target_ulong pc, target_ulong cs_base,</span></span><br><span class="line"><span class="params">                              <span class="type">uint32_t</span> flags, <span class="type">int</span> cflags)</span></span><br><span class="line">...</span><br><span class="line">    <span class="title function_">tcg_func_start</span><span class="params">(tcg_ctx)</span>;</span><br><span class="line"></span><br><span class="line">    tcg_ctx-&gt;cpu = env_cpu(env);</span><br><span class="line">    afl_gen_trace(pc); <span class="comment">// &lt;---- 插入的生成AFL语句的代码位置</span></span><br><span class="line">    gen_intermediate_code(cpu, tb, max_insns);</span><br><span class="line">    tcg_ctx-&gt;cpu = <span class="literal">NULL</span>;</span><br><span class="line">    max_insns = tb-&gt;icount;</span><br><span class="line"></span><br><span class="line">    trace_translate_block(tb, tb-&gt;pc, tb-&gt;tc.ptr);</span><br></pre></td></tr></table></figure>
+
+<h2 id="fuzz-one"><a href="#fuzz-one" class="headerlink" title="fuzz_one"></a>fuzz_one</h2><p>设置共享内存之后的下一个核心内容就是fuzzing目标进程了。这部分的主要函数名称是<code>fuzz_one</code>。</p>
+<p>fuzz_one定义在src/afl-fuzz-one.c中。fuzz_one的主要流程是</p>
+<ol>
+<li>打开queue</li>
+<li>读取一个queue文件。这里的queue就是afl工作文件夹queue/下面的一个输入样例文件</li>
+<li>如果这个文件是新文件，调用<code>calibrate_case</code></li>
+<li>在多重变异方法下，调用common_fuzz_stuff来执行目标文件，调用save_if_interesting判断当前变异是否引入了新路径，如果是则保存当前文件到queue文件夹下</li>
+<li>调用calculate_score计算当前输入评分</li>
+</ol>
+<p>在这里我从上向下介绍流程。上面提到和fork-server交互的部分位于<code>afl_fsrv_run_target</code>。经过搜索不难发现，<code>fuzz_run_target</code>是<code>afl_fsrv_run_target</code>的一个包装函数。而调用<code>fuzz_run_target</code>的地方，在于<code>afl-fuzz-run.c</code>中的<code>common_fuzz_stuff</code>。因此需要着重关注<code>common_fuzz_stuff</code>。</p>
+<h3 id="common-fuzz-stuff"><a href="#common-fuzz-stuff" class="headerlink" title="common_fuzz_stuff"></a>common_fuzz_stuff</h3><p><code>common_fuzz_stuff</code>读取一个queue文件，向qemuafl发送消息，使qemuafl产生一次fork并返回结果到<code>fault</code>。这个<code>fault</code>是一个<code>fsrv_run_result_t</code>类型的变量，一共有以下几种结果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> <span class="title">fsrv_run_result</span> &#123;</span></span><br><span class="line">  <span class="comment">/* 00 */</span> FSRV_RUN_OK = <span class="number">0</span>,</span><br><span class="line">  <span class="comment">/* 01 */</span> FSRV_RUN_TMOUT,</span><br><span class="line">  <span class="comment">/* 02 */</span> FSRV_RUN_CRASH,</span><br><span class="line">  <span class="comment">/* 03 */</span> FSRV_RUN_ERROR,</span><br><span class="line">  <span class="comment">/* 04 */</span> FSRV_RUN_NOINST,</span><br><span class="line">  <span class="comment">/* 05 */</span> FSRV_RUN_NOBITS,</span><br><span class="line">&#125; <span class="type">fsrv_run_result_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>下面的<code>common_fuzz_stuff</code>中包含了<code>fuzz_run_target</code>返回的fault。并在save_if_interesting中处理。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">u8 __attribute__((hot))</span><br><span class="line">common_fuzz_stuff(<span class="type">afl_state_t</span> *afl, u8 *out_buf, u32 len) &#123;</span><br><span class="line">  u8 fault;</span><br><span class="line">  len = write_to_testcase(afl, (<span class="type">void</span> **)&amp;out_buf, len, <span class="number">0</span>); <span class="comment">// 向输出文件夹中/.mutation写入文件</span></span><br><span class="line">  fault = fuzz_run_target(afl, &amp;afl-&gt;fsrv, afl-&gt;fsrv.exec_tmout); <span class="comment">// &lt;--- forkserver向qemuafl发送消息，qemuafl产生一次fork并返回结果</span></span><br><span class="line">  <span class="keyword">if</span> (afl-&gt;stop_soon) &#123; <span class="keyword">return</span> <span class="number">1</span>; &#125;</span><br><span class="line">  <span class="keyword">if</span> (fault == FSRV_RUN_TMOUT) &#123;</span><br><span class="line">    <span class="keyword">if</span> (afl-&gt;subseq_tmouts++ &gt; TMOUT_LIMIT) &#123;</span><br><span class="line">      ++afl-&gt;cur_skipped_items;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    afl-&gt;subseq_tmouts = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Users can hit us with SIGUSR1 to request the current input</span></span><br><span class="line"><span class="comment">     to be abandoned. */</span></span><br><span class="line">  <span class="keyword">if</span> (afl-&gt;skip_requested) &#123;</span><br><span class="line">    afl-&gt;skip_requested = <span class="number">0</span>;</span><br><span class="line">    ++afl-&gt;cur_skipped_items;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* This handles FAULT_ERROR for us: */</span></span><br><span class="line">  <span class="comment">// 处理fault,这里的save_if_interesting下面详细说明</span></span><br><span class="line">  afl-&gt;queued_discovered += save_if_interesting(afl, out_buf, len, fault);</span><br><span class="line">  <span class="keyword">if</span> (!(afl-&gt;stage_cur % afl-&gt;stats_update_freq) ||</span><br><span class="line">      afl-&gt;stage_cur + <span class="number">1</span> == afl-&gt;stage_max) &#123;</span><br><span class="line">    show_stats(afl);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="save-if-interesting"><a href="#save-if-interesting" class="headerlink" title="save_if_interesting"></a>save_if_interesting</h3><p>这个函数在common_fuzz_stuff被调用(common_fuzz_stuff在每次变异一次的时候都会被执行，是最主要的执行目标进程的函数)。因此save_if_interesting也将会被反复执行。这个函数检查execve的结果是否是有趣的，如果是就保存下来，并返回1。</p>
+<p>在afl中有一个配置选项afl-&gt;crash_mode，代表了最常见情况下，执行目标进程的退出信号。默认情况下afl-&gt;crash_mode是0，也就是fsrv_run_result中FSRV_RUN_OK。</p>
+<p>crash_mode在save_if_interesting被使用，他代表常见情况下，程序执行的结果是什么。例如在crash mode=0时，下面代码就代表了在fault为FSRV_RUN_OK(0)时，afl-&gt;crash_mode也为0时，也就是默认情况下找到interesting case的方法：调用<code>has_new_bits_unclassified</code>寻找<strong>是否产生了新的bits</strong>。如果是的话，就写入queue中。</p>
+<p>调用<code>has_new_bits_unclassified</code>的地方在<code>save_if_interesting</code>。这是一个很长的函数，下面我只截取出重要部分。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">u8 __attribute__((hot))</span><br><span class="line">save_if_interesting(<span class="type">afl_state_t</span> *afl, <span class="type">void</span> *mem, u32 len, u8 fault) &#123;</span><br><span class="line">    ...;</span><br><span class="line">    <span class="keyword">if</span> (likely(fault == afl-&gt;crash_mode)) &#123;</span><br><span class="line">        <span class="comment">// 一般情况下，fault=0(执行不产生异常), afl-&gt;crash_mode也是0</span></span><br><span class="line">        new_bits = has_new_bits_unclassified(afl, afl-&gt;virgin_bits);</span><br><span class="line">        <span class="comment">// 比较常见的情况是没有new_bits	</span></span><br><span class="line">    	<span class="keyword">if</span> (likely(!new_bits)) &#123;</span><br><span class="line">      		<span class="keyword">if</span> (unlikely(afl-&gt;crash_mode)) &#123; ++afl-&gt;total_crashes; &#125;</span><br><span class="line">            <span class="comment">// 没有新的bits，直接返回</span></span><br><span class="line">      		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...;</span><br><span class="line">    <span class="comment">//能产生新的coverage的输入保存到文件</span></span><br><span class="line">    queue_fn = alloc_printf(<span class="string">&quot;%s/queue/id_%06u&quot;</span>, afl-&gt;out_dir, afl-&gt;queued_items);</span><br><span class="line">    ...;</span><br><span class="line">    <span class="comment">// 对于一个新的样本，调用calibrate_case计算其分数</span></span><br><span class="line">    res = calibrate_case(afl, afl-&gt;queue_top, mem, afl-&gt;queue_cycle - <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">    ...;</span><br><span class="line">    <span class="keyword">switch</span> (fault) &#123;</span><br><span class="line">            <span class="comment">// 根据参数fault</span></span><br><span class="line">            <span class="keyword">case</span> FSRV_RUN_TMOUT:</span><br><span class="line">            	...;</span><br><span class="line">            	<span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> FSRV_RUN_CRASH:</span><br><span class="line">            	<span class="comment">// yeah!</span></span><br><span class="line">            	...;</span><br><span class="line">            	<span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后common_fuzz_stuff，在哪里被调用？</p>
+<h3 id="afl-fuzz-one-c"><a href="#afl-fuzz-one-c" class="headerlink" title="afl-fuzz-one.c"></a>afl-fuzz-one.c</h3><p>自顶向下寻找，上述函数可以追溯到afl-fuzz-one.c中，被多次调用。事实上，每一次调用<code>common_fuzz_stuff</code>时，就代表afl-fuzz对一个queue(一个输入样例)产生了一次变异，包括算术变换、拼接，铰接等等。每变异一次，就调用一次<code>common_fuzz_stuff</code>，命令fork server产生一次fork，等待目标进程结束，判断是否存在产生interesting的输入，或者产生crash。</p>
+<p><img src="/2024/02/24/qemuafl-analysis/image-20240225114310692.png" alt="image-20240225114310692"></p>
+<h3 id="calibrate-case"><a href="#calibrate-case" class="headerlink" title="calibrate case"></a>calibrate case</h3><p>函数的签名已经将函数的意义说的很清楚了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Calibrate a new test case. This is done when processing the input directory</span></span><br><span class="line"><span class="comment">   to warn about flaky or otherwise problematic test cases early on; and when</span></span><br><span class="line"><span class="comment">   new paths are discovered to detect variable behavior and so on. */</span></span><br></pre></td></tr></table></figure>
+
+<p>这个函数不会在很多地方调用。如果排除unlikely的调用位置，只有在<code>afl-fuzz-init</code>时处理初始输入以及获取了一个新的interesting case，将要放入queue中时才会调用。主要是判断input文件夹中的输入样例是否是正常的，以及在新的case产生时用于评估这个新的测试样例执行时间、覆盖率等信息。</p>
+<p><img src="/2024/02/24/qemuafl-analysis/image-20240225115108994.png" alt="image-20240225115108994"></p>
+<p>这个函数比较复杂，并且和qemuafl关系不密切，因此可以参考这篇文章<a target="_blank" rel="noopener" href="https://eternalsakura13.com/2020/08/23/afl/">afl源码解析</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>qemuafl充当了地址翻译cache和forkserver两个角色。如果想要修改共享map的结构，可以想象那些地方需要修改。</p>
+<ul>
+<li>calibrate_case中判断是否有new bytes以及virgin bytes等</li>
+<li>计算一个输入样例评分时</li>
+<li>common fuzz stuff判断一个fuzzing状态下的变异是否存在新bits时</li>
+<li>…</li>
+</ul>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6457">基于qemu和unicorn的Fuzz技术分析 - 先知社区 (aliyun.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://abelsu7.top/2019/08/11/qemu-main-func/">包含了qemu的执行流程中所有调用的函数</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2024/02/24/qemuafl-analysis/">qemuafl_analysis</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页"></a></p>
+        <p><span>发布时间:</span>2024-02-24, 20:06:47</p>
+        <p><span>最后更新:</span>2024-02-25, 12:44:18</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2024/02/24/qemuafl-analysis/" title="qemuafl_analysis">https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://nicholas-wei.github.io/2024/02/24/qemuafl-analysis/　　作者: " title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2024/02/19/greenhouse-fuzz/">
+                    greenhouse_fuzz
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3"><span class="toc-number">1.</span> <span class="toc-text">入口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-number">2.</span> <span class="toc-text">共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#forkserver"><span class="toc-number">3.</span> <span class="toc-text">forkserver</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#qemuafl"><span class="toc-number">4.</span> <span class="toc-text">qemuafl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#afl-setup"><span class="toc-number">4.1.</span> <span class="toc-text">afl_setup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#afl-forkserver"><span class="toc-number">4.2.</span> <span class="toc-text">afl_forkserver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-number">4.3.</span> <span class="toc-text">写入共享内存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fuzz-one"><span class="toc-number">5.</span> <span class="toc-text">fuzz_one</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#common-fuzz-stuff"><span class="toc-number">5.1.</span> <span class="toc-text">common_fuzz_stuff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#save-if-interesting"><span class="toc-number">5.2.</span> <span class="toc-text">save_if_interesting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#afl-fuzz-one-c"><span class="toc-number">5.3.</span> <span class="toc-text">afl-fuzz-one.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#calibrate-case"><span class="toc-number">5.4.</span> <span class="toc-text">calibrate case</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number"></span> <span class="toc-text">参考文章</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"qemuafl_analysis　| welc0me　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+<!-- 
+    
+ -->
+
+
+  
+      <section id='comments' style='margin: 2em; padding: 2em; background: rgba(255, 255, 255, 0.5)'>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+    <div id="gitalk-container"></div>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        clientID: 'fb4ffdde2e800246e49f',
+        clientSecret: 'b550860fb0906da0fc324e3c81448cd676b55f9e',
+        repo: 'nicholas-wei.github.io',
+        owner: 'nicholas-wei',
+        admin: ['nicholas-wei'],
+        id: window.location.pathname
+      })
+      gitalk.render('gitalk-container')
+    </script>
+  </section>
+  
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2024/02/19/greenhouse-fuzz/" title="下一篇: greenhouse_fuzz">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2024/02/24/qemuafl-analysis/">qemuafl_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2024/02/19/greenhouse-fuzz/">greenhouse_fuzz</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/09/13/FirmAFL/">FirmAFL</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/08/18/satc-source/">satc_source</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/08/11/Emtaint-paper-reading/">Emtaint_paper_reading</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/08/01/angr-basic/">angr-basic</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/03/decrypt-wechat-db/">decrypt-wechat-db</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/05/02/tamuctf-pwnme/">tamuctf-pwnme</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/03/20/ej/">ej</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/07/royal_ransomeware/">royal_randomeware analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/02/05/mirai/">mirai_botnet_analysis</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/26/corctf2022-corchat/">corctf2022-corchat</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/24/bi0sctf-2023/">bi0sctf-2023</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/20/rwctf-tinyvm/">rwctf-tinyvm</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/19/wasm-pwn/">wasm-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/27/ics-pa1/">ics-pa</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/13/llvm-pass1/">llvm-pass1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/14/leetcode-1/">leetcode-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/28/dp/">dp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/19/Directed-Grey-Box-Fuzzing-with-Provable-Path-Pruning/">Directed_Grey-Box_Fuzzing_with_Provable_Path_Pruning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/13/Constraint-guided-Directed-Greybox-Fuzzing/">Constraint-guided_Directed_Greybox_Fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/10/crafting-interpreters4/">crafting-interpreters4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/07/crafting-interpreters3/">crafting-interpreters3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/04/crafting-interpreters2/">crafting-interpreters2——scanning</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/02/house-of-cat/">house-of-cat</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/29/crafting-interpreters1/">crafting_interpreters 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/28/dice2022-hope/">dice2022@hope</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/30/software-security-lab6/">software-security-lab6</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/software-security-lab5/">software-security-lab5</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/18/volgaCTF2022-pwn/">volgaCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/08/pyjail/">pyjail</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/05/angstormCTF2022-pwn/">angstormCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/05/04/software-security-lab4/">software-security-lab4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/27/pwnhub2022/">pwnhub2022_easyrop</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/25/b01lersCTF2022-pwn/">b01lersCTF2022_pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/15/hackpark2022-shiftycode/">hackpark2022_shiftycode</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/14/input_check_lab/">software-security-lab3</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/software-security-lab2/">software-security-lab2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/07/matlab-2/">matlab-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/FuzzBuilder-src-understand/">FuzzBuilder_src_understand</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/04/SpaceHeroCTF2022-pwn-wp/">SpaceHeroCTF2022_pwn_wp</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/04/01/fb-bot-discord/">fb-bot_discord</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/31/matlab-1/">matlab-1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/29/zer0pts2022-accountant/">zer0pts2022_accountant</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/17/fuzzing-6-grammer-fuzzing/">fuzzing-6-grammer_fuzzing</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/16/fuzzing-5-parallelize/">fuzzing-5-parallelize</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/15/fuzzing-4-code_coverage/">fuzzing-4</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/fuzzing-2/">fuzzing-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/software-security-lab1/">software-security_lab1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/09/fuzzing-1-gegeral-knowledge/">fuzzing-1-gegeral_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/07/umdctf2022-pwn/">umdctf2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/06/kernel-6-HijackPrctl/">kernel-6-HijackPrctl</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/02/pwnable-re-alloc-revenge/">pwnable-re-alloc_revenge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/28/SUSCTF2022-pwn/">SUSCTF2022-pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/tqlctf-nemu/">tqlctf-nemu</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/23/fastbin-reverse-into-tcache/">fastbin-reverse-into-tcache</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/15/kernel-5-bypass-smep1/">kernel-5-bypass_smep1</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/14/pwnable-babystack/">pwnable-babystack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/11/kernel-4-doubleFetch/">kernel-4-doubleFetch</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/07/tcache-stashing-unlink-attack/">tcache-stashing-unlink-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/03/IO-file-vtable/">IO_file常见利用方法&原理(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/02/01/pwnable-realloc/">pwnable-realloc</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/31/kernel-3-UAF/">kernel-3-UAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/IO-file/">IO_file常见利用方法&原理(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/29/largebin-attack/">largebin-attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/28/hws2022%E5%86%AC%E4%BB%A4%E8%90%A5ctf/">hws2022冬令营入营赛pwn</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/27/RWctf-2022-svme/">RWctf-2022-svme</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/24/kernel-2-stkof/">kernel-2-stkof</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/23/kernel-1-basic_knowledge/">kernel-1-basic_knowledge</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/22/Drangonctf2021-noflippidy/">Drangonctf2021-noflippidy</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/01/21/dicectf2021-flippidy/">dicectf2021_flippidy</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2022-2024 nich0las
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 1;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
